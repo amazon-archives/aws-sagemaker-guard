@@ -1,0 +1,24 @@
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root",
+    "items":[{
+        "href":"$root",
+        "data":[
+            {"name":"region","value":"${AWS::Region}"},
+            {"name":"stackname","value":"${AWS::StackName}"},
+            {"name":"account","value":"${AWS::AccountId}"},
+            {"name":"version","value":"${Constants.Version}"},
+            {"name":"build-date","value":"${Constants.BuildDate}"},
+            {"name":"vpc","value":"${VPC.Outputs.VPC}"}
+        ],
+        "links":[
+            {
+                "rel":"api",
+                "href":"$root/api"
+            },
+            {"rel":"login","href":"$root/login"}
+        ]
+    }]
+}}

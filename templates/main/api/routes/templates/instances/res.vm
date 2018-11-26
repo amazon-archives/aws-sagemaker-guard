@@ -1,0 +1,91 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root/api/template/instances",
+    "template":{
+        "data":{
+            "schema":{
+                "type":"object",
+                "properties":{
+                    "ID":{
+                        "title":"Instance ID",
+                        "type":"string",
+                        "immutable":true
+                    },
+                    "DisplayName":{
+                        "title":"Instance DisplayName",
+                        "type":"string"
+                    },
+                    "Description":{
+                        "title":"Instance Description",
+                        "type":"string"
+                    },
+                    "InstanceType":{
+                        "title":"Instance Compute Type",
+                        "type":"string",
+                        "enum":[
+                            "ml.t2.medium",
+                            "ml.t2.large",
+                            "ml.t2.xlarge",
+                            "ml.t2.2xlarge",
+                            "ml.m4.xlarge",
+                            "ml.m4.2xlarge",
+                            "ml.m4.4xlarge",
+                            "ml.m4.10xlarge",
+                            "ml.m4.16xlarge",
+                            "ml.p2.xlarge",
+                            "ml.p2.8xlarge",
+                            "ml.p2.16xlarge",
+                            "ml.p3.2xlarge",
+                            "ml.p3.8xlarge",
+                            "ml.p3.16xlarge"
+                        ],
+                        "default":"ml.t2.medium"
+                    },
+                    "RoleArn":{
+                        "title":"Instance IAM RoleArn",
+                        "type":"string",
+                        "enum":[
+                            {
+                                "text":"DefaultRole",
+                                "value":"${DefaultNotebookRole.Arn}"
+                            }
+                            #foreach( $object in $inputRoot.roles)
+                            ,{
+                                "value":"$object.Arn",
+                                "text":"$object.RoleName"
+                            }
+                            #end
+                        ]
+                    },
+                    "KmsKeyId":{
+                        "title":"KMS key Id",
+                        "type":"string",
+                        "immutable":true,
+                        "enum":[
+                            #foreach( $object in $inputRoot.keys)
+                                "$object.KeyId"
+                            #if( $foreach.hasNext ),#end
+                            #end
+                        ]
+                    },
+                    "DirectInternetAccess":{
+                        "title":"Enable Direct Internet Access",
+                        "type":"string",
+                        "immutable":true,
+                        "enum":["Disabled","Enabled"]
+                    },
+                    "IdleShutdown":{
+                        "title":"Idle Shutdown Wait Period",
+                        "type":"string",
+                        "enum":["30","60","120"]
+                    }
+                },
+                "required":["ID","InstanceType","RoleArn"]
+            }        
+        }
+    }
+}}
+    

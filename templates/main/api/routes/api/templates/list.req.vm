@@ -1,0 +1,6 @@
+{
+    "Type":"$input.params('type')",
+    "MaxResults":"$input.params('MaxResults')",
+    "NextToken":"$input.params('NextToken')",
+    "Query":"$input.params('Query')"
+}

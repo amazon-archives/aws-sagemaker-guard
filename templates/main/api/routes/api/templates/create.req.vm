@@ -1,0 +1,30 @@
+#set($inputRoot = $input.path('$'))
+#if ($input.params('type') == 'groups'  ||
+    $input.params('type') == 'users'    ||
+    $input.params('type') == 'instances')
+{
+    #if ($input.params('type') == 'groups')
+        "FunctionName":"${APICloudDirectoryObjectCreateLambda.Arn}",
+    #elseif ($input.params('type') == 'users')
+        "FunctionName":"${APIUserCreateLambda.Arn}",
+    #else 
+        "FunctionName":"${APIInstanceCreateLambda.Arn}",
+    #end
+    "Payload":{
+        "FunctionName":"${APICloudDirectoryObjectCreateLambda.Arn}",
+        "UserPool":"${UserPool}",
+        "Type":"$input.params('type')",
+        "Attributes":$input.json('$.template.data')
+    }
+}
+#else
+{
+    "FunctionName":"${APIFailLambda.Arn}",
+    "Payload":{
+        "type":"[NotFound]",
+        "message":"$input.params('type') is not a valid type, allowed values are 'groups','instances', or 'users'"
+    }
+}
+#end
+
+

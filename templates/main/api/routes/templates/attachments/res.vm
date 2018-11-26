@@ -1,0 +1,32 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root/api/template/attachments",
+    "template":{
+        "data":{
+            "schema":{
+                "type":"object",
+                "properties":{
+                    "ID":{
+                        "title":"$inputRoot.DestType ID",
+                        "type":"string",
+                        "immutable":true,
+                        "enum":[
+                            #foreach( $object in $inputRoot.result)
+                            {
+                                "text":"$object.attributes.ID",
+                                "value":"$object.ID"
+                            }
+                            #if( $foreach.hasNext ),#end
+                            #end
+                        ]
+                    }
+                },
+                "required":["ID"]
+            }        
+        }
+    }
+}}
+    

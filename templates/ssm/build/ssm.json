@@ -1,0 +1,378 @@
+{
+  "Parameters": {
+    "StackName": {
+      "Type": "String"
+    },
+    "SSMLogGroup": {
+      "Type": "String"
+    },
+    "LogsBucket": {
+      "Type": "String"
+    }
+  },
+  "Conditions": {},
+  "Outputs": {},
+  "Resources": {
+    "SSMAssociationLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    params.AssociationName=event.LogicalResourceId\n    delete params.ServiceToken\n\n    if(event.RequestType!==\"Delete\"){\n        ssm.createAssociation(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS,x.AssociationDescription,x.AssociationDescription.AssociationId)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else {\n        ssm.deleteAssociation({\n            AssociationId:event.PhysicalResourceId,\n            InstanceId:params.InstanceId,\n            Name:params.Name\n        }).promise()\n        .then(()=>response.send(event, context, response.SUCCESS))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.SUCCESS)\n        })\n    }\n}\n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "SSMTagsLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    if(event.RequestType!==\"Delete\"){\n        ssm.addTagsToResource(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else {\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "VariableLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response = require('cfn-response')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    Object.keys(params).forEach(function(key){\n        var value=params[key]\n        if(typeof value===\"object\"){\n            if(value.op===\"toLowerCase\"){\n                params[key]=value.value.toLowerCase()\n            }else{\n                params[key]=value.value\n            }\n        }\n    })\n\n    response.send(event, context, response.SUCCESS,params)\n}\n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "testLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION || 'us-east-1'\nvar sagemaker=new aws.SageMaker()\nvar https=require('https')\nvar URL=require('url')\n\nsend({\n    InstanceName:\"SageMakerNotebookInstance-nSPgAasgJ6yt\",\n    path:\"/api/status\",\n    method:\"GET\"\n}).then(x=>console.log(JSON.stringify(x,null,2)))\n\nasync function send(args){\n    return sagemaker.createPresignedNotebookInstanceUrl({\n        NotebookInstanceName:args.InstanceName\n    }).promise()\n    .then(function(result){ \n        console.log(result)\n        var url=URL.parse(result.AuthorizedUrl)\n        console.log(url)\n        return new Promise(function(res,rej){ \n            var opts={\n                hostname:url.hostname,\n                protocol:url.protocol,\n                post:443,\n                path:`${url.pathname}${url.search}`,\n                method:'GET'\n            }\n            console.log(opts)\n            var req=https.request(opts,x=>{\n                opts.headers={\n                    Cookie:x.headers['set-cookie'].join('; ')\n                }\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=args.path\n                opts.method=args.method\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        var body=[]\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,response=>{\n                response.on('data',chunk=>{\n                    body.push(chunk)\n                })\n                response.on('end',()=>{\n                    res(Buffer.concat(body).toString())\n                })\n            })\n            if(args.body){\n                req.write(args.body)\n            }\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(x=>{\n        try{\n            return JSON.parse(x)\n        }catch(e){\n            return x\n        }\n    })\n}\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "CFNLambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
+          {
+            "Ref": "CFNPolicy"
+          }
+        ]
+      }
+    },
+    "CFNPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "iam:PassRole"
+              ],
+              "Resource": [
+                "*"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "InstanceInventory": {
+      "Type": "AWS::SSM::Association",
+      "Properties": {
+        "Name": {
+          "Ref": "InventoryDocument"
+        },
+        "Targets": [
+          {
+            "Key": "tag:Stack",
+            "Values": [
+              {
+                "Ref": "StackName"
+              }
+            ]
+          }
+        ],
+        "ScheduleExpression": "cron(0 0 0/12 ? * * *)",
+        "Parameters": {
+          "files": [
+            "[{\"Path\":\"/home/ec2-user/SageMaker\",\"Pattern\":[\"*.ipynb\"],\"Recursive\":true}]"
+          ]
+        },
+        "OutputLocation": {
+          "S3Location": {
+            "OutputS3BucketName": {
+              "Ref": "LogsBucket"
+            },
+            "OutputS3KeyPrefix": "ssm/logs/inventory"
+          }
+        }
+      }
+    },
+    "DataSync": {
+      "Type": "AWS::SSM::ResourceDataSync",
+      "Properties": {
+        "BucketName": {
+          "Ref": "LogsBucket"
+        },
+        "BucketPrefix": "ssm/inventory",
+        "SyncFormat": "JsonSerDe",
+        "BucketRegion": {
+          "Ref": "AWS::Region"
+        },
+        "SyncName": {
+          "Ref": "StackName"
+        }
+      }
+    },
+    "InventoryDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "Run first a shell script & then inventory plugin.",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! /bin/bash\n\nCONDA=/home/ec2-user/anaconda3/bin/conda\nNODE=/home/ec2-user/anaconda3/envs/JupyterSystemEnv/bin/node\nTMP=/home/ec2-user/tmp\n\nA=$($CONDA list --json | jq  '.' --raw-output -c)\n\nCONTENT=$($NODE - << EndOfMessage\nconsole.log(JSON.stringify(JSON.parse('$A')\n    .map(x=>{\n        var keys=Object.keys(x)\n        var out={}\n        keys.map(y=>{\n            if(typeof x[y] ==='string'){\n                out[y]=x[y]\n            }else{\n                out[y]=JSON.stringify(x[y])\n            }\n        })\n        return out\n    })))\nEndOfMessage\n)\n\necho \"{\\\"SchemaVersion\\\" : \\\"1.0\\\", \\\"TypeName\\\": \\\"Custom:CondaPackages\\\", \\\"Content\\\":$CONTENT}\" > $TMP\n\nset -ex\n\nID=$(cat /var/lib/amazon/ssm/Vault/Store/RegistrationKey | jq '.instanceID' --raw-output)\nmv $TMP /var/lib/amazon/ssm/$ID/inventory/custom/conda.json\n\n"
+                ]
+              }
+            },
+            {
+              "action": "aws:softwareInventory",
+              "name": "collectSoftwareInventoryItems",
+              "inputs": {
+                "applications": "Enabled",
+                "awsComponents": "Enabled",
+                "networkConfig": "Enabled",
+                "customInventory": "Enabled",
+                "files": "{{ files }}",
+                "instanceDetailedInformation": "Enabled"
+              }
+            }
+          ],
+          "parameters": {
+            "applications": {
+              "type": "String",
+              "default": "Enabled",
+              "description": "(Optional) Collect data for installed applications.",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ]
+            },
+            "awsComponents": {
+              "type": "String",
+              "default": "Enabled",
+              "description": "(Optional) Collect data for AWSComponents like amazon-ssm-agent.",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ]
+            },
+            "networkConfig": {
+              "type": "String",
+              "default": "Enabled",
+              "description": "(Optional) Collect data for Network configurations.",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ]
+            },
+            "files": {
+              "type": "String",
+              "default": "",
+              "description": "<p>(Optional, requires SSMAgent version 2.2.64.0 and above)<br/><br/>Linux example:<br/><em>[{\"Path\":\"/usr/bin\", \"Pattern\":[\"aws*\", \"*ssm*\"],\"Recursive\":false},{\"Path\":\"/var/log\", \"Pattern\":[\"amazon*.*\"], \"Recursive\":true, \"DirScanLimit\":1000}]<br/></em><br/>Windows example:<br/><em>[{\"Path\":\"%PROGRAMFILES%\", \"Pattern\":[\"*.exe\"],\"Recursive\":true}]</em><br/><br/>Learn More: http://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-inventory-about.html#sysman-inventory-file-and-registry  </p>",
+              "displayType": "textarea"
+            }
+          }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "InstallDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "install conda requirements",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA --yes --name JupyterSystemEnv --file $TMP\nrm $TMP\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "requirements": {
+              "type": "String",
+              "default": "Enabled",
+              "displayType": "textarea"
+            }
+          }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "GlueDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "install conda requirements",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#!/bin/bash\n \nset -ex\n[ -e /home/ec2-user/glue_ready ] && exit 0\n \nmkdir /home/ec2-user/glue\ncd /home/ec2-user/glue\nASSETS=s3://aws-glue-jes-prod-us-east-1-assets/sagemaker/assets/\nDEV_ENDPOINT_NAME=test-vpc\naws s3 cp ${ASSETS} . --recursive\n \ntar -xf autossh-1.4e.tgz\ncd autossh-1.4e\n./configure\nmake\nsudo make install\npip install pandas==0.22.0\n \nmkdir -p /home/ec2-user/.sparkmagic\ncp /home/ec2-user/glue/config.json /home/ec2-user/.sparkmagic/config.json\n \nmkdir -p /home/ec2-user/SageMaker/Glue\\ Examples\nmv /home/ec2-user/glue/notebook-samples/* /home/ec2-user/SageMaker/Glue\\ Examples/\n \nsudo cp /home/ec2-user/glue/autossh.conf /etc/init/\npython3 /home/ec2-user/glue/bootstrap.py --devendpointname {{ endpoint }} --endpoint https://glue.us-east-1.amazonaws.com --notebookname ${SageMakerNotebookInstance}\nsudo touch /home/ec2-user/glue_ready\n\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "endpoint": {
+              "type": "String",
+              "default": "Enabled"
+            }
+          }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "DataCatalog": {
+      "Type": "AWS::Glue::Database",
+      "Properties": {
+        "DatabaseInput": {},
+        "CatalogId": {
+          "Ref": "AWS::AccountId"
+        }
+      }
+    },
+    "CrawlerRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "glue.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:*",
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "InventoryCrawler": {
+      "Type": "AWS::Glue::Crawler",
+      "Properties": {
+        "Role": {
+          "Fn::GetAtt": [
+            "CrawlerRole",
+            "Arn"
+          ]
+        },
+        "DatabaseName": {
+          "Ref": "DataCatalog"
+        },
+        "Targets": {
+          "S3Targets": [
+            {
+              "Path": {
+                "Fn::Sub": "${LogsBucket}/data"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": ""
+}

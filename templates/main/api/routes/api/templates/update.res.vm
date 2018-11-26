@@ -1,0 +1,5 @@
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+{
+    "href":"$root/api/groups/$input.path('$.ObjectIdentifier')"
+}
+

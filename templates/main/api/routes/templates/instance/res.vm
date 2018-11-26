@@ -1,0 +1,33 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root/api/template/items",
+    "template":{
+        "data":{
+            "schema":{
+                "type":"object",
+                "properties":{
+                    "RoleArn":{
+                        "title":"RoleArn",
+                        "type":"string",
+                        "enum":[
+                            #foreach( $role in $inputRoot.roles)"$role.Arn"#if($foreach.hasNext),#end#end
+                        ],
+                        "default":"$inputRoot.role"
+                    }#if($inputRoot.mutable.length==0),#end
+                    #foreach( $object in $inputRoot.mutable)
+                        ,"$object.name":{
+                            "title":"$object.name",
+                            "type":"string",
+                            "immutable":false,
+                            "default":"$object.value" 
+                        }
+                    #end
+                }
+            }        
+        }
+    }
+}}
+    

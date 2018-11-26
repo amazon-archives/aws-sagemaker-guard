@@ -1,0 +1,1332 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Allow logged in Users to access AWS Console in other accounts",
+  "Parameters": {
+    "AssetBucket": {
+      "Type": "String"
+    },
+    "AssetPrefix": {
+      "Type": "String"
+    },
+    "Directory": {
+      "Type": "String"
+    },
+    "AppliedSchemaArn": {
+      "Type": "String"
+    },
+    "StackName": {
+      "Type": "String"
+    },
+    "Subnet": {
+      "Type": "String"
+    },
+    "SecurityGroup": {
+      "Type": "String"
+    },
+    "EFS": {
+      "Type": "String"
+    },
+    "SSMLogGroup": {
+      "Type": "String"
+    },
+    "LogsBucket": {
+      "Type": "String"
+    }
+  },
+  "Outputs": {
+    "StateMachineClearObject": {
+      "Value": {
+        "Ref": "StateMachineClearObject"
+      }
+    },
+    "StateMachineClearStacks": {
+      "Value": {
+        "Ref": "StateMachineClearStacks"
+      }
+    },
+    "StateMachineCreateInstance": {
+      "Value": {
+        "Ref": "StateMachineCreateInstance"
+      }
+    }
+  },
+  "Resources": {
+    "ClearStacks": {
+      "Type": "Custom::ClearStacks",
+      "DependsOn": [
+        "CFNLambdaRole",
+        "StateMachineClearStacks"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CFNLaunchStepFunctionLambda",
+            "Arn"
+          ]
+        },
+        "Delete": {
+          "Ref": "StateMachineClearStacks"
+        },
+        "StackName": {
+          "Ref": "StackName"
+        }
+      }
+    },
+    "CFNLaunchStepFunctionLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var step=new aws.StepFunctions;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;try{params[event.RequestType]?step.startExecution({stateMachineArn:params[event.RequestType],input:JSON.stringify(event)}).promise():response.send(event,context,response.SUCCESS)}catch(e){console.log(e),response.send(event,context,response.FAILED)}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "CustomResource"
+          }
+        ]
+      }
+    },
+    "CFNVariableLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response=require(\"cfn-response\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,Object.keys(params).forEach(function(key){var value=params[key];\"object\"==typeof value&&(\"toLowerCase\"===value.op?params[key]=value.value.toLowerCase():params[key]=value.value)}),response.send(event,context,response.SUCCESS,params)};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "CustomResource"
+          }
+        ]
+      }
+    },
+    "CFNLambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "StepFunctionClearStacks": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var cf=new aws.CloudFormation;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;cf.listStacks({StackStatusFilter:[\"CREATE_IN_PROGRESS\",\"CREATE_FAILED\",\"CREATE_COMPLETE\",\"ROLLBACK_FAILED\",\"ROLLBACK_COMPLETE\",\"UPDATE_COMPLETE\",\"DELETE_IN_PROGRESS\"],NextToken:event.next}).promise().then(result=>(console.log(JSON.stringify(result,null,2)),Promise.all(result.StackSummaries.map(stack=>stack.StackId).map(id=>cf.describeStacks({StackName:id}).promise())).then(results=>{var finished=!0;return Promise.all(results.map(x=>{console.log(JSON.stringify(x,null,2));var tags={};if(x.Stacks[0].Tags.forEach(y=>tags[y.Key]=y.Value),tags.ParentStack===params.StackName&&(finished=!1,[\"CREATE_IN_PROGRESS\",\"CREATE_FAILED\",\"CREATE_COMPLETE\",\"ROLLBACK_FAILED\",\"ROLLBACK_COMPLETE\",\"UPDATE_COMPLETE\"].includes(x.Stacks[0].StackStatus)))return cf.updateTerminationProtection({EnableTerminationProtection:!1,StackName:x.Stacks[0].StackId}).promise().then(()=>cf.deleteStack({StackName:x.Stacks[0].StackId}).promise())})).then(()=>finished)}).then(finished=>{event.finished=finished,finished&&result.NextToken&&(event.next=result.NextToken,event.finished=!1),callback(null,event)}))).catch(error=>callback(new Error(error)))};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionDeleteInstance": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var sagemaker=new aws.SageMaker,lambda=new aws.Lambda,cf=new aws.CloudFormation;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),stackname=event.object.StackName,cf.updateTerminationProtection({StackName:stackname,EnableTerminationProtection:!1}).promise().then(()=>cf.deleteStack({StackName:stackname}).promise()).then(()=>callback(null,event))};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionDeleteUser": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cognito=new aws.CognitoIdentityServiceProvider,lambda=new aws.Lambda;exports.handler=function(event,context,callback){return console.log(JSON.stringify(event,null,2)),cognito.adminDeleteUser({UserPoolId:event.UserPool,Username:data.object.ID}).promise().then(()=>callback(null,event))};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionFail": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response=require(\"cfn-response\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),delete event.ResourceProperties.ServiceToken,response.send(event,context,response.FAILED)};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionFinish": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response=require(\"cfn-response\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,response.send(event,context,response.SUCCESS,params)};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionIncomingList": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.SCHEMA,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};start=cd.listIncomingTypedLinks(params).promise(),start.then(response=>{event.links||(event.links=[]),event.links=event.links.concat(response.LinkSpecifiers),event.next=!!response.NextToken&&response.NextToken,callback(null,event)})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionInstanceObjectCreate": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),Promise.all([cd.listFacetAttributes({Name:event.Type,SchemaArn:process.env.SCHEMA}).promise(),cd.getFacet({Name:event.Type,SchemaArn:process.env.SCHEMA}).promise()]).then(function(result){event.Attributes.StackName=`${process.env.STACKNAME}-${event.Attributes.ID}`,console.log(result);var attributes=result[0].Attributes.map(x=>x.Name),ObjectAttributeList=(result[1].Facet.ObjectType,Object.keys(event.Attributes).filter(x=>attributes.includes(x)).map(key=>({Key:{FacetName:event.Type,Name:key,SchemaArn:process.env.SCHEMA},Value:{StringValue:event.Attributes[key]}})));return ObjectAttributeList.push({Key:{FacetName:event.Type,Name:\"policy_document\",SchemaArn:process.env.SCHEMA},Value:{BinaryValue:new Buffer(\"Allow\")}}),ObjectAttributeList.push({Key:{FacetName:event.Type,Name:\"policy_type\",SchemaArn:process.env.SCHEMA},Value:{StringValue:\"SageMakerLogin\"}}),console.log(JSON.stringify(ObjectAttributeList,null,2)),cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:[{CreateObject:{BatchReferenceName:\"ref\",ObjectAttributeList:ObjectAttributeList,LinkName:event.Attributes.ID,ParentReference:{Selector:`/${event.Type}`},SchemaFacet:[{FacetName:event.Type,SchemaArn:process.env.SCHEMA}]}},{AttachToIndex:{IndexReference:{Selector:`/index/${event.Type}`},TargetReference:{Selector:\"#ref\"}}}]}).promise()}).then(result=>{console.log(result),event.object=result,callback(null,event)}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionInstanceStackLaunch": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cf=new aws.CloudFormation,cd=new aws.CloudDirectory,s3=new aws.S3;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),s3.getObject({Bucket:process.env.ASSETBUCKET,Key:`${process.env.ASSETPREFIX}/instance.json`}).promise().then(result=>{var template=JSON.parse(result.Body.toString()),Parameters={};return Object.keys(template.Parameters).map(x=>{event.Attributes[x]&&(Parameters[x]=event.Attributes[x])}),Parameters.SubnetId=process.env.SUBNET,Parameters.SecurityGroupId=process.env.SECURITYGROUP,Parameters.EFS=process.env.EFS,Parameters.SSMLogGroup=process.env.SSMLOGGROUP,Parameters.LogsBucket=process.env.LOGSBUCKET,Parameters.ParentStack=process.env.STACKNAME,cf.createStack({StackName:event.Attributes.StackName,Capabilities:[\"CAPABILITY_NAMED_IAM\"],EnableTerminationProtection:!0,OnFailure:\"DELETE\",RoleARN:process.env.STACKCREATEROLE,Parameters:Object.keys(Parameters).map(x=>({ParameterKey:x,ParameterValue:Parameters[x]})),TemplateURL:`https://s3.amazonaws.com/${process.env.ASSETBUCKET}/${process.env.ASSETPREFIX}/instance.json`,Tags:[{Key:\"ParentStack\",Value:process.env.STACKNAME}]}).promise()}).then(result=>{callback(null,result)})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionInstanceStatus": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cf=new aws.CloudFormation,cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),cf.describeStacks({StackName:event.stack.StackId}).promise().then(result=>{callback(null,result.Stacks[0])})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionLinkDelete": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,lambda=new aws.Lambda;exports.handler=function(event,context,callback){if(console.log(JSON.stringify(event,null,2)),links=event.links.map(x=>({DetachTypedLink:{TypedLinkSpecifier:x}})),links.length>0)return cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:links}).promise().then(response=>{console.log(response),event.links=[],callback(null,event)});callback(null,event)};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionObjectDelete": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,lambda=new aws.Lambda,step=new aws.StepFunctions;exports.handler=function(event,context,callback){return console.log(JSON.stringify(event,null,2)),cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:[{DetachFromIndex:{IndexReference:{Selector:`/index/${event.Type}`},TargetReference:{Selector:`$${event.ID}`}}},{DetachObject:{BatchReferenceName:\"object\",LinkName:event.object.ID,ParentReference:{Selector:`/${event.Type}`}}},{DeleteObject:{ObjectReference:{Selector:`#object`}}}]}).promise().then(()=>callback(null,event))};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionObjectGet": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),cd.listObjectAttributes({DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`}}).promise().then(response=>{var out={};response.Attributes.forEach(function(x){out[x.Key.Name]=x.Value.StringValue}),callback(null,out)})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionOutGoingList": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.SCHEMA,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};start=cd.listOutgoingTypedLinks(params).promise(),start.then(response=>{event.links||(event.links=[]),event.links=event.links.concat(response.TypedLinkSpecifiers),event.next=!!response.NextToken&&response.NextToken,callback(null,event)})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionPolicyClear": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,lambda=new aws.Lambda;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var ids=event.policyLinks,links=ids.map(x=>({DetachPolicy:{ObjectReference:{Selector:`$${x}`},PolicyReference:{Selector:`$${event.ID}`}}}));if(ids.length)return cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:links}).promise().then(()=>callback(null,event));callback(null,event)};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepFunctionPolicyList": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,lambda=new aws.Lambda;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),void 0!==event.object.policy_document?cd.listPolicyAttachments({DirectoryArn:process.env.DIRECTORY,PolicyReference:{Selector:`$${event.ID}`},MaxResults:10}).promise().then(x=>{var ids=x.ObjectIdentifiers;event.policyLinks=ids,event.next=!!x.NextToken&&x.NextToken,callback(null,event)}):(event.next=null,event.policyLinks=[],callback(null,event))};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "StepLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "STACKCREATEROLE": {
+              "Fn::GetAtt": [
+                "StackCreateRole",
+                "Arn"
+              ]
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "StepFunction"
+          }
+        ]
+      }
+    },
+    "StepLambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess",
+          "arn:aws:iam::aws:policy/AmazonCloudDirectoryFullAccess",
+          "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess",
+          "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:*",
+                    "iam:PassRole"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:*"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "arn:aws:s3:::${AssetBucket}/*"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "StateMachineClearObject": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "DefinitionString": {
+          "Fn::Sub": "{\"Comment\":\"\",\"StartAt\":\"start\",\"States\":{\"start\":{\"Type\":\"Pass\",\"Next\":\"getInfo\"},\"getInfo\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionObjectGet.Arn}\",\"ResultPath\":\"$.object\",\"Next\":\"listIncoming\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"listIncoming\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionIncomingList.Arn}\",\"ResultPath\":\"$\",\"Next\":\"DeleteIncoming\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"DeleteIncoming\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionLinkDelete.Arn}\",\"ResultPath\":\"$\",\"Next\":\"IfIncomingNext\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"IfIncomingNext\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.next\",\"BooleanEquals\":false,\"Next\":\"listOutGoing\"},{\"Variable\":\"$.next\",\"BooleanEquals\":true,\"Next\":\"listIncoming\"}],\"Default\":\"listOutGoing\"},\"listOutGoing\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionOutGoingList.Arn}\",\"ResultPath\":\"$\",\"Next\":\"DeleteOutGoing\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"DeleteOutGoing\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionLinkDelete.Arn}\",\"ResultPath\":\"$\",\"Next\":\"IfOutGoingNext\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"IfOutGoingNext\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.next\",\"BooleanEquals\":false,\"Next\":\"listPolicy\"},{\"Variable\":\"$.next\",\"BooleanEquals\":true,\"Next\":\"listOutGoing\"}],\"Default\":\"listPolicy\"},\"listPolicy\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionPolicyList.Arn}\",\"ResultPath\":\"$\",\"Next\":\"DeletePolicyLinks\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"DeletePolicyLinks\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionPolicyClear.Arn}\",\"ResultPath\":\"$\",\"Next\":\"IfPolicyNext\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"IfPolicyNext\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.next\",\"BooleanEquals\":false,\"Next\":\"DeleteObject\"},{\"Variable\":\"$.next\",\"BooleanEquals\":true,\"Next\":\"listPolicy\"}],\"Default\":\"DeleteObject\"},\"DeleteObject\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionObjectDelete.Arn}\",\"ResultPath\":\"$\",\"Next\":\"DeleteTypeChoice\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"DeleteTypeChoice\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.Type\",\"StringEquals\":\"instances\",\"Next\":\"DeleteInstance\"},{\"Variable\":\"$.Type\",\"StringEquals\":\"groups\",\"Next\":\"DeleteGroup\"},{\"Variable\":\"$.Type\",\"StringEquals\":\"users\",\"Next\":\"DeleteUser\"}],\"Default\":\"Success\"},\"DeleteUser\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionDeleteUser.Arn}\",\"ResultPath\":\"$\",\"Next\":\"Success\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"DeleteInstance\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionDeleteInstance.Arn}\",\"ResultPath\":\"$\",\"Next\":\"Success\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"DeleteGroup\":{\"Type\":\"Pass\",\"Next\":\"Success\"},\"Success\":{\"Type\":\"Pass\",\"End\":true},\"Error\":{\"Type\":\"Fail\"}}}"
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "StepFunctionRole",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "StateMachineClearStacks": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "DefinitionString": {
+          "Fn::Sub": "{\"Comment\":\"\",\"StartAt\":\"start\",\"States\":{\"start\":{\"Type\":\"Pass\",\"Next\":\"delete\"},\"delete\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionClearStacks.Arn}\",\"ResultPath\":\"$\",\"Next\":\"check\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"fail\"}]},\"check\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.finished\",\"BooleanEquals\":false,\"Next\":\"wait\"}],\"Default\":\"finish\"},\"wait\":{\"Type\":\"Wait\",\"Seconds\":10,\"Next\":\"delete\"},\"finish\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionFinish.Arn}\",\"ResultPath\":\"$.object\",\"Next\":\"Success\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"fail\"}]},\"fail\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionFail.Arn}\",\"ResultPath\":\"$.object\",\"Next\":\"Error\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"fail\"}]},\"Success\":{\"Type\":\"Succeed\"},\"Error\":{\"Type\":\"Fail\"}}}"
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "StepFunctionRole",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "StateMachineCreateInstance": {
+      "Type": "AWS::StepFunctions::StateMachine",
+      "Properties": {
+        "DefinitionString": {
+          "Fn::Sub": "{\"Comment\":\"\",\"StartAt\":\"start\",\"States\":{\"start\":{\"Type\":\"Pass\",\"Next\":\"CreateObject\"},\"CreateObject\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionInstanceObjectCreate.Arn}\",\"ResultPath\":\"$\",\"Next\":\"StackCreate\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"StackCreate\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionInstanceStackLaunch.Arn}\",\"ResultPath\":\"$.stack\",\"Next\":\"StackWait\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"StackWait\":{\"Type\":\"Wait\",\"Seconds\":4,\"Next\":\"StackStatus\"},\"StackStatus\":{\"Type\":\"Task\",\"InputPath\":\"$\",\"Resource\":\"${StepFunctionInstanceStatus.Arn}\",\"ResultPath\":\"$.status\",\"Next\":\"StackCheck\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.error\",\"Next\":\"Error\"}]},\"StackCheck\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.status.StackStatus\",\"StringEquals\":\"CREATE_IN_PROGRESS\",\"Next\":\"StackWait\"},{\"Variable\":\"$.status.StackStatus\",\"StringEquals\":\"CREATE_COMPLETE\",\"Next\":\"UpdateObject\"}],\"Default\":\"Error\"},\"UpdateObject\":{\"Type\":\"Pass\",\"Next\":\"Success\"},\"Success\":{\"Type\":\"Pass\",\"End\":true},\"Error\":{\"Type\":\"Fail\"}}}"
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "StepFunctionRole",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "StackCreateRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "cloudformation.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AdministratorAccess"
+        ]
+      }
+    },
+    "StepFunctionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "states.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "CloudWatchLogsPolicy",
+                  "Effect": "Allow",
+                  "Action": [
+                    "lambda:InvokeFunction"
+                  ],
+                  "Resource": [
+                    "*"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "dashboard": {
+      "Type": "AWS::CloudWatch::Dashboard",
+      "Properties": {
+        "DashboardName": {
+          "Ref": "AWS::StackName"
+        },
+        "DashboardBody": {
+          "Fn::Sub": "{\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# ${AWS::StackName} Dashboard\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":9,\"properties\":{\"markdown\":\"## Lambda Function\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":11,\"properties\":{\"markdown\":\"### CustomResource\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNLaunchStepFunctionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNLaunchStepFunctionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNVariableLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNVariableLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":13},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":19,\"properties\":{\"markdown\":\"### StepFunction\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionClearStacks}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionClearStacks\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":21},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionDeleteInstance}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionDeleteInstance\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":21},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionDeleteUser}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionDeleteUser\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":21},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionFail}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionFail\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":21},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionFinish}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionFinish\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":27},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionIncomingList}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionIncomingList\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":27},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionInstanceObjectCreate}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionInstanceObjectCreate\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":27},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionInstanceStackLaunch}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionInstanceStackLaunch\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":27},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionInstanceStatus}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionInstanceStatus\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":33},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionLinkDelete}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionLinkDelete\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":33},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionObjectDelete}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionObjectDelete\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":33},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionObjectGet}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionObjectGet\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":33},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionOutGoingList}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionOutGoingList\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":39},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionPolicyClear}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionPolicyClear\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":39},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${StepFunctionPolicyList}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"StepFunctionPolicyList\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":39}]}"
+        }
+      }
+    }
+  }
+}

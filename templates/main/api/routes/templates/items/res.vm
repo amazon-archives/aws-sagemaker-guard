@@ -1,0 +1,26 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root/api/template/items",
+    "template":{
+        "data":{
+            "schema":{
+                "type":"object",
+                "properties":{
+                    #foreach( $object in $inputRoot.result)
+                        "$object.name":{
+                            "title":"$object.name",
+                            "type":"string",
+                            "immutable":false,
+                            "default":"$object.value" 
+                        }#if($foreach.hasNext),#end
+                    #end
+                },
+                "required":[#foreach( $object in $inputRoot.result)"$object.name"#if($foreach.hasNext),#end#end]
+            }        
+        }
+    }
+}}
+    

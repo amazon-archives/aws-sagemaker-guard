@@ -1,0 +1,17 @@
+{
+    #if ($input.params('subCollection') == 'groups')
+        "FunctionName":"${APICloudDirectoryObjectGetLambda.Arn}",
+    #elseif ($input.params('subCollection') == 'users')
+        "FunctionName":"${APICloudDirectoryObjectGetLambda.Arn}",
+    #else 
+        "FunctionName":"${APIInstanceGetLambda.Arn}",
+    #end
+    "Payload":{
+        "FunctionName":"${APICloudDirectoryObjectGetLambda.Arn}",
+        "ParentType":"$input.params('type')",
+        "ParentId":"$input.params('id')",
+        "ChildrenOrParents":"$input.params('childrenOrParents')",
+        "Type":"$input.params('subCollection')",
+        "ID":"$input.params('subItem')"
+    }
+}

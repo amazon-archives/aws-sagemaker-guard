@@ -1,0 +1,31 @@
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root/api",
+    "items":[
+        {
+            "href":"$root/api/users",
+            "rel":"collection",
+            "name":"Users",
+            "render":"person",
+            "prompt":"Manage users who log into SageMaker Notebook Instances"
+        },
+        {
+            "href":"$root/api/instances",
+            "rel":"collection",
+            "name":"SageMaker Instances",
+            "render":"computer",
+            "prompt":"Manage SageMaker Notebook Instances"
+        },
+        {   
+            "href":"$root/api/groups",
+            "rel":"collection",
+            "name":"Groups",
+            "render":"people",
+            "prompt":"Manage Groups of users"
+        }
+    ]
+}}
+
+

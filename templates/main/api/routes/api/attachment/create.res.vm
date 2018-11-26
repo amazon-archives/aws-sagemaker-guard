@@ -1,0 +1,6 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+{
+    "href":"$root/$input.path('$.Type')/$input.path('$.SourceID')/$input.path('$.SourceID')/{{name}}/$input.path('$.TargetID')"
+}
+

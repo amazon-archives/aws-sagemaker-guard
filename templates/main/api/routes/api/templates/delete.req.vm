@@ -1,0 +1,8 @@
+{
+    "FunctionName":"${APICloudDirectoryObjectDeleteLambda.Arn}",
+    "Payload":{
+        "UserPool":"${UserPool}",
+        "ID":"$input.params('id')",
+        "Type":"$input.params('type')"
+    }
+}

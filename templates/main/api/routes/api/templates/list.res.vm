@@ -1,0 +1,51 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    #if ( $inputRoot.PrevToken=="null")
+        "href":"$root/api/$inputRoot.Type",
+    #else
+        "href":"$root/api/$inputRoot.Type?NextToken=$inputRoot.PrevToken",
+    #end
+    "links":[
+        #if ( $inputRoot.NextToken!="null")
+            {"rel":"next","href":" $root/api/$inputRoot.Type?NextToken=$inputRoot.NextToken"}
+        #end
+    ],
+    "items":[
+        #foreach( $object in $inputRoot.IndexAttachments)
+        {"href":"$root/api/$inputRoot.Type/$object.ObjectIdentifier"}
+        #if( $foreach.hasNext ),#end
+        #end
+    ],
+    "template":{
+        "data":{
+            #if ($input.params('type') == 'groups')
+                "schema":{{{groups}}},
+                "prompt":"Create a new group"
+            #elseif ($input.params('type') == 'users')
+                "schema":{{{users}}},
+                "prompt":"Add a new user"
+            #elseif ($input.params('type') == 'instances')
+                "schema":{
+                    "href":"$root/templates/instances"
+                },
+                "prompt":"Create a new SageMaker Notebook instance"
+            #end
+        }
+    },
+    "queries":[
+        {   
+            "href":"$root/api/$inputRoot.Type?",
+            "rel":"search",
+            "prompt":"Search for $input.params('type') by ID",
+            "data":[
+                {"name":"MaxResults","prompt":"Maximum results to return"},
+                {"name":"Query","prompt":"Prefix to search by"}
+            ]
+        }
+    ]
+}}
+
+

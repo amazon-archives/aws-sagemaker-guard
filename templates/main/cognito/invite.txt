@@ -1,0 +1,9 @@
+<p>Hello {username},
+<p>Welcome to SageGuard, your temporary password is:
+<p>     {####} 
+<p>
+<p>Please go to the following link to log in and access your SageMaker Notebook Instances!
+<p>     ${ApiUrl.href}/website/user
+<p>
+<p>Happy to help,
+<p>  SageGuard

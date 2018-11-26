@@ -1,0 +1,5 @@
+{
+    "path":"/users/$context.authorizer.claims['cognito:username']",
+    "MaxResults":"$input.params('MaxResults')",
+    "NextToken":"$input.params('NextToken')"
+}

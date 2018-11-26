@@ -1,0 +1,68 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $base="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com$inputRoot.path" )
+{
+    "collection":{
+        "version":"1.0",
+        #if ( $inputRoot.PrevToken )
+            "href":"$base",
+        #else
+            "href":"$base?NextToken=$inputRoot.PrevToken",
+        #end
+        "links":[
+            #if ( $inputRoot.NextToken )
+            #else
+                {"rel":"next","href":"$base?NextToken=$inputRoot.NextToken"}
+            #end
+        ],
+        "items":[
+            #foreach( $object in $inputRoot.Links)
+                {
+                #if ($input.path('$.ChildrenOrParents')=="children")
+                    "href":"$base/$object.TargetObjectReference.Selector.substring(1)"
+                #else
+                    "href":"$base/$object.SourceObjectReference.Selector.substring(1)"
+                #end
+                #if ($object.direct)
+                    ,"rel":"attachment"
+                #end
+                }#if( $foreach.hasNext ),#end
+            #end
+        ],
+        "queries":[
+            #if ( $inputRoot.search=="true"){
+                #if ( $inputRoot.NextToken )
+                    "href":"$base?",
+                #else
+                    "href":"$base?NextToken=$inputRoot.NextToken",
+                #end
+                "rel":"search",
+                #if ($input.path('$.ChildrenOrParents')=="children")
+                    "prompt":"Search for attached $input.path('$.TargetType') by ID",
+                #elseif  ($input.path('$.ChildrenOrParents')=="parents")
+                    "prompt":"Search for parent $input.path('$.SourceType') by ID",
+                #end 
+                "data":[
+                    {"name":"MaxResults","prompt":"Maximum results to return"}
+                ]
+            }#end
+        ],
+        "template":{
+            "data":{
+                "schema":{
+                #if ($input.path('$.ChildrenOrParents')=="children")
+                    "href":"$root/templates/attachments?SourceType=$input.path('$.SourceType')&SourceID=$input.path('$.ID')&DestType=$input.path('$.TargetType')&Relationship=$input.path('$.ChildrenOrParents')"
+                #else 
+                    "href":"$root/templates/attachments?SourceType=$input.path('$.TargetType')&SourceID=$input.path('$.ID')&DestType=$input.path('$.SourceType')&Relationship=$input.path('$.ChildrenOrParents')"
+                #end
+                }
+                #if ($input.path('$.ChildrenOrParents')=="children")
+                    ,"prompt":"attach $input.path('$.TypeType')"
+                #elseif  ($input.path('$.ChildrenOrParents')=="parents")
+                    ,"prompt":"attach $input.path('$.SourceType')"
+                #end
+            }
+        }
+    }
+}
+

@@ -1,0 +1,37 @@
+#if ( $input.params('childrenOrParents')=="children" )
+{
+    #if ( $input.params('subCollection')=='instances' )
+        "FunctionName":"${APICloudDirectoryDetachPolicyLambda.Arn}",
+    #else 
+        "FunctionName":"${APICloudDirectoryDetachLambda.Arn}",
+    #end
+    "Payload":{
+        "TargetID":"$input.params('subItem')",
+        "TargetType":"$input.params('subCollection')",
+        "SourceID":"$input.params('id')",
+        "SourceType":"$input.params('type')",
+        "Attributes":{
+            "SourceType":"$input.params('type')",
+            "TargetType":"$input.params('subCollection')"
+        }
+    }
+}
+#else 
+{
+    #if ( $input.params('type')=='instances' )
+        "FunctionName":"${APICloudDirectoryDetachPolicyLambda.Arn}",
+    #else 
+        "FunctionName":"${APICloudDirectoryDetachLambda.Arn}",
+    #end
+    "Payload":{
+        "TargetID":"$input.params('id')",
+        "TargetType":"$input.params('type')",
+        "SourceID":"$input.params('subItem')",
+        "SourceType":"$input.params('subCollection')",
+        "Attributes":{
+            "SourceType":"$input.params('subCollection')",
+            "TargetType":"$input.params('type')"
+        }
+    }
+}
+#end

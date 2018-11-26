@@ -1,0 +1,22 @@
+{
+    #if ($input.params('subCollection')=='instances')
+        "FunctionName":"${APICloudDirectoryPolicyListLambda.Arn}",
+    #else
+        "FunctionName":"${APICloudDirectoryAttachmentListLambda.Arn}",
+    #end
+    "Payload":{
+        "ID":"$input.params('id')",
+        #if ( $input.params('childrenOrParents')=="children" )
+            "SourceType":"$input.params('type')",
+            "TargetType":"$input.params('subCollection')",
+        #else
+            "SourceType":"$input.params('subCollection')",
+            "TargetType":"$input.params('type')",
+        #end
+        "MaxResults":"$input.params('MaxResults')",
+        "NextToken":"$input.params('NextToken')",
+        "Query":"$input.params('Query')",
+        "ChildrenOrParents":"$input.params('childrenOrParents')",
+        "path":"$context.path"
+    }
+}

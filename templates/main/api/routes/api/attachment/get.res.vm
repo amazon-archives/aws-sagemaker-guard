@@ -1,0 +1,65 @@
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $base="$root/api/$input.path('$.Type')/$input.path('$.ID')" )
+{
+    "collection":{
+        "version":"1.0",
+        "href":"$root/api/$input.path('$.ParentType')/$input.path('$.ParentId')/$input.path('$.ChildrenOrParents')/$input.path('$.Type')/$input.path('$.ID')",
+        "links":[],
+        "items":[{
+            "href":"$base",
+            "data":$input.json('$.attributes'),
+            "links":[
+                {
+                    "href":"$base",
+                    "rel":"self"
+                }
+                #if ($input.path('$.Type')=="groups")
+                ,{
+                    "href":"$base/children/groups",
+                    "title":"Groups that are a part of this group",
+                    "rel":"child"
+                },
+                {
+                    "href":"$base/children/users",
+                    "title":"Users that are a part of this group",
+                    "rel":"child"
+                },
+                {
+                    "href":"$base/children/instances",
+                    "title":"Instances this group has access to",
+                    "rel":"child"
+                },
+                {
+                    "href":"$base/parents/groups",
+                    "title":"Groups this group is in",
+                    "rel":"parent"
+                }
+                #elseif ($input.path('$.Type')=="users")
+                ,{
+                    "href":"$base/children/instances",
+                    "title":"Instances this user has access to",
+                    "rel":"child"
+                },
+                {
+                    "href":"$base/parents/groups",
+                    "title":"Groups this user is in",
+                    "rel":"parent"
+                }
+                #elseif ($input.path('$.Type')=="instances")
+                ,{
+                    "href":"$base/parents/groups",
+                    "title":"Groups this Instance is attached to",
+                    "rel":"parent"
+                },
+                {
+                    "href":"$base/parents/users",
+                    "title":"Users this Instance is attached to",
+                    "rel":"parent"
+                }
+                #end
+            ]
+        }],
+        "queries":[]
+    }
+}
+
