@@ -4,10 +4,9 @@ set -ex
 CONDA=/home/ec2-user/anaconda3/bin/conda
 TMP=/home/ec2-user/tmp
 
-
 cat >> $TMP<<- EOM
 {{ requirements }}
 EOM
 
-$CONDA install --yes --name JupyterSystemEnv --file $TMP
+$CONDA uninstall --yes --name JupyterSystemEnv $( cat $TMP | tr -d '\n' )
 rm $TMP

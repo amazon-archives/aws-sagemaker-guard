@@ -236,7 +236,7 @@
             },
             "files": {
               "type": "String",
-              "default": "",
+              "default": "[{\"Path\":\"/home/ec2-user/SageMaker\",\"Pattern\":[\"*.py\",\"*.ipynb\"],\"Recursive\":false}]",
               "description": "<p>(Optional, requires SSMAgent version 2.2.64.0 and above)<br/><br/>Linux example:<br/><em>[{\"Path\":\"/usr/bin\", \"Pattern\":[\"aws*\", \"*ssm*\"],\"Recursive\":false},{\"Path\":\"/var/log\", \"Pattern\":[\"amazon*.*\"], \"Recursive\":true, \"DirScanLimit\":1000}]<br/></em><br/>Windows example:<br/><em>[{\"Path\":\"%PROGRAMFILES%\", \"Pattern\":[\"*.exe\"],\"Recursive\":true}]</em><br/><br/>Learn More: http://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-inventory-about.html#sysman-inventory-file-and-registry  </p>",
               "displayType": "textarea"
             }
@@ -257,7 +257,7 @@
               "name": "runShellScript",
               "inputs": {
                 "runCommand": [
-                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA --yes --name JupyterSystemEnv --file $TMP\nrm $TMP\n"
+                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA install --yes --name JupyterSystemEnv --file $TMP\nrm $TMP\n"
                 ]
               }
             }
@@ -273,7 +273,7 @@
         "DocumentType": "Command"
       }
     },
-    "GlueDocument": {
+    "UninstallDocument": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
@@ -285,15 +285,16 @@
               "name": "runShellScript",
               "inputs": {
                 "runCommand": [
-                  "#!/bin/bash\n \nset -ex\n[ -e /home/ec2-user/glue_ready ] && exit 0\n \nmkdir /home/ec2-user/glue\ncd /home/ec2-user/glue\nASSETS=s3://aws-glue-jes-prod-us-east-1-assets/sagemaker/assets/\nDEV_ENDPOINT_NAME=test-vpc\naws s3 cp ${ASSETS} . --recursive\n \ntar -xf autossh-1.4e.tgz\ncd autossh-1.4e\n./configure\nmake\nsudo make install\npip install pandas==0.22.0\n \nmkdir -p /home/ec2-user/.sparkmagic\ncp /home/ec2-user/glue/config.json /home/ec2-user/.sparkmagic/config.json\n \nmkdir -p /home/ec2-user/SageMaker/Glue\\ Examples\nmv /home/ec2-user/glue/notebook-samples/* /home/ec2-user/SageMaker/Glue\\ Examples/\n \nsudo cp /home/ec2-user/glue/autossh.conf /etc/init/\npython3 /home/ec2-user/glue/bootstrap.py --devendpointname {{ endpoint }} --endpoint https://glue.us-east-1.amazonaws.com --notebookname ${SageMakerNotebookInstance}\nsudo touch /home/ec2-user/glue_ready\n\n"
+                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA uninstall --yes --name JupyterSystemEnv $( cat $TMP | tr -d '\\n' )\nrm $TMP\n"
                 ]
               }
             }
           ],
           "parameters": {
-            "endpoint": {
+            "requirements": {
               "type": "String",
-              "default": "Enabled"
+              "default": "Enabled",
+              "displayType": "textarea"
             }
           }
         },

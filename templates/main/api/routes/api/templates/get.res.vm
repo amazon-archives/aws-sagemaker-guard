@@ -53,11 +53,11 @@
                     "title":"Users this Instance is attached to",
                     "rel":"parent"
                 },
-                {
+                #if ( $input.path('$.attributes.InstanceID') ){
                     "href":"https://console.aws.amazon.com/systems-manager/managed-instances/$input.path('$.attributes.InstanceID')/description?region=${AWS::Region}",
                     "title":"SSM link",
                     "rel":"info"
-                }
+                } #end
                 #end
                 #end
             ]

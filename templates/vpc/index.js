@@ -8,13 +8,13 @@ var params=_.fromPairs(Object.keys(require('../main/vpc').VPC.Properties.Paramet
 
 module.exports={
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Allow logged in Users to access AWS Console in other accounts",
+  "Description": "VPC environment for SageMaker-guard",
   "Parameters":params,
   "Conditions":_.fromPairs(_.toPairs(params)
         .filter(x=>x[1].Default)
         .map(x=>x[0])
         .map(x=>[`If${x}`, {"Fn::Not":[{"Fn::Equals":[{"Ref":x},"EMPTY"]}]}])
-        .concat([[`IfEnableVPCEndpoints`, {"Fn::Not":[{"Fn::Equals":[{"Ref":"EndableVPCEndpoints"},"ENABLE"]}]}]])
+        .concat([[`IfEnableVPCEndpoints`, {"Fn::Not":[{"Fn::Equals":[{"Ref":"EnableVPCEndpoints"},"ENABLE"]}]}]])
   ),
   "Outputs":{
     "Subnet":{"Value":{"Ref":"subnet1"}}, 

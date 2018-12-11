@@ -1,6 +1,8 @@
 var _=require('lodash')
 var lambdas=[]
-_.forEach(require('./lambda'),(value,key)=>{
+_.forEach(
+    Object.assign({},require('./lambda'),require('./routes'))
+,(value,key)=>{
     value.Type==='AWS::Lambda::Function' ? lambdas.push(key) : null
 })
 

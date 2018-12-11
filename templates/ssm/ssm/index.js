@@ -47,10 +47,10 @@ module.exports={
             DocumentType:"Command"
         }
     },
-    "GlueDocument":{
+    "UninstallDocument":{
         "Type" : "AWS::SSM::Document",
         "Properties" : {
-            Content:require('./glue-doc'),
+            Content:require('./uninstall-doc'),
             DocumentType:"Command"
         }
     }

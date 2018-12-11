@@ -8,9 +8,13 @@ exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
    
     cf.describeStacks({
-        StackName:event.stack.StackId 
+        StackName:event.Attributes.StackName
     }).promise()
     .then(result=>{
         callback(null,result.Stacks[0])
+    })
+    .catch(x=>{
+        console.log(x)
+        callback(new Error(x))
     })
 }

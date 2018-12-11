@@ -699,7 +699,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cf=new aws.CloudFormation,cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),cf.describeStacks({StackName:event.stack.StackId}).promise().then(result=>{callback(null,result.Stacks[0])})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cf=new aws.CloudFormation,cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),cf.describeStacks({StackName:event.Attributes.StackName}).promise().then(result=>{callback(null,result.Stacks[0])}).catch(x=>{console.log(x),callback(new Error(x))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -833,7 +833,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,lambda=new aws.Lambda,step=new aws.StepFunctions;exports.handler=function(event,context,callback){return console.log(JSON.stringify(event,null,2)),cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:[{DetachFromIndex:{IndexReference:{Selector:`/index/${event.Type}`},TargetReference:{Selector:`$${event.ID}`}}},{DetachObject:{BatchReferenceName:\"object\",LinkName:event.object.ID,ParentReference:{Selector:`/${event.Type}`}}},{DeleteObject:{ObjectReference:{Selector:`#object`}}}]}).promise().then(()=>callback(null,event))};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,lambda=new aws.Lambda,step=new aws.StepFunctions;exports.handler=function(event,context,callback){return console.log(JSON.stringify(event,null,2)),cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:[{DetachFromIndex:{IndexReference:{Selector:`/index/${event.Type}`},TargetReference:{Selector:`$${event.ID}`}}},{DetachObject:{BatchReferenceName:\"object\",LinkName:event.object.ID,ParentReference:{Selector:`/${event.Type}`}}},{DeleteObject:{ObjectReference:{Selector:\"#object\"}}}]}).promise().then(()=>callback(null,event))};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",

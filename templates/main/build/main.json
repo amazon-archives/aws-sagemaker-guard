@@ -2,6 +2,10 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Manage fleets of SageMaker notebook instances through AWS Systems Manage and Cognito single sign on",
   "Parameters": {
+    "CidrBlock": {
+      "Type": "String",
+      "Default": "10.0.1.0/24"
+    },
     "AssetBucket": {
       "Type": "String"
     },
@@ -16,6 +20,15 @@
     "AdminEmail": {
       "Type": "String",
       "Description": "Email for Administrator. will be used to setup initial password to log into admin ui"
+    },
+    "VPCEndpoints": {
+      "Type": "String",
+      "Default": "ENABLE",
+      "Description": "Enable or Disable creation of VPC endpoints. You must enable endpoints if you want to disable direct internet access to notebook instances",
+      "AllowedValues": [
+        "ENABLE",
+        "DISABLE"
+      ]
     }
   },
   "Outputs": {
@@ -23,25 +36,6 @@
       "Value": {
         "Ref": "WebsiteBucket"
       }
-    },
-    "DashboardUrl": {
-      "Value": {
-        "Fn::Join": [
-          "",
-          [
-            "https://console.aws.amazon.com/cloudwatch/home?",
-            "region=",
-            {
-              "Ref": "AWS::Region"
-            },
-            "#dashboards:name=",
-            {
-              "Ref": "dashboard"
-            }
-          ]
-        ]
-      },
-      "Description": ""
     },
     "AdminLoginUrl": {
       "Value": {
@@ -277,6 +271,12 @@
                     },
                     {
                       "Fn::GetAtt": [
+                        "APIInstanceListLambda",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::GetAtt": [
                         "APIInstancePostStateLambda",
                         "Arn"
                       ]
@@ -334,6 +334,30 @@
                         "APIAuthLambda",
                         "Arn"
                       ]
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "APIattachmentsTemplateLambda",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "APIinstanceTemplateLambda",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "APIinstancesTemplateLambda",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "APIitemsTemplateLambda",
+                        "Arn"
+                      ]
                     }
                   ]
                 },
@@ -369,6 +393,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -379,6 +408,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -427,6 +459,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -437,6 +474,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -485,6 +525,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -495,6 +540,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -532,7 +580,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.SCHEMA,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};event.SourceType&&(params.FilterAttributeRanges=[{AttributeName:\"SourceType\",Range:{StartMode:\"INCLUSIVE\",EndMode:\"INCLUSIVE\",StartValue:{StringValue:event.SourceType},EndValue:{StringValue:event.SourceType}}},{AttributeName:\"TargetType\",Range:{StartMode:\"INCLUSIVE\",EndMode:\"INCLUSIVE\",StartValue:{StringValue:event.TargetType},EndValue:{StringValue:event.TargetType}}}]),event.NextToken&&(params.NextToken=event.NextToken),\"children\"===event.ChildrenOrParents?start=cd.listOutgoingTypedLinks(params).promise():start=cd.listIncomingTypedLinks(params).promise(),start.then(response=>{if(console.log(JSON.stringify(response,null,2)),\"parents\"===event.ChildrenOrParents)out=response.LinkSpecifiers;else var out=response.TypedLinkSpecifiers;callback(null,Object.assign(event,{Links:out.map(x=>(x.direct=!0,x)),NextToken:encodeURIComponent(response.NextToken||\"null\"),search:out.length>0||event.Query?\"true\":\"false\"}))}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.SCHEMA,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};event.SourceType&&(params.FilterAttributeRanges=[{AttributeName:\"SourceType\",Range:{StartMode:\"INCLUSIVE\",EndMode:\"INCLUSIVE\",StartValue:{StringValue:event.SourceType},EndValue:{StringValue:event.SourceType}}},{AttributeName:\"TargetType\",Range:{StartMode:\"INCLUSIVE\",EndMode:\"INCLUSIVE\",StartValue:{StringValue:event.TargetType},EndValue:{StringValue:event.TargetType}}}]),event.NextToken&&(params.NextToken=event.NextToken),\"children\"===event.ChildrenOrParents?start=cd.listOutgoingTypedLinks(params).promise():start=cd.listIncomingTypedLinks(params).promise(),start.then(response=>{if(console.log(JSON.stringify(response,null,2)),\"parents\"===event.ChildrenOrParents)var out=response.LinkSpecifiers;else out=response.TypedLinkSpecifiers;callback(null,Object.assign(event,{Links:out.map(x=>(x.direct=!0,x)),NextToken:encodeURIComponent(response.NextToken||\"null\"),search:out.length>0||event.Query?\"true\":\"false\"}))}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -543,6 +591,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -553,6 +606,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -601,6 +657,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -611,6 +672,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -659,6 +723,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -669,6 +738,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -706,7 +778,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "function next(string){var len=string.length,last=string.charCodeAt(len-1)+1;return string.substring(0,len-1)+String.fromCharCode(last)}var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){return console.log(JSON.stringify(event,null,2)),cd.listIndex({DirectoryArn:process.env.DIRECTORY,IndexReference:{Selector:`/index/${event.Type}`},MaxResults:event.MaxResults||10,NextToken:event.NextToken||null,ConsistencyLevel:\"SERIALIZABLE\",RangesOnIndexedValues:[{AttributeKey:{FacetName:event.Type,Name:\"ID\",SchemaArn:process.env.SCHEMA},Range:event.Query?{StartMode:\"INCLUSIVE\",EndMode:\"EXCLUSIVE\",StartValue:{StringValue:event.Query},EndValue:{StringValue:next(event.Query)}}:{StartMode:\"FIRST\",EndMode:\"LAST\"}}]}).promise().then(response=>{response.PrevToken=encodeURIComponent(event.NextToken||\"null\"),response.NextToken=encodeURIComponent(response.NextToken||\"null\"),response.Type=event.Type,console.log(JSON.stringify(response,null,2)),callback(null,response)}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;function next(string){var len=string.length,last=string.charCodeAt(len-1)+1;return string.substring(0,len-1)+String.fromCharCode(last)}exports.handler=function(event,context,callback){return console.log(JSON.stringify(event,null,2)),cd.listIndex({DirectoryArn:process.env.DIRECTORY,IndexReference:{Selector:`/index/${event.Type}`},MaxResults:event.MaxResults||10,NextToken:event.NextToken||null,ConsistencyLevel:\"SERIALIZABLE\",RangesOnIndexedValues:[{AttributeKey:{FacetName:event.Type,Name:\"ID\",SchemaArn:process.env.SCHEMA},Range:event.Query?{StartMode:\"INCLUSIVE\",EndMode:\"EXCLUSIVE\",StartValue:{StringValue:event.Query},EndValue:{StringValue:next(event.Query)}}:{StartMode:\"FIRST\",EndMode:\"LAST\"}}]}).promise().then(response=>{response.PrevToken=encodeURIComponent(event.NextToken||\"null\"),response.NextToken=encodeURIComponent(response.NextToken||\"null\"),response.Type=event.Type,console.log(JSON.stringify(response,null,2)),callback(null,response)}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -717,6 +789,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -727,6 +804,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -775,6 +855,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -785,6 +870,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -833,6 +921,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -843,6 +936,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -891,6 +987,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -901,6 +1002,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -949,6 +1053,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -959,6 +1068,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1007,6 +1119,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1017,6 +1134,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1065,6 +1185,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1075,6 +1200,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1123,6 +1251,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1133,6 +1266,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1181,6 +1317,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1191,6 +1332,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1228,7 +1372,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var lambda=new aws.Lambda,sagemaker=new aws.SageMaker;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.GetFunctionName,InvocationType:\"RequestResponse\",Payload:JSON.stringify(event)}).promise().then(result=>{if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);var payload=JSON.parse(result.Payload);return payload.deleteParams=event,lambda.invoke({FunctionName:event.DeleteInstanceFunctionName,InvocationType:\"Event\",Payload:JSON.stringify(payload)}).promise().then(x=>payload)}).then(result=>new Promise(function(res,rej){function next(count){console.log(`try ${100-count}`),sagemaker.describeNotebookInstance({NotebookInstanceName:`SageGuard-${result.attributes.ID}`}).promise().then(response=>{\"InService\"===response.NotebookInstanceStatus?count?setTimeout(()=>next(--count),100):rej(\"timeout waiting for instance to begin stopping\"):\"Stopping\"===response.NotebookInstanceStatus?res():\"Stopped\"===response.NotebookInstanceStatus?res():rej(response)}).catch(rej)}next(100)})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var lambda=new aws.Lambda,sagemaker=new aws.SageMaker;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.GetFunctionName,InvocationType:\"RequestResponse\",Payload:JSON.stringify(event)}).promise().then(result=>{if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);var payload=JSON.parse(result.Payload);return payload.deleteParams=event,lambda.invoke({FunctionName:event.DeleteInstanceFunctionName,InvocationType:\"Event\",Payload:JSON.stringify(payload)}).promise().then(x=>payload)}).then(result=>new Promise(function(res,rej){!function next(count){console.log(`try ${100-count}`);sagemaker.describeNotebookInstance({NotebookInstanceName:`SageGuard-${result.attributes.ID}`}).promise().then(response=>{\"InService\"===response.NotebookInstanceStatus?count?setTimeout(()=>next(--count),100):rej(\"timeout waiting for instance to begin stopping\"):\"Stopping\"===response.NotebookInstanceStatus?res():\"Stopped\"===response.NotebookInstanceStatus?res():rej(response)}).catch(rej)}(100)})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -1239,6 +1383,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1249,6 +1398,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1297,6 +1449,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1307,6 +1464,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1355,6 +1515,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1365,6 +1530,75 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
+            },
+            "STATEMACHINECLEAROBJECT": {
+              "Fn::GetAtt": [
+                "StepFunctions",
+                "Outputs.StateMachineClearObject"
+              ]
+            },
+            "STATEMACHINECLEARSTACKS": {
+              "Fn::GetAtt": [
+                "StepFunctions",
+                "Outputs.StateMachineClearStacks"
+              ]
+            },
+            "STATEMACHINECREATEINSTANCE": {
+              "Fn::GetAtt": [
+                "StepFunctions",
+                "Outputs.StateMachineCreateInstance"
+              ]
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
+    "APIInstanceListLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var sagemaker=new aws.SageMaker,lambda=new aws.Lambda,cf=new aws.CloudFormation;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.stageVariables.APIInstanceGetLambda,InvocationType:\"RequestResponse\",Payload:JSON.stringify({FunctionName:event.stageVariables.APICloudDirectoryObjectGetLambda,ID:event.pathParameters.id,Type:\"instances\"})}).promise().then(result=>{if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);var data=JSON.parse(result.Payload),stackname=data.attributes.StackName;return cf.describeStacks({StackName:stackname}).promise().then(result=>{console.log(JSON.stringify(result,null,2));var NotebookInstanceName=result.Stacks[0].Outputs.filter(x=>\"NoteBookName\"===x.OutputKey)[0].OutputValue;return sagemaker.describeNotebookInstance({NotebookInstanceName:NotebookInstanceName}).promise().then(y=>\"InService\"===y.NotebookInstanceStatus?{attributes:data.attributes,url:`https://${event.requestContext.domainPrefix}.execute-api.${event.stageVariables.Region}.amazonaws.com${event.requestContext.path}/login?Auth=${event.headers.Authorization}`}:{attributes:data.attributes})})}).then(body=>{console.log(body);var out={collection:{version:\"1.0\",href:href,links:[],items:[{href:href,links:[body.url?{href:body.url,rel:\"login\"}:null].filter(x=>x),data:body.attributes}]}},href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`;\"InService\"===body.attributes.NotebookInstanceStatus?out.collection.template={data:{schema:{type:\"object\",properties:{state:{type:\"string\",enum:[\"off\"]}},required:\"state\"},prompt:\"Turn Instance Off\"}}:\"Stopped\"===body.attributes.NotebookInstanceStatus&&(out.collection.template={data:{schema:{type:\"object\",properties:{state:{type:\"string\",enum:[\"on\"]}},required:\"state\"},prompt:\"Turn Instance On\"}}),callback(null,{statusCode:200,body:JSON.stringify(out)})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Fn::GetAtt": [
+            "APILambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "SCHEMA": {
+              "Fn::GetAtt": [
+                "Directory",
+                "AppliedSchemaArn"
+              ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1413,6 +1647,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1423,6 +1662,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1460,7 +1702,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var sagemaker=new aws.SageMaker,lambda=new aws.Lambda,cf=new aws.CloudFormation;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.stageVariables.APIInstanceGetLambda,InvocationType:\"RequestResponse\",Payload:JSON.stringify({FunctionName:event.stageVariables.APICloudDirectoryObjectGetLambda,ID:event.pathParameters.id,Type:\"instances\"})}).promise().then(result=>{if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);var data=JSON.parse(result.Payload),stackname=data.attributes.StackName;return cf.describeStacks({StackName:stackname}).promise().then(result=>{console.log(JSON.stringify(result,null,2));var NotebookInstanceName=result.Stacks[0].Outputs.filter(x=>\"NoteBookName\"===x.OutputKey)[0].OutputValue;return sagemaker.describeNotebookInstance({NotebookInstanceName:NotebookInstanceName}).promise().then(y=>\"InService\"===y.NotebookInstanceStatus?sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:NotebookInstanceName}).promise().then(x=>({attributes:data.attributes,url:x.AuthorizedUrl})):{attributes:data.attributes})})}).then(body=>{console.log(body);var out={collection:{version:\"1.0\",href:href,links:[],items:[{href:href,links:[body.url?{href:body.url,rel:\"login\"}:null].filter(x=>x),data:body.attributes}]}},href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`;\"InService\"===body.attributes.NotebookInstanceStatus?out.collection.template={data:{schema:{type:\"object\",properties:{state:{type:\"string\",enum:[\"off\"]}},required:\"state\"},prompt:\"Turn Instance Off\"}}:\"Stopped\"===body.attributes.NotebookInstanceStatus&&(out.collection.template={data:{schema:{type:\"object\",properties:{state:{type:\"string\",enum:[\"on\"]}},required:\"state\"},prompt:\"Turn Instance On\"}}),callback(null,{statusCode:200,body:JSON.stringify(out)})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var sagemaker=new aws.SageMaker,lambda=new aws.Lambda,firehose=new aws.Firehose,cf=new aws.CloudFormation;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.stageVariables.APIInstanceGetLambda,InvocationType:\"RequestResponse\",Payload:JSON.stringify({FunctionName:event.stageVariables.APICloudDirectoryObjectGetLambda,ID:event.pathParameters.id,Type:\"instances\"})}).promise().then(result=>{if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);var stackname=JSON.parse(result.Payload).attributes.StackName;return cf.describeStacks({StackName:stackname}).promise().then(result=>{console.log(JSON.stringify(result,null,2));var NotebookInstanceName=result.Stacks[0].Outputs.filter(x=>\"NoteBookName\"===x.OutputKey)[0].OutputValue;return sagemaker.describeNotebookInstance({NotebookInstanceName:NotebookInstanceName}).promise().then(y=>sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:NotebookInstanceName}).promise().then(x=>x.AuthorizedUrl))})}).then(url=>firehose.putRecord({DeliveryStreamName:process.env.LOGINFIREHOSE,Record:{Data:JSON.stringify(event)}}).promise().then(()=>callback(null,{statusCode:307,headers:{Location:url}}))).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -1471,6 +1713,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1481,6 +1728,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1529,6 +1779,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1539,6 +1794,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1587,6 +1845,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1597,6 +1860,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1645,6 +1911,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1655,6 +1926,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1703,6 +1977,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1713,6 +1992,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1761,6 +2043,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1771,6 +2058,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1819,6 +2109,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1829,6 +2124,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1877,6 +2175,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1887,6 +2190,9 @@
                 "Directory",
                 "AppliedSchemaArn"
               ]
+            },
+            "LOGINFIREHOSE": {
+              "Ref": "LoginFirehose"
             },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
@@ -1958,7 +2264,8 @@
                   "kms:Describe*",
                   "kms:Get*",
                   "kms:List*",
-                  "cloudformation:*"
+                  "cloudformation:*",
+                  "glue:*"
                 ]
               }
             }
@@ -1973,12 +2280,31 @@
                 "Action": [
                   "iam:Describe*",
                   "iam:Get*",
-                  "iam:List*"
+                  "iam:List*",
+                  "firehose:*"
                 ]
               }
             }
           }
         ]
+      }
+    },
+    "UtilCodeVersion": {
+      "Type": "Custom::S3Version",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CFNS3VersionLambda",
+            "Arn"
+          ]
+        },
+        "Bucket": {
+          "Ref": "AssetBucket"
+        },
+        "Key": {
+          "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
+        },
+        "BuildDate": "2018-12-11T00:50:20.308Z"
       }
     },
     "AuthCodeVersion": {
@@ -1996,7 +2322,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/auth.zip"
         },
-        "BuildDate": "2018-11-14T14:37:39.120Z"
+        "BuildDate": "2018-12-11T00:50:20.308Z"
       }
     },
     "APIAuthLambda": {
@@ -2032,6 +2358,25 @@
             "Value": "ApiRouteHandler"
           }
         ]
+      }
+    },
+    "UtilLambdaLayer": {
+      "Type": "AWS::Lambda::LayerVersion",
+      "Properties": {
+        "Content": {
+          "S3Bucket": {
+            "Ref": "AssetBucket"
+          },
+          "S3Key": {
+            "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
+          },
+          "S3ObjectVersion": {
+            "Ref": "UtilCodeVersion"
+          }
+        },
+        "LayerName": {
+          "Fn::Sub": "${AWS::StackName}-util"
+        }
       }
     },
     "Collection": {
@@ -2401,7 +2746,7 @@
               "StatusCode": 200,
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n#set ( $base=\"$root/api/$input.path('$.Type')/$input.path('$.ID')\" )\n{\n    \"collection\":{\n        \"version\":\"1.0\",\n        \"href\":\"$root/api/$input.path('$.Type')\",\n        \"links\":[],\n        \"items\":[{\n            \"href\":\"$base\",\n            \"data\":$input.json('$.attributes'),\n            \"links\":[\n                #if ($input.path('$.attributes.status')!=\"StackFailed\")\n                #if ($input.path('$.Type')==\"groups\")\n                {\n                    \"href\":\"$base/children/groups\",\n                    \"title\":\"Groups that are a part of this group\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/children/users\",\n                    \"title\":\"Users that are a part of this group\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/children/instances\",\n                    \"title\":\"Instances this group has access to\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/parents/groups\",\n                    \"title\":\"Groups this group is in\",\n                    \"rel\":\"parent\"\n                }\n                #elseif ($input.path('$.Type')==\"users\")\n                {\n                    \"href\":\"$base/children/instances\",\n                    \"title\":\"Instances this user has access to\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/parents/groups\",\n                    \"title\":\"Groups this user is in\",\n                    \"rel\":\"parent\"\n                }\n                #elseif ($input.path('$.Type')==\"instances\")\n                {\n                    \"href\":\"$base/parents/groups\",\n                    \"title\":\"Groups this Instance is attached to\",\n                    \"rel\":\"parent\"\n                },\n                {\n                    \"href\":\"$base/parents/users\",\n                    \"title\":\"Users this Instance is attached to\",\n                    \"rel\":\"parent\"\n                },\n                {\n                    \"href\":\"https://console.aws.amazon.com/systems-manager/managed-instances/$input.path('$.attributes.InstanceID')/description?region=${AWS::Region}\",\n                    \"title\":\"SSM link\",\n                    \"rel\":\"info\"\n                }\n                #end\n                #end\n            ]\n        }],\n        \"queries\":[],\n        \"template\":{\n            #if ($input.path('$.attributes.status')!=\"StackFailed\")\n            \"data\":{\n                #if ($input.path('$.Type')==\"instances\")\n                \"schema\":{\n                    \"href\":\"$root/templates/instance?Type=$input.path('$.Type')&ID=$input.path('$.ID')\"\n                },\n                #else\n                \"schema\":{\n                    \"href\":\"$root/templates/items?Type=$input.path('$.Type')&ID=$input.path('$.ID')\"\n                },\n                #end\n                #if ($input.path('$.Type')==\"groups\")\n                    \"prompt\":\"Update group information\"\n                #elseif ($input.path('$.Type')==\"users\")\n                    \"prompt\":\"Update user information\"\n                #elseif ($input.path('$.Type')==\"instances\")\n                    \"prompt\":\"Update instance information\"\n                #end\n            }#end\n        }\n    }\n}\n\n"
+                  "Fn::Sub": "#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n#set ( $base=\"$root/api/$input.path('$.Type')/$input.path('$.ID')\" )\n{\n    \"collection\":{\n        \"version\":\"1.0\",\n        \"href\":\"$root/api/$input.path('$.Type')\",\n        \"links\":[],\n        \"items\":[{\n            \"href\":\"$base\",\n            \"data\":$input.json('$.attributes'),\n            \"links\":[\n                #if ($input.path('$.attributes.status')!=\"StackFailed\")\n                #if ($input.path('$.Type')==\"groups\")\n                {\n                    \"href\":\"$base/children/groups\",\n                    \"title\":\"Groups that are a part of this group\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/children/users\",\n                    \"title\":\"Users that are a part of this group\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/children/instances\",\n                    \"title\":\"Instances this group has access to\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/parents/groups\",\n                    \"title\":\"Groups this group is in\",\n                    \"rel\":\"parent\"\n                }\n                #elseif ($input.path('$.Type')==\"users\")\n                {\n                    \"href\":\"$base/children/instances\",\n                    \"title\":\"Instances this user has access to\",\n                    \"rel\":\"child\"\n                },\n                {\n                    \"href\":\"$base/parents/groups\",\n                    \"title\":\"Groups this user is in\",\n                    \"rel\":\"parent\"\n                }\n                #elseif ($input.path('$.Type')==\"instances\")\n                {\n                    \"href\":\"$base/parents/groups\",\n                    \"title\":\"Groups this Instance is attached to\",\n                    \"rel\":\"parent\"\n                },\n                {\n                    \"href\":\"$base/parents/users\",\n                    \"title\":\"Users this Instance is attached to\",\n                    \"rel\":\"parent\"\n                },\n                #if ( $input.path('$.attributes.InstanceID') ){\n                    \"href\":\"https://console.aws.amazon.com/systems-manager/managed-instances/$input.path('$.attributes.InstanceID')/description?region=${AWS::Region}\",\n                    \"title\":\"SSM link\",\n                    \"rel\":\"info\"\n                } #end\n                #end\n                #end\n            ]\n        }],\n        \"queries\":[],\n        \"template\":{\n            #if ($input.path('$.attributes.status')!=\"StackFailed\")\n            \"data\":{\n                #if ($input.path('$.Type')==\"instances\")\n                \"schema\":{\n                    \"href\":\"$root/templates/instance?Type=$input.path('$.Type')&ID=$input.path('$.ID')\"\n                },\n                #else\n                \"schema\":{\n                    \"href\":\"$root/templates/items?Type=$input.path('$.Type')&ID=$input.path('$.ID')\"\n                },\n                #end\n                #if ($input.path('$.Type')==\"groups\")\n                    \"prompt\":\"Update group information\"\n                #elseif ($input.path('$.Type')==\"users\")\n                    \"prompt\":\"Update user information\"\n                #elseif ($input.path('$.Type')==\"instances\")\n                    \"prompt\":\"Update instance information\"\n                #end\n            }#end\n        }\n    }\n}\n\n"
                 }
               }
             },
@@ -3466,7 +3811,7 @@
           "Type": "AWS_PROXY",
           "IntegrationHttpMethod": "POST",
           "Uri": {
-            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIInstanceRedirectLambda.Arn}/invocations"
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIInstanceListLambda.Arn}/invocations"
           },
           "IntegrationResponses": [
             {
@@ -3605,6 +3950,105 @@
         },
         "ResourceId": {
           "Ref": "InstanceLoginResource"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200
+          },
+          {
+            "StatusCode": 404
+          },
+          {
+            "StatusCode": 409
+          },
+          {
+            "StatusCode": 400
+          },
+          {
+            "StatusCode": 500
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "AuthenticateResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "InstanceLoginResource"
+        },
+        "PathPart": "login",
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "AuthenticateGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "ClouddirectoryHeaderAuthorizer"
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIInstanceRedirectLambda.Arn}/invocations"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200
+            },
+            {
+              "SelectionPattern": ".*[InternalServiceError].*",
+              "StatusCode": 500,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[BadRequest].*",
+              "StatusCode": 400,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[Conflict].*",
+              "StatusCode": 409,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[NotFound].*",
+              "StatusCode": 404,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            }
+          ],
+          "Credentials": {
+            "Fn::GetAtt": [
+              "ApiGatewayRole",
+              "Arn"
+            ]
+          }
+        },
+        "ResourceId": {
+          "Ref": "AuthenticateResource"
         },
         "MethodResponses": [
           {
@@ -3848,7 +4292,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "function filterRoles(result){var doc=JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument));return console.log(doc.Statement),doc.Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var lambda=new aws.Lambda,kms=new aws.KMS,iam=new aws.IAM;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.params.querystring;isInstance=\"instances\"===params.SourceType,fnc=process.env[isInstance?\"POLICYLISTLAMBDA\":\"ATTACHMENTLISTLAMBDA\"],already=lambda.invoke({FunctionName:fnc,InvocationType:\"RequestResponse\",Payload:JSON.stringify({ID:params.SourceID,SourceType:params.SourceType,TargetType:params.DestType,MaxResults:10,NextToken:null,ChildrenOrParents:params.Relationship})}).promise().then(x=>(console.log(\"already\",x),results=JSON.parse(x.Payload),results.Links?\"children\"===params.Relationship?results.Links.map(y=>y.TargetObjectReference.Selector.slice(1)):results.Links.map(y=>y.SourceObjectReference.Selector.slice(1)):[])),possible=lambda.invoke({FunctionName:process.env.INDEXLISTLAMBDA,InvocationType:\"RequestResponse\",Payload:JSON.stringify({Type:params.DestType,MaxResults:10})}).promise().then(x=>(console.log(\"possible\",x),results=JSON.parse(x.Payload).IndexAttachments,results.map(y=>y.ObjectIdentifier))),Promise.all([possible,already]).then(x=>(console.log(x),x)).then(x=>x[0].filter(y=>!x[1].includes(y))).then(IDs=>Promise.all(IDs.map(id=>lambda.invoke({FunctionName:process.env.OBJECTGETLAMBDA,InvocationType:\"RequestResponse\",Payload:JSON.stringify({ID:id})}).promise().then(x=>JSON.parse(x.Payload))))).then(result=>{console.log(JSON.stringify(result,null,2)),callback(null,{params:params,result:result})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var lambda=new aws.Lambda,kms=new aws.KMS,iam=new aws.IAM;function filterRoles(result){var doc=JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument));return console.log(doc.Statement),doc.Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.params.querystring;isInstance=\"instances\"===params.SourceType,fnc=process.env[isInstance?\"POLICYLISTLAMBDA\":\"ATTACHMENTLISTLAMBDA\"],already=lambda.invoke({FunctionName:fnc,InvocationType:\"RequestResponse\",Payload:JSON.stringify({ID:params.SourceID,SourceType:params.SourceType,TargetType:params.DestType,MaxResults:10,NextToken:null,ChildrenOrParents:params.Relationship})}).promise().then(x=>(console.log(\"already\",x),results=JSON.parse(x.Payload),results.Links?\"children\"===params.Relationship?results.Links.map(y=>y.TargetObjectReference.Selector.slice(1)):results.Links.map(y=>y.SourceObjectReference.Selector.slice(1)):[])),possible=lambda.invoke({FunctionName:process.env.INDEXLISTLAMBDA,InvocationType:\"RequestResponse\",Payload:JSON.stringify({Type:params.DestType,MaxResults:10})}).promise().then(x=>(console.log(\"possible\",x),results=JSON.parse(x.Payload).IndexAttachments,results.map(y=>y.ObjectIdentifier))),Promise.all([possible,already]).then(x=>(console.log(x),x)).then(x=>x[0].filter(y=>!x[1].includes(y))).then(IDs=>Promise.all(IDs.map(id=>lambda.invoke({FunctionName:process.env.OBJECTGETLAMBDA,InvocationType:\"RequestResponse\",Payload:JSON.stringify({ID:id})}).promise().then(x=>JSON.parse(x.Payload))))).then(result=>{console.log(JSON.stringify(result,null,2)),callback(null,{params:params,result:result})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "896",
@@ -4026,7 +4470,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "function filterRoles(result){return JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument)).Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,ec2=new aws.EC2,kms=new aws.KMS,iam=new aws.IAM;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.params.querystring,id=params.ID,type=params.Type,roles=new Promise(function(res,rej){function next(token){iam.listRoles({Marker:token}).promise().then(result=>{console.log(result),result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}var out=[];next()});Promise.all([cd.listFacetAttributes({Name:type,SchemaArn:process.env.SCHEMA}).promise(),cd.listObjectAttributes({DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${id}`}}).promise(),roles]).then(results=>{console.log(JSON.stringify(results,null,2));var facetAttributes=results[0].Attributes,objectAttributes=results[1].Attributes,roles=results[2];mutable=facetAttributes.filter(x=>!x.AttributeDefinition.IsImmutable).map(x=>(tmp=objectAttributes.find(y=>y.Key.Name===x.Name),tmp?{name:x.Name,value:tmp.Value.StringValue}:{name:x.Name,value:\"\"})),console.log(JSON.stringify(mutable,null,2)),role=mutable.find(x=>\"RoleArn\"===x.name).value,mutable=mutable.filter(x=>\"RoleArn\"!==x.name),console.log(JSON.stringify(mutable,null,2)),callback(null,{params:params,mutable:mutable,roles:roles,role:role})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory,ec2=new aws.EC2,kms=new aws.KMS,iam=new aws.IAM;function filterRoles(result){return JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument)).Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.params.querystring,id=params.ID,type=params.Type,roles=new Promise(function(res,rej){var out=[];!function next(token){iam.listRoles({Marker:token}).promise().then(result=>{console.log(result),result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}()});Promise.all([cd.listFacetAttributes({Name:type,SchemaArn:process.env.SCHEMA}).promise(),cd.listObjectAttributes({DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${id}`}}).promise(),roles]).then(results=>{console.log(JSON.stringify(results,null,2));var facetAttributes=results[0].Attributes,objectAttributes=results[1].Attributes,roles=results[2];mutable=facetAttributes.filter(x=>!x.AttributeDefinition.IsImmutable).map(x=>(tmp=objectAttributes.find(y=>y.Key.Name===x.Name),tmp?{name:x.Name,value:tmp.Value.StringValue}:{name:x.Name,value:\"\"})),console.log(JSON.stringify(mutable,null,2)),role=mutable.find(x=>\"RoleArn\"===x.name).value,mutable=mutable.filter(x=>\"RoleArn\"!==x.name),console.log(JSON.stringify(mutable,null,2)),callback(null,{params:params,mutable:mutable,roles:roles,role:role})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "896",
@@ -4115,7 +4559,7 @@
               "StatusCode": 200,
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"type\":\"string\",\n                        \"immutable\":true\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"type\":\"string\"\n                    },\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            \"ml.t2.medium\",\n                            \"ml.t2.large\",\n                            \"ml.t2.xlarge\",\n                            \"ml.t2.2xlarge\",\n                            \"ml.m4.xlarge\",\n                            \"ml.m4.2xlarge\",\n                            \"ml.m4.4xlarge\",\n                            \"ml.m4.10xlarge\",\n                            \"ml.m4.16xlarge\",\n                            \"ml.p2.xlarge\",\n                            \"ml.p2.8xlarge\",\n                            \"ml.p2.16xlarge\",\n                            \"ml.p3.2xlarge\",\n                            \"ml.p3.8xlarge\",\n                            \"ml.p3.16xlarge\"\n                        ],\n                        \"default\":\"ml.t2.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\"\n                            }\n                            #end\n                        ]\n                    },\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys)\n                                \"$object.KeyId\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"]\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period\",\n                        \"type\":\"string\",\n                        \"enum\":[\"30\",\"60\",\"120\"]\n                    }\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
+                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"type\":\"string\",\n                        \"immutable\":true\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"type\":\"string\"\n                    },\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            \"ml.t2.medium\",\n                            \"ml.t2.large\",\n                            \"ml.t2.xlarge\",\n                            \"ml.t2.2xlarge\",\n                            \"ml.m4.xlarge\",\n                            \"ml.m4.2xlarge\",\n                            \"ml.m4.4xlarge\",\n                            \"ml.m4.10xlarge\",\n                            \"ml.m4.16xlarge\",\n                            \"ml.p2.xlarge\",\n                            \"ml.p2.8xlarge\",\n                            \"ml.p2.16xlarge\",\n                            \"ml.p3.2xlarge\",\n                            \"ml.p3.8xlarge\",\n                            \"ml.p3.16xlarge\"\n                        ],\n                        \"default\":\"ml.t2.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\"\n                            }\n                            #end\n                        ]\n                    },\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys)\n                                \"$object.KeyId\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable/Disable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"]\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period in minutes\",\n                        \"type\":\"string\",\n                        \"enum\":[\"30\",\"60\",\"120\"]\n                    },\n                    \"GlueDevEndpoint\":{\n                        \"title\":\"Glue development endpoints\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.endpoints)\n                                \"$object\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    }\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
                 }
               }
             },
@@ -4204,7 +4648,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "function filterRoles(result){var doc=JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument));return console.log(doc.Statement),doc.Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var ec2=new aws.EC2,kms=new aws.KMS,iam=new aws.IAM;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var roles=new Promise(function(res,rej){function next(token){iam.listRoles({Marker:token}).promise().then(result=>{console.log(result),result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}var out=[];next()}),keys=new Promise(function(res,rej){function next(token){kms.listKeys({Marker:token,Limit:1e3}).promise().then(result=>{console.log(result),result.Keys.forEach(x=>out.push(x)),result.Truncated?next(result.NextMarker):res(out)}).catch(rej)}var out=[];next()});Promise.all([keys,roles]).then(result=>callback(null,{keys:result[0],roles:result[1]})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var ec2=new aws.EC2,kms=new aws.KMS,iam=new aws.IAM,glue=new aws.Glue;function filterRoles(result){var doc=JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument));return console.log(doc.Statement),doc.Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var roles=new Promise(function(res,rej){var out=[];!function next(token){iam.listRoles({Marker:token}).promise().then(result=>{console.log(result),result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}()}),keys=new Promise(function(res,rej){var out=[];!function next(token){kms.listKeys({Marker:token,Limit:1e3}).promise().then(result=>{console.log(result),result.Keys.forEach(x=>out.push(x)),result.Truncated?next(result.NextMarker):res(out)}).catch(rej)}()}),endpoints=new Promise(function(res,rej){var out=[];!function next(token){glue.getDevEndpoints({NextToken:token}).promise().then(result=>{console.log(result),result.DevEndpoints.forEach(x=>out.push(x.EndpointName)),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}()});Promise.all([keys,roles,endpoints]).then(result=>callback(null,{keys:result[0],roles:result[1],endpoints:result[2]})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "896",
@@ -4493,7 +4937,7 @@
             {
               "ResponseTemplates": {
                 "text/html": {
-                  "Fn::Sub": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width,height=device-height, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/icon?family=Material+Icons\">\n    <link href=\"https://unpkg.com/vuetify/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <link rel=\"root\" href=\"${ApiUrl.href}\">\n    <meta name=\"PoolId\" content=\"${IdPool}\">\n    <meta name=\"Endpoint\" content=\"${CognitoEndpoint.href}\">\n    <meta name=\"ClientId\" content=\"${AdminClient}\">\n    <meta name=\"UserPool\" content=\"${UserPool}\">\n    <meta name=\"Region\" content=\"${AWS::Region}\">\n    <link rel=\"Login\" href=\"${AdminLogin.href}\">\n    <title>SageGuard ${AWS::StackName}-Admin</title>\n    <style>\n        #lex-web-ui #lex-web nav {\n            color:black;\n        }\n        #lex-web-ui #lex-web button {\n            color:black;\n        }\n    </style>\n  </head>\n  <body>\n    <div id=\"App\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue/dist/vue.js\"></script>\n    <script src=\"https://unpkg.com/vuex\"></script>\n    <script src=\"https://unpkg.com/vue-router/dist/vue-router.js\"></script>\n    <script src=\"https://unpkg.com/vuetify/dist/vuetify.js\"></script>\n    <script src=\"https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js\"></script>\n    <script src=\"assets/vendor.js\"></script>\n    <script src=\"assets/admin.js\"></script>\n\t<script src=\"${LexWebUi.Outputs.LoaderScriptUrl}\"></script>\n\t<script>\n      var chatbotUiConfig = {\n        ui: {\n            toolbarTitle: 'SageGuard Helper',\n            showDialogStateIcon: false,\n            AllowSuperDangerousHTMLInMessage: true,\n            toolbarColor: \"grey lighten-4 black--text\"\n        },\n        recorder:{\n            enable:false\n        }\n      };\n\t  var loaderOpts = {\n\t\tbaseUrl:\"${LexWebUi.Outputs.LoaderScriptUrl}\".split('/').slice(0,3).join('/'),\n\t  };\n\t  var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);\n\t  loader.load(chatbotUiConfig)\n        .then(()=>{\n            document.querySelector(\"#lex-web-ui nav button\").classList.add(\"black--text\")\n        })\n\t\t.catch(function (error) { console.error(error); });\n\t</script>\n  </body>\n</html>\n"
+                  "Fn::Sub": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width,height=device-height, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/icon?family=Material+Icons\">\n    <link href=\"https://unpkg.com/vuetify/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <link rel=\"root\" href=\"${ApiUrl.href}\">\n    <meta name=\"PoolId\" content=\"${IdPool}\">\n    <meta name=\"Endpoint\" content=\"${CognitoEndpoint.href}\">\n    <meta name=\"ClientId\" content=\"${AdminClient}\">\n    <meta name=\"UserPool\" content=\"${UserPool}\">\n    <meta name=\"Region\" content=\"${AWS::Region}\">\n    <link rel=\"Login\" href=\"${AdminLogin.href}\">\n    <title>SageGuard ${AWS::StackName}-Admin</title>\n    <style>\n        #lex-web-ui #lex-web nav {\n            color:black;\n        }\n        #lex-web-ui #lex-web button {\n            color:black;\n        }\n    </style>\n  </head>\n  <body>\n    <div id=\"App\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue/dist/vue.js\"></script>\n    <script src=\"https://unpkg.com/vuex\"></script>\n    <script src=\"https://unpkg.com/vue-router/dist/vue-router.js\"></script>\n    <script src=\"https://unpkg.com/vuetify/dist/vuetify.js\"></script>\n    <script src=\"https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js\"></script>\n    <script src=\"assets/vendor.js\"></script>\n    <script src=\"assets/admin.js\"></script>\n\t<script src=\"${LexWebUi.Outputs.LoaderScriptUrl}\"></script>\n\t<script>\n      var chatbotUiConfig = {\n        ui: {\n            toolbarTitle: 'SageGuard Helper',\n            showDialogStateIcon: false,\n            AllowSuperDangerousHTMLInMessage: true,\n            toolbarColor: \"grey lighten-4 black--text\"\n        },\n        recorder:{\n            enable:false\n        }\n      };\n\t  var loaderOpts = {\n\t\tbaseUrl:\"${LexWebUi.Outputs.LoaderScriptUrl}\".split('/').slice(0,3).join('/'),\n\t  };\n\t  var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);\n\t  loader.load(chatbotUiConfig)\n        .then(()=>{\n            document.querySelector(\"#lex-web-ui nav\").classList.add(\"theme--light\")\n            document.querySelector(\"#lex-web-ui nav\").classList.remove(\"theme--dark\")\n        })\n\t\t.catch(function (error) { console.error(error); });\n\t</script>\n  </body>\n</html>\n"
                 }
               },
               "ResponseParameters": {
@@ -4774,6 +5218,27 @@
         "Type": "REQUEST"
       }
     },
+    "ClouddirectoryHeaderAuthorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "AuthorizerCredentials": {
+          "Fn::GetAtt": [
+            "ApiGatewayRole",
+            "Arn"
+          ]
+        },
+        "AuthorizerUri": {
+          "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIAuthLambda.Arn}/invocations"
+        },
+        "IdentitySource": "method.request.querystring.Auth",
+        "Name": "ClouddirectoryHeaderAuthorizer",
+        "AuthorizerResultTtlInSeconds": 0,
+        "RestApiId": {
+          "Ref": "API"
+        },
+        "Type": "REQUEST"
+      }
+    },
     "API": {
       "Type": "AWS::ApiGateway::RestApi",
       "Properties": {
@@ -4811,7 +5276,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2018-11-14T14:37:39.122Z",
+        "buildDate": "2018-12-11T00:50:20.310Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -4839,6 +5304,7 @@
         "InstancesLoginGet",
         "InstanceLoginGet",
         "InstanceLoginPost",
+        "AuthenticateGet",
         "RootGet",
         "ApiResourceGet",
         "attachmentsTemplateGet",
@@ -4867,6 +5333,7 @@
         "APIInstanceDeleteLambda",
         "APIInstanceDeleteWaitLambda",
         "APIInstanceGetLambda",
+        "APIInstanceListLambda",
         "APIInstancePostStateLambda",
         "APIInstanceRedirectLambda",
         "APIInstanceStartStopLambda",
@@ -5023,6 +5490,12 @@
           "APIInstanceGetLambda": {
             "Fn::GetAtt": [
               "APIInstanceGetLambda",
+              "Arn"
+            ]
+          },
+          "APIInstanceListLambda": {
+            "Fn::GetAtt": [
+              "APIInstanceListLambda",
               "Arn"
             ]
           },
@@ -5547,7 +6020,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/unzip.zip"
         },
-        "BuildDate": "2018-11-14T14:37:39.361Z"
+        "BuildDate": "2018-12-11T00:50:20.545Z"
       }
     },
     "CFNUnzipLambda": {
@@ -5594,7 +6067,7 @@
             "Arn"
           ]
         },
-        "Schema": "{\"sourceSchemaArn\":\"\",\"facets\":{\"groups\":{\"objectType\":\"NODE\",\"facetAttributes\":{\"ID\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"DisplayName\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"Description\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"}}},\"users\":{\"objectType\":\"LEAF_NODE\",\"facetAttributes\":{\"ID\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"email\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"}}},\"instances\":{\"objectType\":\"POLICY\",\"facetAttributes\":{\"ID\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"DisplayName\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"Description\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"InstanceType\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"RoleArn\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"KmsKeyId\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"StackName\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"DirectInternetAccess\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"IdleShutdown\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"}}},\"Root\":{\"objectType\":\"NODE\",\"facetAttributes\":{\"Type\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"}}}},\"typedLinkFacets\":{\"Attachment\":{\"facetAttributes\":{\"TargetType\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"SourceType\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"}},\"identityAttributeOrder\":[\"SourceType\",\"TargetType\"]}}}",
+        "Schema": "{\"sourceSchemaArn\":\"\",\"facets\":{\"groups\":{\"objectType\":\"NODE\",\"facetAttributes\":{\"ID\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"DisplayName\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"Description\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"}}},\"users\":{\"objectType\":\"LEAF_NODE\",\"facetAttributes\":{\"ID\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"email\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"}}},\"instances\":{\"objectType\":\"POLICY\",\"facetAttributes\":{\"ID\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"DisplayName\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"Description\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"InstanceType\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"RoleArn\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"KmsKeyId\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"StackName\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"DirectInternetAccess\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"IdleShutdown\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"},\"GlueDevEndpoint\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":false,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"NOT_REQUIRED\"}}},\"Root\":{\"objectType\":\"NODE\",\"facetAttributes\":{\"Type\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"}}}},\"typedLinkFacets\":{\"Attachment\":{\"facetAttributes\":{\"TargetType\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"},\"SourceType\":{\"attributeDefinition\":{\"attributeType\":\"STRING\",\"isImmutable\":true,\"attributeRules\":{\"nameLength\":{\"parameters\":{\"min\":\"0\",\"max\":\"256\"},\"ruleType\":\"STRING_LENGTH\"}}},\"requiredBehavior\":\"REQUIRED_ALWAYS\"}},\"identityAttributeOrder\":[\"SourceType\",\"TargetType\"]}}}",
         "Name": {
           "Fn::Sub": "schema-${AWS::StackName}"
         }
@@ -6482,6 +6955,119 @@
         ]
       }
     },
+    "LoginFirehose": {
+      "Type": "AWS::KinesisFirehose::DeliveryStream",
+      "Properties": {
+        "DeliveryStreamType": "DirectPut",
+        "S3DestinationConfiguration": {
+          "BucketARN": {
+            "Fn::GetAtt": [
+              "LogsBucket",
+              "Arn"
+            ]
+          },
+          "BufferingHints": {
+            "IntervalInSeconds": 60,
+            "SizeInMBs": 5
+          },
+          "CompressionFormat": "GZIP",
+          "RoleARN": {
+            "Fn::GetAtt": [
+              "FirehoseRole",
+              "Arn"
+            ]
+          },
+          "Prefix": "Logins/"
+        }
+      }
+    },
+    "FirehoseRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "firehose.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "",
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:AbortMultipartUpload",
+                    "s3:GetBucketLocation",
+                    "s3:GetObject",
+                    "s3:ListBucket",
+                    "s3:ListBucketMultipartUploads",
+                    "s3:PutObject"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "LogsBucket",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Fn::GetAtt": [
+                              "LogsBucket",
+                              "Arn"
+                            ]
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Sid": "",
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:logs:",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          ":",
+                          {
+                            "Ref": "AWS::AccountId"
+                          },
+                          ":log-group:/aws/kinesisfirehose/*"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "PolicyName": "SageGuardFirehose"
+          }
+        ]
+      }
+    },
     "SSMLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {}
@@ -6673,9 +7259,31 @@
               "a": "go here"
             },
             {
-              "qid": "how.2",
+              "qid": "how.3",
               "q": [
                 "how do I create a user"
+              ],
+              "a": "go here"
+            },
+            {
+              "qid": "how.4",
+              "q": [
+                "how do I create a IAM role for a sagemaker instance",
+                "how do I create a role"
+              ],
+              "a": "go here"
+            },
+            {
+              "qid": "how.5",
+              "q": [
+                "How to I create a glue development endpoint"
+              ],
+              "a": "go here"
+            },
+            {
+              "qid": "how.6",
+              "q": [
+                "How do users log in"
               ],
               "a": "go here"
             }
@@ -6794,7 +7402,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2018-11-14T14:37:39.396Z",
+        "BuildDate": "2018-12-11T00:50:20.565Z",
         "Version": "1.0.0"
       }
     },
@@ -6946,10 +7554,25 @@
     },
     "VPC": {
       "Type": "AWS::CloudFormation::Stack",
+      "DependsOn": [
+        "LogsBucketPolicy"
+      ],
       "Properties": {
         "Parameters": {
-          "LogsBucket": {
-            "Ref": "LogsBucket"
+          "LogsBucketArn": {
+            "Fn::GetAtt": [
+              "LogsBucket",
+              "Arn"
+            ]
+          },
+          "VPCEndpoints": {
+            "Ref": "VPCEndpoints"
+          },
+          "CidrBlock": {
+            "Ref": "CidrBlock"
+          },
+          "EnableVPCEndpoints": {
+            "Ref": "VPCEndpoints"
           }
         },
         "TemplateURL": {
@@ -6994,7 +7617,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2018-11-14T14:37:39.401Z"
+        "buildDate": "2018-12-11T00:50:20.567Z"
       },
       "DependsOn": "WebsiteClear"
     },
@@ -7005,9 +7628,47 @@
           "Ref": "AWS::StackName"
         },
         "DashboardBody": {
-          "Fn::Sub": "{\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# ${AWS::StackName} Dashboard\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":9,\"properties\":{\"markdown\":\"## Lambda Function\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":11,\"properties\":{\"markdown\":\"### ApiRouteHandler\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryIndexListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryIndexListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIFailLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIFailLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteWaitLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteWaitLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstancePostStateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstancePostStateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceRedirectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceRedirectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceStartStopLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceStartStopLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIOptionsLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIOptionsLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIRouterLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIRouterLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIAuthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIAuthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNUnzipLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNUnzipLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":55},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":61,\"properties\":{\"markdown\":\"### ApiTemplate\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIattachmentsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIattachmentsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstancesTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstancesTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIitemsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIitemsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":63},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":69,\"properties\":{\"markdown\":\"### CustomResource\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayCompressionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayCompressionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayDeploymentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayDeploymentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryDirectoryLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryDirectoryLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryIndexLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryIndexLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryObjectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryObjectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryPublishSchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryPublishSchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectorySchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectorySchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoDomainLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoDomainLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoLoginLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoLoginLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoRoleAttachmentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoRoleAttachmentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNEncodeURIComponentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNEncodeURIComponentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNQnABotImportLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNQnABotImportLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3ClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3ClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3VersionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3VersionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNVariableLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNVariableLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":89},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":95,\"properties\":{\"markdown\":\"### Cognito\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${SignupLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"SignupLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":97},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${PostauthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"PostauthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":97}]}"
+          "Fn::Sub": "{\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# ${AWS::StackName} Dashboard\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":9,\"properties\":{\"markdown\":\"## Lambda Function\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":11,\"properties\":{\"markdown\":\"### ApiRouteHandler\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryIndexListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryIndexListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIFailLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIFailLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteWaitLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteWaitLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstancePostStateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstancePostStateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceRedirectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceRedirectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceStartStopLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceStartStopLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIOptionsLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIOptionsLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIRouterLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIRouterLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIAuthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIAuthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":55},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNUnzipLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNUnzipLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":55},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":61,\"properties\":{\"markdown\":\"### ApiTemplate\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIattachmentsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIattachmentsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstancesTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstancesTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIitemsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIitemsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":63},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":69,\"properties\":{\"markdown\":\"### CustomResource\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayCompressionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayCompressionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayDeploymentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayDeploymentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryDirectoryLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryDirectoryLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryIndexLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryIndexLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":71},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryObjectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryObjectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryPublishSchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryPublishSchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectorySchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectorySchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoDomainLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoDomainLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoLoginLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoLoginLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoRoleAttachmentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoRoleAttachmentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNEncodeURIComponentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNEncodeURIComponentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNQnABotImportLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNQnABotImportLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3ClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3ClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3VersionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3VersionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNVariableLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNVariableLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":89},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":95,\"properties\":{\"markdown\":\"### Cognito\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${SignupLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"SignupLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":97},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${PostauthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"PostauthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":97}]}"
         }
       }
+    }
+  },
+  "Conditions": {
+    "IfCidrBlock": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "CidrBlock"
+            },
+            "10.0.1.0/24"
+          ]
+        }
+      ]
+    },
+    "IfAdminUsername": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "AdminUsername"
+            },
+            "Admin"
+          ]
+        }
+      ]
+    },
+    "IfVPCEndpoints": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "VPCEndpoints"
+            },
+            "ENABLE"
+          ]
+        }
+      ]
     }
   },
   "Metadata": {
@@ -7024,6 +7685,14 @@
         },
         {
           "Label": {
+            "default": "Advanced Configuration"
+          },
+          "Parameters": [
+            "VPCEndpoints"
+          ]
+        },
+        {
+          "Label": {
             "default": "[Do No Change] Asset Configuration"
           },
           "Parameters": [
@@ -7034,16 +7703,19 @@
       ],
       "ParameterLabels": {
         "AdminEmail": {
-          "default": "Email Address"
+          "default": "Admin Email Address"
         },
         "AdminUsername": {
-          "default": "Username"
+          "default": "Admin Username"
         },
         "AssetBucket": {
           "default": "Asset Bucket"
         },
         "AssetPrefix": {
           "default": "Asset Prefix"
+        },
+        "VPCEndpoints": {
+          "default": "Enable/Disable VPC Endpoint creation"
         }
       }
     }

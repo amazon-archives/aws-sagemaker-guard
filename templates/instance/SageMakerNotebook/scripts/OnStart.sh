@@ -46,9 +46,8 @@ cat > /etc/amazon/ssm/seelog.xml <<- EOM
 EOM
 
 start amazon-ssm-agent
-rm /etc/sudoers.d/cloud-init 
 
-if [ "${GlueDevEndpoint}" != "EMPTY"];then 
+if [ "${GlueDevEndpoint}" != "EMPTY" ]; then 
     set -ex
     [ -e /home/ec2-user/glue_ready ] && exit 0
      

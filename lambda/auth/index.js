@@ -6,7 +6,7 @@ var authorize=require('./lib/authorize')
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
-    var token=event.headers.Authorization
+    var token=event.headers.Authorization || event.queryStringParameters.Auth
     var userpool=event.stageVariables.UserPool
 
     authenticate(token,userpool)

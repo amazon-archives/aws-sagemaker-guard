@@ -27,7 +27,7 @@
                     v-list-tile-content
                       v-list-tile-title {{link.title}}
                       v-list-tile-sub-title
-                        a(:href="link.href") Go To
+                        a(:href="link.href" target="_blank") Go To
           v-container.pa-0
             v-layout
               v-spacer
@@ -114,7 +114,7 @@ module.exports={
       this.removing=true
       try{
         await Promise.join(
-          Promise.delay(300),
+          new Promise(resolve => setTimeout(resolve, 300)),
           this.$store.dispatch('data/rm',this.item)
         )
         this.$emit("remove")

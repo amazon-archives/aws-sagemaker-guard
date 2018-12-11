@@ -72,15 +72,25 @@
                         ]
                     },
                     "DirectInternetAccess":{
-                        "title":"Enable Direct Internet Access",
+                        "title":"Enable/Disable Direct Internet Access",
                         "type":"string",
                         "immutable":true,
                         "enum":["Disabled","Enabled"]
                     },
                     "IdleShutdown":{
-                        "title":"Idle Shutdown Wait Period",
+                        "title":"Idle Shutdown Wait Period in minutes",
                         "type":"string",
                         "enum":["30","60","120"]
+                    },
+                    "GlueDevEndpoint":{
+                        "title":"Glue development endpoints",
+                        "type":"string",
+                        "enum":[
+                            #foreach( $object in $inputRoot.endpoints)
+                                "$object"
+                            #if( $foreach.hasNext ),#end
+                            #end
+                        ]
                     }
                 },
                 "required":["ID","InstanceType","RoleArn"]

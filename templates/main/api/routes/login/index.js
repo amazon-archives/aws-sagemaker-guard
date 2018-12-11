@@ -43,7 +43,7 @@ module.exports={
         resource:{"Ref":"InstanceLoginResource"},
         type:"AWS_PROXY",
         method:"GET",
-        lambda:"APIInstanceRedirectLambda",
+        lambda:"APIInstanceListLambda",
         parameters:{
             locations:{}
         }
@@ -55,6 +55,18 @@ module.exports={
         type:"AWS_PROXY",
         method:"POST",
         lambda:"APIInstancePostStateLambda",
+        parameters:{
+            locations:{}
+        }
+    }),
+    "AuthenticateResource":util.resource('login',{"Ref":"InstanceLoginResource"}),
+    "AuthenticateGet":util.lambda({
+        authorization:"CUSTOM",
+        authorizerId:{"Ref":"ClouddirectoryHeaderAuthorizer"},
+        resource:{"Ref":"AuthenticateResource"},
+        type:"AWS_PROXY",
+        method:"GET",
+        lambda:"APIInstanceRedirectLambda",
         parameters:{
             locations:{}
         }

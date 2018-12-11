@@ -2,6 +2,7 @@ var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var sagemaker=new aws.SageMaker()
 var lambda=new aws.Lambda()
+var firehose=new aws.Firehose()
 var cf=new aws.CloudFormation()
 
 exports.handler=function(event,context,callback){
@@ -35,81 +36,28 @@ exports.handler=function(event,context,callback){
                 NotebookInstanceName
             }).promise()
             .then(y=>{
-                if(y.NotebookInstanceStatus==="InService"){
-                    return sagemaker.createPresignedNotebookInstanceUrl({
-                        NotebookInstanceName
-                    }).promise()
-                    .then(x=>{
-                        return {
-                            attributes:data.attributes,
-                            url:x.AuthorizedUrl
-                        }
-                    })
-                }else{
-                    return {
-                        attributes:data.attributes
-                    }
-                }
+                return sagemaker.createPresignedNotebookInstanceUrl({
+                    NotebookInstanceName
+                }).promise()
+                .then(x=>{
+                    return x.AuthorizedUrl
+                })
             })
         })
     })
-    .then(body=>{
-        console.log(body)
-        var out={
-            collection:{
-                version:"1.0",
-                href:href,
-                links:[],
-                items:[{
-                    href:href,
-                    links:[body.url ? {
-                        href:body.url,
-                        rel:"login"
-                    } : null
-                    ].filter(x=>x),
-                    data:body.attributes
-                }]
+    .then(url=>{
+        return firehose.putRecord({
+            DeliveryStreamName:process.env.LOGINFIREHOSE,
+            Record:{
+                Data:JSON.stringify(event)
             }
-        }
-        var href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`
-        
-        if(body.attributes.NotebookInstanceStatus==="InService"){
-            out.collection.template={
-                data:{
-                    schema:{
-                        "type": "object",
-                        properties:{
-                            state:{
-                                type:"string",
-                                enum:["off"]
-                            }
-                        },
-                        required:"state"
-                    },
-                    prompt:"Turn Instance Off"
-                }
+        }).promise()
+        .then(()=>callback(null,{
+            statusCode:307,
+            headers:{
+                Location:url
             }
-        }else if(body.attributes.NotebookInstanceStatus==="Stopped"){
-            out.collection.template={
-                data:{
-                    schema:{
-                        "type": "object",
-                        properties:{
-                            state:{
-                                type:"string",
-                                enum:["on"]
-                            }
-                        },
-                        required:"state"
-                    },
-                    prompt:"Turn Instance On"
-                }
-            }
-        }
-        callback(null,{
-            statusCode:200,
-            body:JSON.stringify(out)
-        })
+        }))
     })
     .catch(error=>{
         console.log(error)

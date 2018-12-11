@@ -40,6 +40,9 @@ module.exports={
             type:"string",
             enum:["30","60","120"],
             default:"60"
+        },
+        GlueDevEndpoint:{
+            type:"string"
         }
     },
     required:["ID","InstanceType","RoleArn"]

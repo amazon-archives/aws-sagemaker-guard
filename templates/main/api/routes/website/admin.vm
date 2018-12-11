@@ -53,7 +53,8 @@
 	  var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);
 	  loader.load(chatbotUiConfig)
         .then(()=>{
-            document.querySelector("#lex-web-ui nav button").classList.add("black--text")
+            document.querySelector("#lex-web-ui nav").classList.add("theme--light")
+            document.querySelector("#lex-web-ui nav").classList.remove("theme--dark")
         })
 		.catch(function (error) { console.error(error); });
 	</script>

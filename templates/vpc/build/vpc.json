@@ -1,7 +1,74 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Allow logged in Users to access AWS Console in other accounts",
-  "Parameters": {},
+  "Description": "VPC environment for SageMaker-guard",
+  "Parameters": {
+    "LogsBucketArn": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
+    "VPCEndpoints": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
+    "CidrBlock": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
+    "EnableVPCEndpoints": {
+      "Type": "String",
+      "Default": "EMPTY"
+    }
+  },
+  "Conditions": {
+    "IfLogsBucketArn": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "LogsBucketArn"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfVPCEndpoints": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "VPCEndpoints"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfCidrBlock": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "CidrBlock"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfEnableVPCEndpoints": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "EnableVPCEndpoints"
+            },
+            "ENABLE"
+          ]
+        }
+      ]
+    }
+  },
   "Outputs": {
     "Subnet": {
       "Value": {
@@ -132,7 +199,9 @@
             }
           ]
         },
-        "CidrBlock": "10.0.1.0/24",
+        "CidrBlock": {
+          "Ref": "CidrBlock"
+        },
         "MapPublicIpOnLaunch": false,
         "VpcId": {
           "Ref": "VPC"
@@ -153,7 +222,9 @@
     "VPC": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
-        "CidrBlock": "10.0.0.0/16",
+        "CidrBlock": {
+          "Ref": "CidrBlock"
+        },
         "EnableDnsSupport": "true",
         "EnableDnsHostnames": "true",
         "Tags": [
@@ -168,6 +239,7 @@
     },
     "VPCS3Endpoint": {
       "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
       "Properties": {
         "VpcId": {
           "Ref": "VPC"
@@ -199,17 +271,18 @@
     },
     "VPCSSMEndpoint": {
       "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
       "Properties": {
         "VpcId": {
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
           }
         ],
-        "PrivateDnsEnabled": true,
         "SecurityGroupIds": [
           {
             "Ref": "EndpointSecurityGroup"
@@ -222,6 +295,7 @@
     },
     "VPCEC2MessagesEndpoint": {
       "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
       "Properties": {
         "VpcId": {
           "Ref": "VPC"
@@ -245,6 +319,7 @@
     },
     "VPCEC2Endpoint": {
       "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
       "Properties": {
         "VpcId": {
           "Ref": "VPC"
@@ -256,29 +331,6 @@
             "Ref": "subnet1"
           }
         ],
-        "SecurityGroupIds": [
-          {
-            "Ref": "EndpointSecurityGroup"
-          }
-        ],
-        "ServiceName": {
-          "Fn::Sub": "com.amazonaws.${AWS::Region}.ec2"
-        }
-      }
-    },
-    "VPCSSMMessagesEndpoint": {
-      "Type": "AWS::EC2::VPCEndpoint",
-      "Properties": {
-        "VpcId": {
-          "Ref": "VPC"
-        },
-        "VpcEndpointType": "Interface",
-        "SubnetIds": [
-          {
-            "Ref": "subnet1"
-          }
-        ],
-        "PrivateDnsEnabled": true,
         "SecurityGroupIds": [
           {
             "Ref": "EndpointSecurityGroup"
@@ -286,6 +338,102 @@
         ],
         "ServiceName": {
           "Fn::Sub": "com.amazonaws.${AWS::Region}.ssmmessages"
+        }
+      }
+    },
+    "VPCSSMMessagesEndpoint": {
+      "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "VpcEndpointType": "Interface",
+        "PrivateDnsEnabled": true,
+        "SubnetIds": [
+          {
+            "Ref": "subnet1"
+          }
+        ],
+        "SecurityGroupIds": [
+          {
+            "Ref": "EndpointSecurityGroup"
+          }
+        ],
+        "ServiceName": {
+          "Fn::Sub": "com.amazonaws.${AWS::Region}.ssmmessages"
+        }
+      }
+    },
+    "VPCSageMakerEndpoint": {
+      "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "VpcEndpointType": "Interface",
+        "PrivateDnsEnabled": true,
+        "SubnetIds": [
+          {
+            "Ref": "subnet1"
+          }
+        ],
+        "SecurityGroupIds": [
+          {
+            "Ref": "EndpointSecurityGroup"
+          }
+        ],
+        "ServiceName": {
+          "Fn::Sub": "com.amazonaws.${AWS::Region}.sagemaker.api"
+        }
+      }
+    },
+    "VPCSageMakerRuntimeEndpoint": {
+      "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "VpcEndpointType": "Interface",
+        "PrivateDnsEnabled": true,
+        "SubnetIds": [
+          {
+            "Ref": "subnet1"
+          }
+        ],
+        "SecurityGroupIds": [
+          {
+            "Ref": "EndpointSecurityGroup"
+          }
+        ],
+        "ServiceName": {
+          "Fn::Sub": "com.amazonaws.${AWS::Region}.sagemaker.runtime"
+        }
+      }
+    },
+    "VPCLogsEndpoint": {
+      "Type": "AWS::EC2::VPCEndpoint",
+      "Condition": "IfEnableVPCEndpoints",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "VpcEndpointType": "Interface",
+        "PrivateDnsEnabled": true,
+        "SubnetIds": [
+          {
+            "Ref": "subnet1"
+          }
+        ],
+        "SecurityGroupIds": [
+          {
+            "Ref": "EndpointSecurityGroup"
+          }
+        ],
+        "ServiceName": {
+          "Fn::Sub": "com.amazonaws.${AWS::Region}.logs"
         }
       }
     },
@@ -309,6 +457,20 @@
             }
           }
         ]
+      }
+    },
+    "FlowLog": {
+      "Type": "AWS::EC2::FlowLog",
+      "Properties": {
+        "LogDestination": {
+          "Fn::Sub": "${LogsBucketArn}/vpc"
+        },
+        "LogDestinationType": "s3",
+        "ResourceId": {
+          "Ref": "VPC"
+        },
+        "ResourceType": "VPC",
+        "TrafficType": "ALL"
       }
     }
   }

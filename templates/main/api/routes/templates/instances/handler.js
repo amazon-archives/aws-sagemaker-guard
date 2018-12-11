@@ -3,6 +3,7 @@ aws.config.region=process.env.AWS_REGION
 var ec2=new aws.EC2()
 var kms=new aws.KMS()
 var iam=new aws.IAM()
+var glue=new aws.Glue()
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
@@ -57,14 +58,37 @@ exports.handler=function(event,context,callback){
         next()
     })
    
-    
+    var endpoints=new Promise(function(res,rej){
+        var out=[]
+
+        function next(token){
+            glue.getDevEndpoints({
+                NextToken:token
+            }).promise()
+            .then(result=>{
+                console.log(result)
+                result.DevEndpoints
+                    .forEach(x=>out.push(x.EndpointName))
+
+                if(result.NextToken){
+                    next(result.NextToken)
+                }else{
+                    res(out)
+                }
+            })
+            .catch(rej)
+        }
+        next()
+    })
     Promise.all([
         keys,
         roles,
+        endpoints,
     ])
     .then(result=>callback(null,{
         keys:result[0],
-        roles:result[1]
+        roles:result[1],
+        endpoints:result[2]
     }))
     .catch(error=>{
         console.log(error)

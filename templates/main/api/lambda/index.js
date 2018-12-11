@@ -45,7 +45,7 @@ module.exports=Object.assign(
             "arn:aws:iam::aws:policy/AmazonCognitoPowerUser",
             "arn:aws:iam::aws:policy/AWSLambdaFullAccess",
             "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess",
-            "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+            "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess",
         ],
         "Policies":[{
             "PolicyName":"KMS",
@@ -54,7 +54,7 @@ module.exports=Object.assign(
                 Statement:{
                     Effect:"Allow",
                     Resource:"*",
-                    Action:["kms:Describe*","kms:Get*","kms:List*","cloudformation:*"]
+                    Action:["kms:Describe*","kms:Get*","kms:List*","cloudformation:*","glue:*"]
                 }
             }
         },{
@@ -64,11 +64,20 @@ module.exports=Object.assign(
                 Statement:{
                     Effect:"Allow",
                     Resource:"*",
-                    Action:["iam:Describe*","iam:Get*","iam:List*"]
+                    Action:["iam:Describe*","iam:Get*","iam:List*","firehose:*"]
                 }
             }
         }]
       }
+    },
+    "UtilCodeVersion":{
+        "Type": "Custom::S3Version",
+        "Properties": {
+            "ServiceToken": { "Fn::GetAtt" : ["CFNS3VersionLambda", "Arn"] },
+            "Bucket": {"Ref":"AssetBucket"},
+            "Key": {"Fn::Sub":"${AssetPrefix}/lambda/util.zip"},
+            "BuildDate":(new Date()).toISOString()
+        }
     },
     "AuthCodeVersion":{
         "Type": "Custom::S3Version",
@@ -100,6 +109,17 @@ module.exports=Object.assign(
             Value:"ApiRouteHandler"
         }]
       }
+    },
+    "UtilLambdaLayer":{
+      "Type": "AWS::Lambda::LayerVersion",
+      "Properties": {
+        Content:{
+            "S3Bucket":{"Ref":"AssetBucket"},
+            "S3Key":{"Fn::Sub":"${AssetPrefix}/lambda/util.zip"},
+            "S3ObjectVersion":{"Ref":"UtilCodeVersion"},
+        },
+        LayerName:{"Fn::Sub":"${AWS::StackName}-util"},
+      }
     }
 })
 
@@ -122,10 +142,12 @@ function lambda(name){
         "MemorySize": "1024",
         "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
         "Runtime": "nodejs6.10",
+        Layers:[{"Ref":"UtilLambdaLayer"}],
         "Environment":{
             "Variables":Object.assign({
                 DIRECTORY:{"Ref":"Directory"},
-                SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]}
+                SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
+                LOGINFIREHOSE:{"Ref":"LoginFirehose"}
             },stateMachines)
         },
         "TracingConfig":{

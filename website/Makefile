@@ -8,7 +8,7 @@ dev:$(SOURCES)
 	export NODE_ENV=dev; make build -B
 
 build:
-	../node_modules/.bin/webpack --config ./config/webpack.config.js
+	../node_modules/.bin/webpack --config ./config/webpack.config.js --verbose
 
 test:
 	../node_modules/.bin/webpack --config ./config/test.config.js 

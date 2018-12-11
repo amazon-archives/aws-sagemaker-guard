@@ -14,8 +14,24 @@
     "a":"go here"
 },
 {
-    "qid":"how.2",
+    "qid":"how.3",
     "q":["how do I create a user"],
+    "a":"go here"
+},
+{
+    "qid":"how.4",
+    "q":["how do I create a IAM role for a sagemaker instance",
+        "how do I create a role"],
+    "a":"go here"
+},
+{
+    "qid":"how.5",
+    "q":["How to I create a glue development endpoint"],
+    "a":"go here"
+},
+{
+    "qid":"how.6",
+    "q":["How do users log in"],
     "a":"go here"
 }
 ]}

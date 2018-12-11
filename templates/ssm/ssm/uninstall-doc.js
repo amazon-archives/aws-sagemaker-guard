@@ -8,14 +8,15 @@ module.exports={
             "action": "aws:runShellScript",
             "name": "runShellScript",
             "inputs": {
-                "runCommand":[fs.readFileSync(`${__dirname}/scripts/glue.sh`,'utf-8')]
+                "runCommand":[fs.readFileSync(`${__dirname}/scripts/uninstall.sh`,'utf-8')]
             }
         }
     ],
     "parameters": {
-        "endpoint": {
+        "requirements": {
             "type": "String",
             "default": "Enabled",
-        }
+            "displayType": "textarea"
+        },
     }
 }

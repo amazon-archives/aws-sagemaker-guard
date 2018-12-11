@@ -6,7 +6,8 @@ module.exports=Object.assign({
             "Parameters" : {
                 "LogsBucketArn":{"Fn::GetAtt":["LogsBucket","Arn"]} ,
                 "VPCEndpoints":{"Ref":"VPCEndpoints"},
-                "CidrBlock":{"Ref":"CidrBlock"}
+                "CidrBlock":{"Ref":"CidrBlock"},
+                "EnableVPCEndpoints":{"Ref":"VPCEndpoints"}
             },
             "TemplateURL" :{"Fn::Sub":"https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/vpc.json"},
         }

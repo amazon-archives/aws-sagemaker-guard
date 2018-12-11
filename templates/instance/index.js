@@ -37,6 +37,10 @@ var params={
     "IdleShutdown":{
         "Type":"String",
         "Default":"30"
+    },
+    "GlueDevEndpoint":{
+        "Type":"String",
+        "Default":"EMPTY"
     }
 }
 

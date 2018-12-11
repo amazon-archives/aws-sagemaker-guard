@@ -1,4 +1,4 @@
-module.exports={
+module.exports=Object.assign(require('./firehose'),{
     "SSMLogGroup":{
         "Type" : "AWS::Logs::LogGroup",
         "Properties" : {}
@@ -79,5 +79,5 @@ module.exports={
             }
         }
     }
-}
+})
 

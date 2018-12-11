@@ -78,6 +78,9 @@ module.exports=Object.assign({
     "VPCEC2MessagesEndpoint":endpoint("ec2messages"),
     "VPCEC2Endpoint":endpoint("ssmmessages"),
     "VPCSSMMessagesEndpoint":endpoint("ssmmessages"),
+    "VPCSageMakerEndpoint":endpoint("sagemaker.api"),
+    "VPCSageMakerRuntimeEndpoint":endpoint("sagemaker.runtime"),
+    "VPCLogsEndpoint":endpoint("logs"),
     "EndpointSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {

@@ -5,10 +5,7 @@ var files=fs.readdirSync(`${__dirname}`)
     .filter(x=>!x.match(/README.md|Makefile|index|test|bin|config|build/))
     .map(x=>require(`./${x}`))
 
-module.exports={
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Manage fleets of SageMaker notebook instances through AWS Systems Manage and Cognito single sign on",
-  "Parameters":{
+var params={
     "CidrBlock":{
         "Type":"String",
         "Default":"10.0.1.0/24"
@@ -30,9 +27,15 @@ module.exports={
     },
     "VPCEndpoints":{
         "Type":"String",
-        "Default":"ENABLE"
+        "Default":"ENABLE",
+        "Description":"Enable or Disable creation of VPC endpoints. You must enable endpoints if you want to disable direct internet access to notebook instances",
+        "AllowedValues":["ENABLE","DISABLE"]
     }
-  },
+  }
+module.exports={
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Manage fleets of SageMaker notebook instances through AWS Systems Manage and Cognito single sign on",
+  "Parameters":params,
   "Outputs":{
     "WebsiteBucket":{
         "Value":{"Ref":"WebsiteBucket"}
@@ -61,14 +64,18 @@ module.exports={
         "Label":{"default":"Adminstrator Settings"},
         "Parameters":["AdminEmail","AdminUsername"]
     },{
+        "Label":{"default":"Advanced Configuration"},
+        "Parameters":["VPCEndpoints"]
+    },{
         "Label":{"default":"[Do No Change] Asset Configuration"},
         "Parameters":["AssetBucket","AssetPrefix"]
     }],
     "ParameterLabels":{
-        "AdminEmail":{"default":"Email Address"},
-        "AdminUsername":{"default":"Username"},
+        "AdminEmail":{"default":"Admin Email Address"},
+        "AdminUsername":{"default":"Admin Username"},
         "AssetBucket":{"default":"Asset Bucket"},
-        "AssetPrefix":{"default":"Asset Prefix"}
+        "AssetPrefix":{"default":"Asset Prefix"},
+        "VPCEndpoints":{"default":"Enable/Disable VPC Endpoint creation"}
     }
 }
   }
