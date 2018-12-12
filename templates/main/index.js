@@ -25,6 +25,12 @@ var params={
         "Type":"String",
         "Description":"Email for Administrator. will be used to setup initial password to log into admin ui"
     },
+    "AdminPhoneNumber":{
+        "Type":"String",
+        "AllowedPattern":"^\\+[0-9]{11}$",
+        "ConstraintDescription":"must be in a format like +12345678901",
+        "Description":"Admin Phone Number used for MFA"
+    },
     "VPCEndpoints":{
         "Type":"String",
         "Default":"ENABLE",
@@ -62,7 +68,7 @@ module.exports={
     "AWS::CloudFormation::Interface":{
     "ParameterGroups":[{
         "Label":{"default":"Adminstrator Settings"},
-        "Parameters":["AdminEmail","AdminUsername"]
+        "Parameters":["AdminEmail","AdminUsername","AdminPhoneNumber"]
     },{
         "Label":{"default":"Advanced Configuration"},
         "Parameters":["VPCEndpoints"]
@@ -73,6 +79,7 @@ module.exports={
     "ParameterLabels":{
         "AdminEmail":{"default":"Admin Email Address"},
         "AdminUsername":{"default":"Admin Username"},
+        "AdminPhoneNumber":{"default":"Admin Phone Number"},
         "AssetBucket":{"default":"Asset Bucket"},
         "AssetPrefix":{"default":"Asset Prefix"},
         "VPCEndpoints":{"default":"Enable/Disable VPC Endpoint creation"}

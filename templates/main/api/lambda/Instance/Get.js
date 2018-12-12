@@ -20,13 +20,14 @@ exports.handler=function(event,context,callback){
                  "path":"/logins-*/_search",
                  "method":"GET",
                  "body":{
+                     "size":4,
                      "query":{
-                         "match":{
-                             "requestContext.authorizer.InstanceName":event.ID
+                         "term":{
+                             "InstanceName":event.ID
                          }
                      },
                      "sort":[{
-                        "requestContext.requestTimeEpoch":{
+                        "Date":{
                             "order":"desc"
                         }
                      }]
@@ -46,7 +47,7 @@ exports.handler=function(event,context,callback){
         var es=results[1]
         if(es.hits.total>0){
             var logins=es.hits.hits
-                .map(x=>`${x._source.requestContext.authorizer.principalId} ${x._source.requestContext.requestTime}`) 
+                .map(x=>`${x._source.UserName} ${x._source.Date}`) 
         }else{
             var logins=null
         }

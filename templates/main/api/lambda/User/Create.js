@@ -13,6 +13,9 @@ exports.handler=function(event,context,callback){
         UserAttributes:[{
             Name:"email",
             Value:event.Attributes.email
+        },{
+            Name:"phone_number",
+            Value:event.Attributes.phone_number
         }]
     }).promise()
     .then(()=>callback(null,event)) 

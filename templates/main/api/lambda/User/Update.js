@@ -36,7 +36,7 @@ exports.handler=function(event,context,callback){
                 return {Name:key,Value:event.Attributes[key]}
             })
 
-        if(event.Attributes.email){
+        if(event.Attributes.email || event.Attributes.phone_number){
             return cognito.adminUpdateUserAttributes({
                 UserPoolId:event.UserPool,
                 Username:obj.attributes.ID,

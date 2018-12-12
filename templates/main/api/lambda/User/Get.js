@@ -18,13 +18,14 @@ exports.handler=function(event,context,callback){
                  "path":"/logins-*/_search",
                  "method":"GET",
                  "body":{
+                     "size":4,
                      "query":{
-                         "match":{
-                             "requestContext.authorizer.principalId":result.attributes.ID
+                         "term":{
+                             "UserName":result.attributes.ID
                          }
                      },
                      "sort":[{
-                        "requestContext.requestTimeEpoch":{
+                        "Date":{
                             "order":"desc"
                         }
                      }]
@@ -37,11 +38,11 @@ exports.handler=function(event,context,callback){
                     FunctionName:event.FunctionName,
                     InvocationType:"RequestResponse",
                     Payload:JSON.stringify({
-                        ID:x._source.requestContext.authorizer.InstanceName,
+                        ID:x._source.InstanceName,
                         Type:"instances"
                     })
                 }).promise().then(validate)
-                .then(y=>`${y.attributes.ID} ${x._source.requestContext.requestTime}`)))
+                .then(y=>`${y.attributes.ID} ${x._source.Date}`)))
                 .then(x=>result.attributes["Last Logins"]=x)
             }
         })

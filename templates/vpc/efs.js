@@ -5,6 +5,7 @@ module.exports={
     },
     "EFSMount":{
         "Type" : "AWS::EFS::MountTarget",
+        "DependsOn":["subnet1","EFSSecurityGroup"],
         "Properties" : {
             FileSystemId:{"Ref":"EFS"},
             SecurityGroups:[{"Ref":"EFSSecurityGroup"}],

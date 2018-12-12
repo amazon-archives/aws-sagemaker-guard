@@ -12,6 +12,18 @@ module.exports={
                 method:"PUT",
                 body:{"Fn::Sub":JSON.stringify({ 
                     settings:{},
+                    mappings:{
+                        login:{
+                            properties:{
+                                UserName:{type:"keyword"},
+                                InstanceName:{type:"keyword"},
+                                "Date":{type:"date"},
+                                IP:{type:"ip"},
+                                RequestId:{type:"keyword"},
+                                UserAgent:{type:"text"}
+                            }
+                        }
+                    }
                 })}
             },
             "delete":{

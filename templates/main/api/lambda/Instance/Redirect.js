@@ -49,7 +49,14 @@ exports.handler=function(event,context,callback){
         return firehose.putRecord({
             DeliveryStreamName:process.env.LOGINFIREHOSE,
             Record:{
-                Data:JSON.stringify(event)
+                Data:JSON.stringify({
+                    UserName:event.requestContext.authorizer.principalId,
+                    InstanceName:event.requestContext.authorizer.InstanceName,
+                    "Date":event.requestContext.requestTimeEpoch,
+                    IP:event.requestContext.identity.sourceIp,
+                    UserAgent:event.requestContext.identity.userAgent,
+                    RequestId:event.requestContext.requestId,
+                })
             }
         }).promise()
         .then(()=>callback(null,{

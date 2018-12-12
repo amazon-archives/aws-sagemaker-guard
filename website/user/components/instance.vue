@@ -7,6 +7,19 @@
           span {{item.data.NotebookInstanceStatus}}
         span {{item.data.InstanceType}}
         span(v-if="item.data.Description") {{item.data.Description}}
+    v-card-text
+      v-list(three-line dense)
+        v-container.pa-0
+          v-layout(row  wrap)
+            v-flex.xs6(v-for="(value,key) in data" )
+              v-list-tile
+                v-list-tile-content
+                  v-list-tile-title {{key}} 
+                  v-list-tile-sub-title(v-if="!Array.isArray(value)") {{value}} 
+                  v-list-tile-sub-title(
+                    v-if="Array.isArray(value)"
+                    v-for="v in value"
+                  ) {{v}} 
     v-card-actions
       v-btn(flat 
         v-if="instance.template" 
@@ -47,7 +60,10 @@ module.exports={
         "href")
     },
     item:function(){
-      return _.get(this,"instance.items[0]")
+      return _.get(this,"instance.items[0]",{})
+    },
+    data:function(){
+      return _.omit(this.item.data,["ID","InstanceType","NotebookInstanceStatus"])
     }
   },
   created:function(){

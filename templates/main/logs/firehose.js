@@ -8,6 +8,7 @@ module.exports={
     },
     "LoginFirehose": {
         "Type" : "AWS::KinesisFirehose::DeliveryStream",
+        "DependsOn":["LoginsIndex"],
         "Properties" :{
             "DeliveryStreamType" : "DirectPut",
             "ElasticsearchDestinationConfiguration" : {
@@ -17,7 +18,7 @@ module.exports={
                 },
                 "DomainARN" :{"Fn::Sub":"${ElasticSearchDomain.ARN}"},
                 "IndexName" :"logins",
-                "IndexRotationPeriod" : "OneWeek",
+                "IndexRotationPeriod" : "NoRotation",
                 "RetryOptions" : {
                     "DurationInSeconds" : 300
                 },

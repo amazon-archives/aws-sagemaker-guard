@@ -1,4 +1,34 @@
 module.exports={
+"SNSCognitoRole": {
+  "Type": "AWS::IAM::Role",
+  "Properties": {
+    "AssumeRolePolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+                "Service": "cognito-idp.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    },
+    "Path": "/",
+    "ManagedPolicyArns": [],
+    "Policies":[{
+        "PolicyName":"CognitoSNSPolicy",
+        "PolicyDocument":{
+            "Version":"2012-10-17",
+            Statement:{
+                Effect:"Allow",
+                Action:["sns:publish"],
+                Resource:"*"
+            }
+        }
+    }]
+  }
+},
 "UserRole": {
   "Type": "AWS::IAM::Role",
   "Properties": {

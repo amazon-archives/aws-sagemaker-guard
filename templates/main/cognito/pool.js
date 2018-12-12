@@ -15,6 +15,14 @@ module.exports={
     "LambdaConfig":{
         "PreSignUp":{"Fn::GetAtt":["SignupLambda","Arn"]},
         "PostAuthentication":{"Fn::GetAtt":["PostauthLambda","Arn"]}
+    },
+    UserPoolAddOns:{
+        AdvancedSecurityMode:"ENFORCED"
+    },
+    MfaConfiguration:"OPTIONAL",
+    SmsConfiguration:{
+        SnsCallerArn:{"Fn::GetAtt":["SNSCognitoRole","Arn"]},
+        ExternalId:{"Ref":"AWS::StackName"}
     }
   }
 },

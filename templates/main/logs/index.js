@@ -9,6 +9,7 @@ module.exports=Object.assign(require('./firehose'),require('./proxy'),{
     },
     "LogsClear":{
         "Type": "Custom::S3Clear",
+        "DependsOn":["VPC"],
         "Properties": {
             "ServiceToken": { "Fn::GetAtt" : ["CFNS3ClearLambda", "Arn"] },
             "Bucket":{"Ref":"LogsBucket"},
