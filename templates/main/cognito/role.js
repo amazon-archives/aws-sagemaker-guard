@@ -47,7 +47,7 @@ module.exports={
         },
         "RoleMappings":[{
             "ClientId":{"Ref":"AdminClient"},
-            "UserPool":{"Ref":"UserPool"},
+            "UserPool":{"Fn::GetAtt":["QNA","Outputs.UserPool"]},
             "Type":"Rules",
             "AmbiguousRoleResolution":"Deny",
             "RulesConfiguration":{"Rules":[{

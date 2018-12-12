@@ -10,7 +10,7 @@
     "Payload":{
         "FunctionName":"${APICloudDirectoryObjectUpdateLambda.Arn}",
         "GetFunctionName":"${APICloudDirectoryObjectGetLambda.Arn}",
-        "UserPool":"${UserPool}",
+        "UserPool":"${QNA.Outputs.UserPool}",
         "ID":"$input.params('id')",
         "Type":"$input.params('type')",
         "Attributes":$input.json('$.template.data')

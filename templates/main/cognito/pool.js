@@ -1,9 +1,10 @@
 var fs=require('fs')
 module.exports={
-"UserPool": {
-  "Type": "AWS::Cognito::UserPool",
+"UserPoolUpdate": {
+  "Type": "Custom::CognitoPoolUpdate",
   "Properties": {
-    "UserPoolName": {"Fn::Sub":"Userpool-${AWS::StackName}"},
+    "ServiceToken": { "Fn::GetAtt" : ["CFNCognitoPoolUpdateLambda", "Arn"] },
+    UserPoolId:{"Fn::GetAtt":["QNA","Outputs.UserPool"]}, 
     "AdminCreateUserConfig":{
         "AllowAdminCreateUserOnly":true,
         "InviteMessageTemplate":{
@@ -11,14 +12,6 @@ module.exports={
             "EmailMessage":{"Fn::Sub":fs.readFileSync(__dirname+'/invite.txt','utf8')},
         }
     },
-    "AliasAttributes":["email"],
-    "AutoVerifiedAttributes":["email"],
-    "Schema":[{
-        "Required":true,
-        "Name":"email",
-        "AttributeDataType":"String",
-        "Mutable":true
-    }],
     "LambdaConfig":{
         "PreSignUp":{"Fn::GetAtt":["SignupLambda","Arn"]},
         "PostAuthentication":{"Fn::GetAtt":["PostauthLambda","Arn"]}
@@ -30,7 +23,7 @@ module.exports={
   "Properties": {
     "ClientName": {"Fn::Sub":"User"},
     "GenerateSecret": false,
-    "UserPoolId": {"Ref": "UserPool"}
+    "UserPoolId": {"Fn::GetAtt":["QNA","Outputs.UserPool"]}
   }
 },
 "UserClient": {
@@ -38,7 +31,7 @@ module.exports={
   "Properties": {
     "ClientName": {"Fn::Sub":"Admin"},
     "GenerateSecret": false,
-    "UserPoolId": {"Ref": "UserPool"}
+    "UserPoolId": {"Fn::GetAtt":["QNA","Outputs.UserPool"]}
   }
 },
 "IdPool": {
@@ -49,29 +42,10 @@ module.exports={
     "CognitoIdentityProviders": [
       {
         "ClientId": {"Ref": "AdminClient"},
-        "ProviderName": {"Fn::GetAtt": ["UserPool","ProviderName"]},
+        "ProviderName": {"Fn::Sub":"cognito-idp.${AWS::Region}.amazonaws.com/${QNA.Outputs.UserPool}"},
         "ServerSideTokenCheck": true
       }
     ]
   }
 },
-"SignupPermision":{
-    "Type" : "AWS::Lambda::Permission",
-    "Properties" : {
-        "Action" : "lambda:InvokeFunction",
-        "FunctionName" : {"Fn::GetAtt":["SignupLambda","Arn"]},
-        "Principal" : "cognito-idp.amazonaws.com",
-        "SourceArn" : {"Fn::GetAtt":["UserPool","Arn"]}
-    }
-},
-"PostauthPermision":{
-    "Type" : "AWS::Lambda::Permission",
-    "Properties" : {
-        "Action" : "lambda:InvokeFunction",
-        "FunctionName" : {"Fn::GetAtt":["PostauthLambda","Arn"]},
-        "Principal" : "cognito-idp.amazonaws.com",
-        "SourceArn" : {"Fn::GetAtt":["UserPool","Arn"]}
-    }
-},
-
 }

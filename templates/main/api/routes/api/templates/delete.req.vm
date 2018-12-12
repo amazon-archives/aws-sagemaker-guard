@@ -1,7 +1,7 @@
 {
     "FunctionName":"${APICloudDirectoryObjectDeleteLambda.Arn}",
     "Payload":{
-        "UserPool":"${UserPool}",
+        "UserPool":"${QNA.Outputs.UserPool}",
         "ID":"$input.params('id')",
         "Type":"$input.params('type')"
     }

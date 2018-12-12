@@ -147,7 +147,9 @@ function lambda(name){
             "Variables":Object.assign({
                 DIRECTORY:{"Ref":"Directory"},
                 SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
-                LOGINFIREHOSE:{"Ref":"LoginFirehose"}
+                LOGINFIREHOSE:{"Ref":"LoginFirehose"},
+                ESPROXY:{"Fn::GetAtt":["QNA","Outputs.ESProxyLambda"]},
+                ESADDRESS:{"Fn::GetAtt":["QNA","Outputs.ElasticsearchEndpoint"]},
             },stateMachines)
         },
         "TracingConfig":{

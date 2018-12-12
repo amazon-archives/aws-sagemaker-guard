@@ -7,9 +7,12 @@ module.exports={
         "Type" : "AWS::CloudFormation::Stack",
         "Properties" : {
             "Parameters" : {
-                Email:{"Ref":"AdminEmail" }
+                Email:"joedoe@example.com",
+                Username:"QnAAdmin",
+                BootstrapBucket:"aws-bigdata-blog",
+                BootstrapPrefix:"artifacts/aws-ai-qna-bot"
             },
-            "TemplateURL" :"http://s3.amazonaws.com/aws-bigdata-blog/artifacts/aws-ai-qna-bot/templates/public.json",
+            "TemplateURL" :"http://s3.amazonaws.com/aws-bigdata-blog/artifacts/aws-ai-qna-bot/templates/master.json",
         }
     },
     "LexWebUi":{

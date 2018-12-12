@@ -47,7 +47,8 @@ module.exports=Object.assign(
               },{
                   "Effect": "Allow",
                   "Action": [
-                    "execute-api:*"
+                    "execute-api:*",
+                    "es:*"
                   ],
                   "Resource":["*"]
               }]
@@ -63,7 +64,8 @@ module.exports=Object.assign(
           "Statement": [{
               "Effect": "Allow",
               "Action": [
-                "execute-api:*"
+                "execute-api:*",
+                "es:*"
               ],
               "Resource":["*"]
           }]

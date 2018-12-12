@@ -7,7 +7,7 @@ module.exports={
             "Action" : "lambda:InvokeFunction",
             "FunctionName" : {"Fn::GetAtt":["SignupLambda","Arn"]},
             "Principal" : "cognito-idp.amazonaws.com",
-            "SourceArn" : {"Fn::GetAtt":["UserPool","Arn"]}
+            "SourceArn" : {"Fn::Sub":"arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${QNA.Outputs.UserPool}"}
         }
     },
     "SignupLambda": {

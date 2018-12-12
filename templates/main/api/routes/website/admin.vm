@@ -10,7 +10,7 @@
     <meta name="PoolId" content="${IdPool}">
     <meta name="Endpoint" content="${CognitoEndpoint.href}">
     <meta name="ClientId" content="${AdminClient}">
-    <meta name="UserPool" content="${UserPool}">
+    <meta name="UserPool" content="${QNA.Outputs.UserPool}">
     <meta name="Region" content="${AWS::Region}">
     <link rel="Login" href="${AdminLogin.href}">
     <title>SageGuard ${AWS::StackName}-Admin</title>
@@ -52,9 +52,22 @@
 	  };
 	  var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);
 	  loader.load(chatbotUiConfig)
-        .then(()=>{
-            document.querySelector("#lex-web-ui nav").classList.add("theme--light")
-            document.querySelector("#lex-web-ui nav").classList.remove("theme--dark")
+        .then(x=>new Promise(function(res,rej){
+            next()
+            function next(){
+                var nav=document.querySelector("#lex-web-ui nav")
+                if(nav){
+                    console.log(nav)
+                    res(nav) 
+                }else{
+                    setTimeout(next,1000)   
+                }
+            }
+        }))
+        .then(nav=>{
+            console.log(nav)
+            nav.classList.add("theme--light")
+            nav.classList.remove("theme--dark")
         })
 		.catch(function (error) { console.error(error); });
 	</script>

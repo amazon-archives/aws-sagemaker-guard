@@ -4,7 +4,7 @@ module.exports={
         "Properties" : {
             "IdentitySource":"method.request.header.authorization",
             "Name":"CognitoAuthorizer",
-            "ProviderARNs":[{"Fn::GetAtt":["UserPool","Arn"]}],
+            "ProviderARNs":[{"Fn::Sub":"arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${QNA.Outputs.UserPool}"}],
             "RestApiId":{"Ref":"API"},
             "Type":"COGNITO_USER_POOLS"
         }

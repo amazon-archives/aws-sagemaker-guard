@@ -1,4 +1,4 @@
-module.exports=Object.assign(require('./firehose'),{
+module.exports=Object.assign(require('./firehose'),require('./proxy'),{
     "SSMLogGroup":{
         "Type" : "AWS::Logs::LogGroup",
         "Properties" : {}
@@ -7,7 +7,7 @@ module.exports=Object.assign(require('./firehose'),{
         "Type" : "AWS::S3::Bucket",
         "Properties" :{} 
     },
-    "WebsiteClear":{
+    "LogsClear":{
         "Type": "Custom::S3Clear",
         "Properties": {
             "ServiceToken": { "Fn::GetAtt" : ["CFNS3ClearLambda", "Arn"] },

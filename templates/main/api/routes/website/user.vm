@@ -10,7 +10,7 @@
     <meta name="PoolId" content="${IdPool}">
     <meta name="Endpoint" content="${CognitoEndpoint.href}">
     <meta name="ClientId" content="${UserClient}">
-    <meta name="UserPool" content="${UserPool}">
+    <meta name="UserPool" content="${QNA.Outputs.UserPool}">
     <meta name="Region" content="${AWS::Region}">
     <link rel="Login" href="${UserLogin.href}">
     <title>SageGuard ${AWS::StackName}-user</title>

@@ -31,6 +31,16 @@
           v-list-tile-content
             v-list-tile-title {{page.name}}
             v-list-tile-sub-title {{page.prompt}}
+        v-list-tile(v-for="(link,index) in links" :key="index"
+          :href="link.href"
+          :id="'page-link-'+link.name"
+          target='_blank'
+          )
+          v-list-tile-avatar( v-if="link.render")
+            v-icon(color="primary") {{link.render}}
+          v-list-tile-content
+            v-list-tile-title {{link.name}}
+            v-list-tile-sub-title {{link.prompt}}
       v-list(dense one-line)
         v-list-group( prepend-icon="info" value="true" color="primary" expand="true")
           v-list-tile(slot="activator")
@@ -76,6 +86,11 @@ module.exports={
   computed:{
     pages:function(){
       return _.get(this,"$store.state.data.links.items",[])
+        .filter(x=>x.rel==="collection")
+    },
+    links:function(){
+      return _.get(this,"$store.state.data.links.items",[])
+        .filter(x=>x.rel!=="collection")
     },
     info:function(){
       return _.get(this,"$store.state.data.info",{})

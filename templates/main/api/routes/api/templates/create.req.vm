@@ -12,7 +12,7 @@
     #end
     "Payload":{
         "FunctionName":"${APICloudDirectoryObjectCreateLambda.Arn}",
-        "UserPool":"${UserPool}",
+        "UserPool":"${QNA.Outputs.UserPool}",
         "Type":"$input.params('type')",
         "Attributes":$input.json('$.template.data')
     }

@@ -21,7 +21,7 @@
         :label="name"
         :required="required"
         :items="schema.enum"
-        clearable="true"
+        clearable=true
         v-model="local"
       )
     div(v-if="schema.type==='array'")

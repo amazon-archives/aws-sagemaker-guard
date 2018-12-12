@@ -1,19 +1,41 @@
 module.exports={
+    "ElasticSearchDomain":{
+        "Type": "Custom::ESDomain",
+        "Properties": {
+            "ServiceToken": { "Fn::GetAtt" : ["CFNElasticSearchArnLambda", "Arn"] },
+            endpoint:{ "Fn::GetAtt" : ["QNA","Outputs.ElasticsearchEndpoint"] },
+        }
+    },
     "LoginFirehose": {
         "Type" : "AWS::KinesisFirehose::DeliveryStream",
-        "Properties" : {
+        "Properties" :{
             "DeliveryStreamType" : "DirectPut",
-            "S3DestinationConfiguration" : {
-                "BucketARN":{"Fn::GetAtt":["LogsBucket","Arn"]},
+            "ElasticsearchDestinationConfiguration" : {
                 "BufferingHints" : {
                     "IntervalInSeconds" : 60,
                     "SizeInMBs" : 5
                 },
-                "CompressionFormat":"GZIP",
+                "DomainARN" :{"Fn::Sub":"${ElasticSearchDomain.ARN}"},
+                "IndexName" :"logins",
+                "IndexRotationPeriod" : "OneWeek",
+                "RetryOptions" : {
+                    "DurationInSeconds" : 300
+                },
                 "RoleARN" : {"Fn::GetAtt" : ["FirehoseRole", "Arn"] },
-                "Prefix":"Logins/"
+                "S3BackupMode" : "AllDocuments",
+                "S3Configuration" : {
+                    "BucketARN":{"Fn::GetAtt":["LogsBucket","Arn"]},
+                    "BufferingHints" : {
+                        "IntervalInSeconds" : 60,
+                        "SizeInMBs" : 5
+                    },
+                    "CompressionFormat":"GZIP",
+                    "RoleARN" : {"Fn::GetAtt" : ["FirehoseRole", "Arn"] },
+                    "Prefix":"Logins/"
+                },
+                "TypeName" : "login"
             },
-        }
+        } 
     },
     "FirehoseRole":{
         "Type": "AWS::IAM::Role",
@@ -60,6 +82,12 @@ module.exports={
                 "Resource": [
                   {"Fn::Join": ["",["arn:aws:logs:",{ "Ref" : "AWS::Region" },":",{ "Ref" : "AWS::AccountId" },":log-group:/aws/kinesisfirehose/*"]]}
                 ]
+              },
+                {
+                "Sid": "a",
+                "Effect": "Allow",
+                "Action": ["es:*"],
+                "Resource": ["*"]
               }
             ]
           },

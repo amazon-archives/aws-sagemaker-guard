@@ -33,5 +33,10 @@
     "qid":"how.6",
     "q":["How do users log in"],
     "a":"go here"
+},
+{
+    "qid":"how.6",
+    "q":["How do i reset a users password"],
+    "a":"go here"
 }
 ]}

@@ -33,7 +33,7 @@ module.exports={
     "Type": "Custom::Variable",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"https://${CognitoDomain}.auth.${AWS::Region}.amazoncognito.com"}
+        "href":{"Fn::Sub":"${QNA.Outputs.CognitoEndpoint}"}
     }
 },
 "AdminLoginRoute":{

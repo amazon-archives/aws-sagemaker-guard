@@ -21,8 +21,12 @@
                   v-list-tile
                     v-list-tile-content
                       v-list-tile-title {{key}} 
-                      v-list-tile-sub-title {{value}} 
-                v-flex.xs6(v-for="link in links" )
+                      v-list-tile-sub-title(v-if="!Array.isArray(value)") {{value}} 
+                      v-list-tile-sub-title(
+                        v-if="Array.isArray(value)"
+                        v-for="v in value"
+                      ) {{v}} 
+                v-flex.xs6
                   v-list-tile( v-for="link in links")
                     v-list-tile-content
                       v-list-tile-title {{link.title}}

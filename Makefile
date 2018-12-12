@@ -1,6 +1,6 @@
 LAMBDAS=$(shell for l in $$(ls ./lambda | grep -v Makefile);do echo lambda/$$l;done)
 TEMPLATES=$(shell for l in $$(ls ./templates );do echo templates/$$l;done)
-.PHONY: build website lambda check
+.PHONY: build website lambda check QnA
 build:
 	mkdir -p build; mkdir -p build/lambda; 
 

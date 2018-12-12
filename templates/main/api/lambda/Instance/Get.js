@@ -3,23 +3,53 @@ aws.config.region=process.env.AWS_REGION
 var lambda=new aws.Lambda()
 var sagemaker=new aws.SageMaker()
 var cf=new aws.CloudFormation()
+
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
-    return lambda.invoke({
-        FunctionName:event.FunctionName,
-        InvocationType:"RequestResponse",
-        Payload:JSON.stringify(event)
-    }).promise()
-    .then(result=>{
+    return Promise.all([
+        lambda.invoke({
+            FunctionName:event.FunctionName,
+            InvocationType:"RequestResponse",
+            Payload:JSON.stringify(event)
+        }).promise(),
+        lambda.invoke({
+            FunctionName:process.env.ESPROXY,
+            InvocationType:"RequestResponse",
+            Payload:JSON.stringify({
+                 "endpoint":process.env.ESADDRESS,
+                 "path":"/logins-*/_search",
+                 "method":"GET",
+                 "body":{
+                     "query":{
+                         "match":{
+                             "requestContext.authorizer.InstanceName":event.ID
+                         }
+                     },
+                     "sort":[{
+                        "requestContext.requestTimeEpoch":{
+                            "order":"desc"
+                        }
+                     }]
+                 }  
+            })
+        }).promise()
+    ]).then(results=>results.map(result=>{
         console.log(JSON.stringify(result,null,2))
         if(result.FunctionError){
             throw JSON.parse(JSON.parse(result.Payload).errorMessage)
         }else{
             return JSON.parse(result.Payload)
         }
-    })
-    .then(result=>{
-        console.log(JSON.stringify(result,null,2))
+    }))
+    .then(results=>{
+        var result=results[0]
+        var es=results[1]
+        if(es.hits.total>0){
+            var logins=es.hits.hits
+                .map(x=>`${x._source.requestContext.authorizer.principalId} ${x._source.requestContext.requestTime}`) 
+        }else{
+            var logins=null
+        }
         return cf.describeStacks({
             StackName:result.attributes.StackName
         }).promise()
@@ -37,6 +67,7 @@ exports.handler=function(event,context,callback){
                     Object.assign(result.attributes,outputs,info)
                     delete result.attributes.policy_type
                     delete result.attributes.policy_document
+                    if(logins) result.attributes["Last Logins"]=logins 
                     callback(null,Object.assign(
                         {attributes:result.attributes},
                         event
@@ -47,6 +78,7 @@ exports.handler=function(event,context,callback){
                 delete result.attributes.policy_type
                 delete result.attributes.policy_document
 
+                if(logins) result.attributes["Last Logins"]=logins 
                 callback(null,Object.assign(
                     {attributes:result.attributes},
                     event

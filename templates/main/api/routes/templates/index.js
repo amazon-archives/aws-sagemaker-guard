@@ -45,10 +45,6 @@ function template(name){
         [
             `API${name}TemplateLambda`,
             lambda(name)
-        ],
-        [
-            `API${name}TemplateLambdaPermission`,
-            permission(name)
         ]
     ]
 }

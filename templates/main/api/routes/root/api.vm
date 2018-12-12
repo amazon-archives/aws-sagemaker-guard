@@ -24,6 +24,13 @@
             "name":"Groups",
             "render":"people",
             "prompt":"Manage Groups of users"
+        },
+        {   
+            "href":"https://${QNA.Outputs.ElasticsearchEndpoint}/_plugin/kibana/",
+            "rel":"monitor",
+            "name":"Kibana",
+            "render":"show_chart",
+            "prompt":"Analyze and Visualize logs"
         }
     ]
 }}

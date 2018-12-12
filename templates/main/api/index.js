@@ -57,7 +57,7 @@ module.exports=Object.assign(
         "ResourcePath": "/*"
     }],
     "Variables":Object.assign({
-        "UserPool":{"Ref":"UserPool"},
+        "UserPool":{"Fn::GetAtt":["QNA","Outputs.UserPool"]},
         "Region":{"Ref":"AWS::Region"},
         "DirectoryArn":{"Ref":"Directory"},
         "SchemaArn":{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
