@@ -4,7 +4,8 @@
   "Parameters": {
     "CidrBlock": {
       "Type": "String",
-      "Default": "10.0.1.0/24"
+      "Default": "10.0.1.0/24",
+      "Description": "CIDR block to use for the VPC. choose carefully if you are going to peer the VPC in this stack with another one"
     },
     "AssetBucket": {
       "Type": "String"
@@ -19,13 +20,13 @@
     },
     "AdminEmail": {
       "Type": "String",
-      "Description": "Email for Administrator. will be used to setup initial password to log into admin ui"
+      "Description": "will be used to setup initial password to log into admin interface"
     },
     "AdminPhoneNumber": {
       "Type": "String",
       "AllowedPattern": "^\\+[0-9]{11}$",
-      "ConstraintDescription": "must be in a format like +12345678901",
-      "Description": "Admin Phone Number used for MFA"
+      "ConstraintDescription": "must be in a format like +18005550100",
+      "Description": "Admin Phone Number used for multi factor authentication"
     },
     "VPCEndpoints": {
       "Type": "String",
@@ -2500,7 +2501,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var lambda=new aws.Lambda;function validate(result){if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);return JSON.parse(result.Payload)}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.FunctionName,InvocationType:\"RequestResponse\",Payload:JSON.stringify(event)}).promise().then(validate).then(result=>{lambda.invoke({FunctionName:process.env.ESPROXY,InvocationType:\"RequestResponse\",Payload:JSON.stringify({endpoint:process.env.ESADDRESS,path:\"/logins-*/_search\",method:\"GET\",body:{size:4,query:{term:{UserName:result.attributes.ID}},sort:[{Date:{order:\"desc\"}}]}})}).promise().then(validate).then(es=>{if(es.hits.total>0)return Promise.all(es.hits.hits.map(x=>lambda.invoke({FunctionName:event.FunctionName,InvocationType:\"RequestResponse\",Payload:JSON.stringify({ID:x._source.InstanceName,Type:\"instances\"})}).promise().then(validate).then(y=>`${y.attributes.ID} ${x._source.Date}`))).then(x=>result.attributes[\"Last Logins\"]=x)}).then(()=>{callback(null,Object.assign({attributes:result.attributes},event))})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cognito=new aws.CognitoIdentityServiceProvider,lambda=new aws.Lambda;function validate(result){if(console.log(JSON.stringify(result,null,2)),result.FunctionError)throw JSON.parse(JSON.parse(result.Payload).errorMessage);return JSON.parse(result.Payload)}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),lambda.invoke({FunctionName:event.FunctionName,InvocationType:\"RequestResponse\",Payload:JSON.stringify(event)}).promise().then(validate).then(result=>{Promise.all([lambda.invoke({FunctionName:process.env.ESPROXY,InvocationType:\"RequestResponse\",Payload:JSON.stringify({endpoint:process.env.ESADDRESS,path:\"/logins-*/_search\",method:\"GET\",body:{size:4,query:{term:{UserName:result.attributes.ID}},sort:[{Date:{order:\"desc\"}}]}})}).promise().then(validate),cognito.adminListUserAuthEvents({UserPoolId:event.UserPool,Username:result.attributes.ID,MaxResults:4}).promise()]).then(results=>{var es=results[0],cog=results[1];if(es.hits.total>0)return Promise.all(es.hits.hits.map(x=>lambda.invoke({FunctionName:event.FunctionName,InvocationType:\"RequestResponse\",Payload:JSON.stringify({ID:x._source.InstanceName,Type:\"instances\"})}).promise().then(validate).then(y=>`${y.attributes.ID} ${x._source.Date}`))).then(x=>result.attributes[\"Last Logins\"]=x);cog.AuthEvents.length>0&&(result.attributes[\"Login events\"]=cog.AuthEvents.map(x=>`${x.CreationDate}:${x.EventType} ${x.EventResponse}:${x.EventRisk.RiskLevel||\"\"}`))}).then(()=>{callback(null,Object.assign({attributes:result.attributes},event))})}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -2730,7 +2731,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2018-12-12T23:29:09.967Z"
+        "BuildDate": "2018-12-13T15:28:16.766Z"
       }
     },
     "AuthCodeVersion": {
@@ -2748,7 +2749,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/auth.zip"
         },
-        "BuildDate": "2018-12-12T23:29:09.967Z"
+        "BuildDate": "2018-12-13T15:28:16.766Z"
       }
     },
     "APIAuthLambda": {
@@ -3221,7 +3222,7 @@
           },
           "RequestTemplates": {
             "application/json": {
-              "Fn::Sub": "{\n    #if ($input.params('type') == 'groups')\n        \"FunctionName\":\"${APICloudDirectoryObjectGetLambda.Arn}\",\n    #elseif ($input.params('type') == 'users')\n        \"FunctionName\":\"${APIUserGetLambda.Arn}\",\n    #else \n        \"FunctionName\":\"${APIInstanceGetLambda.Arn}\",\n    #end\n    \"Payload\":{\n        \"FunctionName\":\"${APICloudDirectoryObjectGetLambda.Arn}\",\n        \"Type\":\"$input.params('type')\",\n        \"ID\":\"$input.params('id')\"\n    }\n}\n"
+              "Fn::Sub": "{\n    #if ($input.params('type') == 'groups')\n        \"FunctionName\":\"${APICloudDirectoryObjectGetLambda.Arn}\",\n    #elseif ($input.params('type') == 'users')\n        \"FunctionName\":\"${APIUserGetLambda.Arn}\",\n    #else \n        \"FunctionName\":\"${APIInstanceGetLambda.Arn}\",\n    #end\n    \"Payload\":{\n        \"FunctionName\":\"${APICloudDirectoryObjectGetLambda.Arn}\",\n        \"UserPool\":\"${QNA.Outputs.UserPool}\",\n        \"Type\":\"$input.params('type')\",\n        \"ID\":\"$input.params('id')\"\n    }\n}\n"
             }
           }
         },
@@ -5647,7 +5648,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2018-12-12T23:29:09.979Z",
+        "buildDate": "2018-12-13T15:28:16.770Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -6475,7 +6476,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/unzip.zip"
         },
-        "BuildDate": "2018-12-12T23:29:10.357Z"
+        "BuildDate": "2018-12-13T15:28:17.178Z"
       }
     },
     "CFNUnzipLambda": {
@@ -8051,7 +8052,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2018-12-12T23:29:10.386Z",
+        "BuildDate": "2018-12-13T15:28:17.211Z",
         "Version": "1.0.0"
       }
     },
@@ -8280,7 +8281,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2018-12-12T23:29:10.388Z"
+        "buildDate": "2018-12-13T15:28:17.216Z"
       },
       "DependsOn": "WebsiteClear"
     },

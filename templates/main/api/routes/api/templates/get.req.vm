@@ -8,6 +8,7 @@
     #end
     "Payload":{
         "FunctionName":"${APICloudDirectoryObjectGetLambda.Arn}",
+        "UserPool":"${QNA.Outputs.UserPool}",
         "Type":"$input.params('type')",
         "ID":"$input.params('id')"
     }
