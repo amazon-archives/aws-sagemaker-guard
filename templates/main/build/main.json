@@ -2730,7 +2730,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2018-12-12T22:15:20.094Z"
+        "BuildDate": "2018-12-12T23:29:09.967Z"
       }
     },
     "AuthCodeVersion": {
@@ -2748,7 +2748,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/auth.zip"
         },
-        "BuildDate": "2018-12-12T22:15:20.094Z"
+        "BuildDate": "2018-12-12T23:29:09.967Z"
       }
     },
     "APIAuthLambda": {
@@ -5647,7 +5647,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2018-12-12T22:15:20.096Z",
+        "buildDate": "2018-12-12T23:29:09.979Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -6475,7 +6475,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/unzip.zip"
         },
-        "BuildDate": "2018-12-12T22:15:20.436Z"
+        "BuildDate": "2018-12-12T23:29:10.357Z"
       }
     },
     "CFNUnzipLambda": {
@@ -8051,7 +8051,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2018-12-12T22:15:20.455Z",
+        "BuildDate": "2018-12-12T23:29:10.386Z",
         "Version": "1.0.0"
       }
     },
@@ -8280,7 +8280,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2018-12-12T22:15:20.457Z"
+        "buildDate": "2018-12-12T23:29:10.388Z"
       },
       "DependsOn": "WebsiteClear"
     },

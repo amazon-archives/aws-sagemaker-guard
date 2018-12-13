@@ -8,7 +8,8 @@ var files=fs.readdirSync(`${__dirname}`)
 var params={
     "CidrBlock":{
         "Type":"String",
-        "Default":"10.0.1.0/24"
+        "Default":"10.0.1.0/24",
+        "Description":"CIDR block to use for the VPC. choose carefully if you are going to peer the VPC in this stack with another one",
     },
     "AssetBucket":{
         "Type":"String",
@@ -23,13 +24,13 @@ var params={
     },
     "AdminEmail":{
         "Type":"String",
-        "Description":"Email for Administrator. will be used to setup initial password to log into admin ui"
+        "Description":"will be used to setup initial password to log into admin interface"
     },
     "AdminPhoneNumber":{
         "Type":"String",
         "AllowedPattern":"^\\+[0-9]{11}$",
-        "ConstraintDescription":"must be in a format like +12345678901",
-        "Description":"Admin Phone Number used for MFA"
+        "ConstraintDescription":"must be in a format like +18005550100",
+        "Description":"Admin Phone Number used for multi factor authentication"
     },
     "VPCEndpoints":{
         "Type":"String",
