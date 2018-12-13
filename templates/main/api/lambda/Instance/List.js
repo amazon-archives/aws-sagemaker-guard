@@ -22,7 +22,7 @@ exports.handler=function(event,context,callback){
             InvocationType:"RequestResponse",
             Payload:JSON.stringify({
                  "endpoint":process.env.ESADDRESS,
-                 "path":"/logins-*/_search",
+                 "path":"/logins/_search",
                  "method":"GET",
                  "body":{
                      "size":2,
@@ -55,7 +55,7 @@ exports.handler=function(event,context,callback){
         
         if(es.hits.total>0){
             data.attributes["Last Logins"]=es.hits.hits
-                .map(x=>x._source.Date) 
+                .map(x=>Date(x._source.Date)) 
         }else{
             delete data.attributes["Last Logins"]
         }

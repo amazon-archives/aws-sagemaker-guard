@@ -17,7 +17,7 @@ exports.handler=function(event,context,callback){
                 InvocationType:"RequestResponse",
                 Payload:JSON.stringify({
                      "endpoint":process.env.ESADDRESS,
-                     "path":"/logins-*/_search",
+                     "path":"/logins/_search",
                      "method":"GET",
                      "body":{
                          "size":4,
@@ -52,7 +52,7 @@ exports.handler=function(event,context,callback){
                         Type:"instances"
                     })
                 }).promise().then(validate)
-                .then(y=>`${y.attributes.ID} ${x._source.Date}`)))
+                .then(y=>`${Date(x._source.Date)}:${y.attributes.ID} `)))
                 .then(x=>result.attributes["Last Logins"]=x)
             }
             if(cog.AuthEvents.length>0){

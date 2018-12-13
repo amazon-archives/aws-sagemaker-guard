@@ -17,7 +17,7 @@ exports.handler=function(event,context,callback){
             InvocationType:"RequestResponse",
             Payload:JSON.stringify({
                  "endpoint":process.env.ESADDRESS,
-                 "path":"/logins-*/_search",
+                 "path":"/logins/_search",
                  "method":"GET",
                  "body":{
                      "size":4,
@@ -47,7 +47,7 @@ exports.handler=function(event,context,callback){
         var es=results[1]
         if(es.hits.total>0){
             var logins=es.hits.hits
-                .map(x=>`${x._source.UserName} ${x._source.Date}`) 
+                .map(x=>`${x._source.UserName} ${Date(x._source.Date)}`) 
         }else{
             var logins=null
         }

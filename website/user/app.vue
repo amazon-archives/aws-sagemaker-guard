@@ -8,10 +8,10 @@
         v-btn( @click="logout") Logout
     v-container(fluid grid-list-md v-if="!loading")
       v-layout(row wrap v-for="instance in instances" )
-        v-flex(xs6 offset-xs3)
+        v-flex(xs8 offset-xs2)
           instance(@refresh="refresh" :instance="instance")
     v-container(v-if="loading")
-        v-flex(xs6 offset-xs3)
+        v-flex(xs8 offset-xs2)
           v-progress-linear( indeterminate)
 </template>
 
