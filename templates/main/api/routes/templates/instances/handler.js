@@ -1,6 +1,8 @@
 var aws=require('aws-sdk')
+var _=require('lodash')
 aws.config.region=process.env.AWS_REGION
 var ec2=new aws.EC2()
+var pricing=new aws.Pricing()
 var kms=new aws.KMS()
 var iam=new aws.IAM()
 var glue=new aws.Glue()
@@ -8,6 +10,47 @@ var glue=new aws.Glue()
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
 
+    var instances=new Promise((res,rej)=>{
+        next(null,[])
+        function next(token,list){
+            pricing.getProducts({
+                ServiceCode:"AmazonSageMaker",
+                Filters:[{
+                    Field:"productFamily",
+                    Type:"TERM_MATCH",
+                    Value:"ML Instance"
+                },{
+                    Field:"location",
+                    Type:"TERM_MATCH",
+                    Value:"US East (N. Virginia)"
+                }],
+                MaxResults:100,
+                NextToken:token
+            }).promise()
+            .then(x=>{
+                x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/))
+                .map(y=>list.push({
+                    type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],
+                    cpus:y.product.attributes.vCpu,
+                    ram:y.product.attributes.memory,
+                    gpus:y.product.attributes.memory.physicalGpu,
+                    gpu:y.product.attributes.memory.gpu,
+                    price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD
+                }))
+                console.log(1)
+                if(x.NextToken){
+                    next(x.NextToken,list)
+                }else{
+                    res(list)
+                }
+            })
+        }
+    })
+    .then(x=>_.sortBy(x,y=>y.type).map(y=>{return {
+        name:`${y.type}: \$${parseFloat(y.price).toFixed(3)}`,
+        value:y.type
+    }}))
+    
     var roles=new Promise(function(res,rej){
         var out=[]
 
@@ -84,11 +127,13 @@ exports.handler=function(event,context,callback){
         keys,
         roles,
         endpoints,
+        instances
     ])
     .then(result=>callback(null,{
         keys:result[0],
         roles:result[1],
-        endpoints:result[2]
+        endpoints:result[2],
+        instances:result[3]
     }))
     .catch(error=>{
         console.log(error)

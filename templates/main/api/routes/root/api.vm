@@ -31,8 +31,31 @@
             "name":"Kibana",
             "render":"show_chart",
             "prompt":"Analyze and Visualize logs"
+        },
+        {   
+            "href":"https://console.aws.amazon.com/cognito/users/?region=${AWS::Region}#/pool/${QNA.Outputs.UserPool}",
+            "rel":"UserPool",
+            "name":"Cognito UserPool Console",
+            "render":"domain"
         }
-    ]
+    ],
+    "template":[{
+        "data":{
+            "schema":{
+                "href":"$root/templates/instanceUser"
+            },
+            "prompt":"Create a user and their instance together"
+        },
+        "href":"$root/templates/instanceUser"
+    },{
+        "data":{
+            "schema":{
+                "href":"$root/templates/bulk"
+            },
+            "prompt":"Create Multiple Users and Instances"
+        },
+        "href":"$root/templates/bulk"
+    }]
 }}
 
 

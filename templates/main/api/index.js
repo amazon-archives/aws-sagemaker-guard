@@ -60,7 +60,7 @@ module.exports=Object.assign(
         "UserPool":{"Fn::GetAtt":["QNA","Outputs.UserPool"]},
         "Region":{"Ref":"AWS::Region"},
         "DirectoryArn":{"Ref":"Directory"},
-        "SchemaArn":{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
+        "SchemaArn":{"Fn::GetAtt":["Directory","AppliedSchemaArn"]}
     },lambdas)
   }
 },

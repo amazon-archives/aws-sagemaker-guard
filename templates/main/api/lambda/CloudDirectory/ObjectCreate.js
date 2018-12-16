@@ -2,6 +2,7 @@ var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var crypto=require('crypto')
 var cd=new aws.CloudDirectory()
+var wait=require('wait')
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
@@ -84,10 +85,8 @@ exports.handler=function(event,context,callback){
             }]
         }).promise()
     })
-    .then(result=>{
-        console.log(result)
-        callback(null,result)
-    })
+    .then(()=>wait(process.env.API,event.Type,event.Attributes.ID))
+    .then(x=>callback(null,x))
     .catch(error=>{
         console.log(error)
         callback(JSON.stringify({

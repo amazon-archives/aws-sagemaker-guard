@@ -8,7 +8,7 @@ exports.handler=function(event,context,callback){
 
     return cognito.adminDeleteUser({
         UserPoolId:event.UserPool,
-        Username:data.object.ID
+        Username:event.object.ID
     }).promise()
     .then(()=>callback(null,event))
 }

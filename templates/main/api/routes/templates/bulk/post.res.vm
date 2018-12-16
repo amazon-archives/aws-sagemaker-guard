@@ -1,0 +1,7 @@
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+[{
+    "href":"$root/api/users/$input.path('$.user')"
+},{
+    "href":"$root/api/instances/$input.path('$.instance')"
+}]

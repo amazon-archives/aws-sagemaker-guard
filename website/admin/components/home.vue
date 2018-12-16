@@ -1,12 +1,16 @@
 <template lang='pug'>
   div 
     v-card
-      v-jumbotron( height="auto")
-        v-container(fill height)
-          v-layout(align-center)
-            v-flex
-              h3 Welcome to SageGuard
-              .subheading from here you can create, remove, and manager users,groups and notebook instances. 
+      v-card-title(primary-title)
+        h2 Welcome to SageGuard
+      v-card-text
+        .subheading from here you can create, remove, and manager users,groups and notebook instances.
+      v-card-actions
+        temp( 
+          v-for="template in templates"
+          :template="template"
+          :href="template.href"
+        )
     v-container(grid-list-sm)
       v-layout(row wrap)
         v-flex(v-if="pages.length===0")
@@ -40,11 +44,15 @@ module.exports={
     return {}
   },
   components:{
+    temp:require('./template.vue')
   },
   computed:{
     pages:function(){
       return _.get(this,"$store.state.data.links.items",[])
         .filter(x=>x.rel==="collection")
+    },
+    templates:function(){
+      return _.get(this,"$store.state.data.links.template",[])
     }
   },
   created:async function(){

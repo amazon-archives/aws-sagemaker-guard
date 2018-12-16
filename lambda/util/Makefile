@@ -1,4 +1,4 @@
 NAME=$(shell basename $(shell pwd))
 DST=../../build/lambda/$(NAME).zip
-$(DST): index.js package.json
-	echo "Building $(NAME)"; npm install && zip -r -q $(DST) .
+$(DST): nodejs/*
+	echo "Building $(NAME)"; cd nodejs && npm install && cp -r lib/* node_modules && cd .. && zip -r -q $(DST) .

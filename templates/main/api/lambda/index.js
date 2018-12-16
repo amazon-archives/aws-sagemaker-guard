@@ -46,6 +46,8 @@ module.exports=Object.assign(
             "arn:aws:iam::aws:policy/AWSLambdaFullAccess",
             "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess",
             "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess",
+            "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess",
+            "arn:aws:iam::aws:policy/AWSPriceListServiceFullAccess"
         ],
         "Policies":[{
             "PolicyName":"KMS",
@@ -78,37 +80,6 @@ module.exports=Object.assign(
             "Key": {"Fn::Sub":"${AssetPrefix}/lambda/util.zip"},
             "BuildDate":(new Date()).toISOString()
         }
-    },
-    "AuthCodeVersion":{
-        "Type": "Custom::S3Version",
-        "Properties": {
-            "ServiceToken": { "Fn::GetAtt" : ["CFNS3VersionLambda", "Arn"] },
-            "Bucket": {"Ref":"AssetBucket"},
-            "Key": {"Fn::Sub":"${AssetPrefix}/lambda/auth.zip"},
-            "BuildDate":(new Date()).toISOString()
-        }
-    },
-    "APIAuthLambda":{
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-            "S3Bucket":{"Ref":"AssetBucket"},
-            "S3Key":{"Fn::Sub":"${AssetPrefix}/lambda/auth.zip"},
-            "S3ObjectVersion":{"Ref":"AuthCodeVersion"},
-        },
-        "Handler": "index.handler",
-        "MemorySize": "128",
-        "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
-        "TracingConfig":{
-            "Mode":"Active"
-        },
-        "Timeout": 60,
-        "Tags":[{
-            Key:"Type",
-            Value:"ApiRouteHandler"
-        }]
-      }
     },
     "UtilLambdaLayer":{
       "Type": "AWS::Lambda::LayerVersion",
@@ -150,6 +121,7 @@ function lambda(name){
                 LOGINFIREHOSE:{"Ref":"LoginFirehose"},
                 ESPROXY:{"Fn::GetAtt":["QNA","Outputs.ESProxyLambda"]},
                 ESADDRESS:{"Fn::GetAtt":["QNA","Outputs.ElasticsearchEndpoint"]},
+                API:{"Fn::GetAtt":["ApiUrl","href"]},
             },stateMachines)
         },
         "TracingConfig":{

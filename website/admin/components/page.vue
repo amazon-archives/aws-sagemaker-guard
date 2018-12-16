@@ -23,7 +23,11 @@
       v-flex(xs-12 v-if="loading")
         v-progress-linear(indeterminate)
       v-flex(xs-12 v-for="(item,index) in collection.collection.items")
-        Item( :item="item" v-on:remove="remove(index)")
+        Item( 
+          :item="item" 
+          v-on:remove="remove(index)"
+          @remove="refresh"
+        )
       v-flex(xs-12)
         v-container(fluid grid-list-lg)
           v-layout( row )

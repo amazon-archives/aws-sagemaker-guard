@@ -16,9 +16,7 @@ module.exports=Object.assign({
     _.fromPairs(_.flatten(lambdas))
 )
 function template(name){
-
-
-    return [
+    var out=[
         [
             `${name}Template`,
             util.resource(name,{"Ref":"Templates"})
@@ -44,13 +42,39 @@ function template(name){
         ],
         [
             `API${name}TemplateLambda`,
-            lambda(name)
+            lambda(name,"handler")
         ]
     ]
+    if(fs.existsSync(`${__dirname}/${name}/post.js`)){
+        out.push([
+            `API${name}PostTemplateLambda`,
+            lambda(name,"post")
+        ])
+        out.push([
+            `${name}TemplatePost`,
+            util.lambda({
+                resource:{"Ref":`${name}Template`},
+                method:"POST",
+                lambda:`API${name}PostTemplateLambda`,
+                req:fs.readFileSync(`${__dirname}/${name}/post.req.vm`,'utf-8'),
+                res:fs.readFileSync(`${__dirname}/${name}/post.res.vm`,'utf-8'),
+                parameter:{
+                    locations:{
+                        "method.request.querystring.SourceID":false,
+                        "method.request.querystring.SourceType":false,
+                        "method.request.querystring.DestType":false,
+                        "method.request.querystring.Type":false,
+                        "method.request.querystring.ID":false,
+                    }
+                }
+            })
+        ])
+    }
+    return out
 }
 
-function lambda(name){
-    var code=fs.readFileSync(__dirname+`/${name}/handler.js`,'utf-8')
+function lambda(name,handler){
+    var code=fs.readFileSync(__dirname+`/${name}/${handler}.js`,'utf-8')
     var result = UglifyJS.minify(code,{mangle:false})
     if(result.error) throw `${name} ${result.error}`
     if(result.code.length<4096){
@@ -68,6 +92,7 @@ function lambda(name){
         "MemorySize": "896",
         "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
         "Runtime": "nodejs6.10",
+        Layers:[{"Ref":"UtilLambdaLayer"}],
         "Environment":{
             "Variables":{
                 "ATTACHMENTLISTLAMBDA":{"Ref":"APICloudDirectoryAttachmentListLambda"},
@@ -75,7 +100,8 @@ function lambda(name){
                 "INDEXLISTLAMBDA":{"Ref":"APICloudDirectoryIndexListLambda"},
                 "OBJECTGETLAMBDA":{"Ref":"APICloudDirectoryObjectGetLambda"},
                 DIRECTORY:{"Ref":"Directory"},
-                SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]}
+                SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
+                API:{"Fn::GetAtt":["ApiUrl","href"]},
             }
         },
         "TracingConfig":{

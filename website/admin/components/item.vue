@@ -117,10 +117,8 @@ module.exports={
     remove:async function(){
       this.removing=true
       try{
-        await Promise.join(
-          new Promise(resolve => setTimeout(resolve, 300)),
-          this.$store.dispatch('data/rm',this.item)
-        )
+        await this.$store.dispatch('data/rm',this.item)
+        await new Promise(resolve => setTimeout(resolve, 2000))
         this.$emit("remove")
       }catch(e){
         console.error(e)

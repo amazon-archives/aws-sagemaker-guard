@@ -70,38 +70,7 @@ module.exports=Object.assign(
               "Resource":["*"]
           }]
         }
-    }},
-    "UnzipCodeVersion":{
-        "Type": "Custom::S3Version",
-        "Properties": {
-            "ServiceToken": { "Fn::GetAtt" : ["CFNS3VersionLambda", "Arn"] },
-            "Bucket": {"Ref":"AssetBucket"},
-            "Key":{"Fn::Sub":"${AssetPrefix}/lambda/unzip.zip"},
-            "BuildDate":(new Date()).toISOString()
-        }
-    },
-    "CFNUnzipLambda":{
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-            "S3Bucket":{"Ref":"AssetBucket"},
-            "S3Key":{"Fn::Sub":"${AssetPrefix}/lambda/unzip.zip"},
-            "S3ObjectVersion":{"Ref":"UnzipCodeVersion"},
-        },
-        "Handler": "index.handler",
-        "MemorySize": "128",
-        "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
-        "TracingConfig":{
-            "Mode":"Active"
-        },
-        "Timeout": 60,
-        "Tags":[{
-            Key:"Type",
-            Value:"ApiRouteHandler"
-        }]
-      }
-    }
+    }}
 })
 
 function lambda(name){
@@ -114,7 +83,7 @@ function lambda(name){
         console.log(`CFN:${name}`, chalk.red(`${result.code.length}/4096`))
     }
    
-    return {
+    var out={
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
@@ -131,6 +100,10 @@ function lambda(name){
         }]
       }
     }
+    if(name!=="S3Version.js"){
+        out.Properties.Layers=[{"Ref":"UtilLambdaLayer"}]
+    }
+    return out
 }
 
 

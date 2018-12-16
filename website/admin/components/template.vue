@@ -161,11 +161,9 @@ module.exports={
         console.log(e)
         this.error=e.response.collection.error
       }finally{
-        setTimeout(()=>{
-          this.finished=true
-          this.loading=false
-          this.$emit('refresh')
-        },2000)
+        this.finished=true
+        this.loading=false
+        this.$emit('refresh')
       }
     }
   }

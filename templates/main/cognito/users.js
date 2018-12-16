@@ -17,6 +17,7 @@ module.exports={
 },
 "AdminMFA": {
   "Type": "Custom::CognitoUserMFA",
+  "DependsOn":["Admin"],
   "Properties": {
     "ServiceToken": { "Fn::GetAtt" : ["CFNCognitoMFALambda", "Arn"] },
     UserPoolId:{"Fn::GetAtt":["QNA","Outputs.UserPool"]}, 

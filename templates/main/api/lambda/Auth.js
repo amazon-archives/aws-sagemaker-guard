@@ -1,8 +1,8 @@
 var axios=require('axios')
 var jwt=require('jsonwebtoken')
 var jwkToPem = require('jwk-to-pem');
-var authenticate=require('./lib/authenticate')
-var authorize=require('./lib/authorize')
+var authenticate=require('authenticate')
+var authorize=require('authorize')
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
