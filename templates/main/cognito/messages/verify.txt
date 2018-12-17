@@ -1,0 +1,6 @@
+<p>Hello {username},
+<p>Please follow the link below to verify your email address:
+<p>{##Verify Email##} 
+<p>
+<p>Happy to help,
+<p>  SageGuard

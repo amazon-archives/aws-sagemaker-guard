@@ -122,6 +122,7 @@ function lambda(name){
                 ESPROXY:{"Fn::GetAtt":["QNA","Outputs.ESProxyLambda"]},
                 ESADDRESS:{"Fn::GetAtt":["QNA","Outputs.ElasticsearchEndpoint"]},
                 API:{"Fn::GetAtt":["ApiUrl","href"]},
+                REGIONNAME:{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"name"]}
             },stateMachines)
         },
         "TracingConfig":{

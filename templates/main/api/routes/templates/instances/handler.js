@@ -2,7 +2,7 @@ var aws=require('aws-sdk')
 var _=require('lodash')
 aws.config.region=process.env.AWS_REGION
 var ec2=new aws.EC2()
-var pricing=new aws.Pricing()
+var pricing=new aws.Pricing({region:"us-east-1"})
 var kms=new aws.KMS()
 var iam=new aws.IAM()
 var glue=new aws.Glue()
@@ -22,7 +22,7 @@ exports.handler=function(event,context,callback){
                 },{
                     Field:"location",
                     Type:"TERM_MATCH",
-                    Value:"US East (N. Virginia)"
+                    Value:process.env.REGIONNAME
                 }],
                 MaxResults:100,
                 NextToken:token

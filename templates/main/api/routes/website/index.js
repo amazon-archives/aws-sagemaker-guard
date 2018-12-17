@@ -5,6 +5,11 @@ var util=require('../util')
 module.exports={
     "WebsiteResource":util.resource('website'),
     "AdminWebsiteResource":util.resource('admin',{"Ref":"WebsiteResource"}),
+    "AdminLoginResource":util.resource('admin',{"Ref":"LoginWebsiteResource"}),
+    "AdminLoginResourceGet":util.redirect(
+        {"Fn::GetAtt":["AdminLogin","href"]},
+        {"Ref":"AdminLoginResource"}
+    ),
     "UserWebsiteResource":util.resource('user',{"Ref":"WebsiteResource"}),
     "AdminWebsiteResourceGet":{
       "Type": "AWS::ApiGateway::Method",

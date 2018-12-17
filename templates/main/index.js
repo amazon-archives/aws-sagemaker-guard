@@ -65,6 +65,31 @@ module.exports={
         .filter(x=>x[1].Default)
         .map(x=>[`If${x[0]}`, {"Fn::Not":[{"Fn::Equals":[{"Ref":x[0]},x[1].Default]}]}])
   ),
+  "Mappings":{
+    "RegionMap":{
+        "us-east-2":{"name":"US East (Ohio)"},  
+        "us-east-1":{"name":"US East (N. Virginia)"},
+        "us-west-1":{"name":"US West (N. California)"},   
+        "us-west-2":{"name":"US West (Oregon)"},
+        "ap-south-1":{"name":"Asia Pacific (Mumbai)"},
+        "ap-northeast-3":{"name":"Asia Pacific (Osaka-Local)"},
+        "ap-northeast-2":{"name":"Asia Pacific (Seoul)"},
+        "ap-southeast-1":{"name":"Asia Pacific (Singapore)"},
+        "ap-southeast-2":{"name":"Asia Pacific (Sydney)"},
+        "ap-northeast-1":{"name":"Asia Pacific (Tokyo)"},  
+        "ca-central-1":{"name":"Canada (Central)"},
+        "cn-north-1":{"name":"China (Beijing)"},
+        "cn-northwest-1":{"name":"China (Ningxia)"},
+        "eu-central-1":{"name":"EU (Frankfurt)"}, 
+        "eu-west-1":{"name":"EU (Ireland)"},
+        "eu-west-2":{"name":"EU (London)"},
+        "eu-west-3":{"name":"EU (Paris)"},
+        "eu-north-1":{"name":"EU (Stockholm)"},
+        "sa-east-1":{"name":"South America (São Paulo)"},
+        "us-gov-east-1":{"name":"AWS GovCloud (US-East)"},  
+        "us-gov-west-1":{"name":"AWS GovCloud (US)"}
+    }
+  },
   "Metadata":{
     "AWS::CloudFormation::Interface":{
     "ParameterGroups":[{

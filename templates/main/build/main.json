@@ -467,6 +467,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -549,6 +558,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -635,6 +653,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -717,6 +744,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -803,6 +839,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -885,6 +930,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -971,6 +1025,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -1053,6 +1116,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -1139,6 +1211,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -1221,6 +1302,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -1307,6 +1397,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -1389,6 +1488,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -1475,6 +1583,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -1557,6 +1674,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -1643,6 +1769,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -1725,6 +1860,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -1811,6 +1955,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -1893,6 +2046,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -1979,6 +2141,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -2061,6 +2232,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -2147,6 +2327,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -2229,6 +2418,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -2315,6 +2513,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -2397,6 +2604,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -2483,6 +2699,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -2565,6 +2790,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -2651,6 +2885,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -2733,6 +2976,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -2819,6 +3071,15 @@
                 "href"
               ]
             },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
+              ]
+            },
             "STATEMACHINECLEAROBJECT": {
               "Fn::GetAtt": [
                 "StepFunctions",
@@ -2901,6 +3162,15 @@
               "Fn::GetAtt": [
                 "ApiUrl",
                 "href"
+              ]
+            },
+            "REGIONNAME": {
+              "Fn::FindInMap": [
+                "RegionMap",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "name"
               ]
             },
             "STATEMACHINECLEAROBJECT": {
@@ -3015,7 +3285,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2018-12-16T20:01:12.832Z"
+        "BuildDate": "2018-12-17T22:35:23.231Z"
       }
     },
     "UtilLambdaLayer": {
@@ -5893,7 +6163,7 @@
               "StatusCode": 200,
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"type\":\"string\",\n                        \"immutable\":true\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"type\":\"string\"\n                    },\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.instances)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.name\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ],\n                        \"default\":\"ml.t3.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\"\n                            }\n                            #end\n                        ],\n                        \"default\":\"DefaultRole\"\n                    },\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys)\n                                \"$object.KeyId\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable/Disable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"]\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period in minutes\",\n                        \"type\":\"string\",\n                        \"enum\":[\"30\",\"60\",\"120\"]\n                    },\n                    \"GlueDevEndpoint\":{\n                        \"title\":\"Glue development endpoints\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.endpoints)\n                                \"$object\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    }\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
+                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"description\":\"The unique identifier for this instance\",\n                        \"type\":\"string\",\n                        \"immutable\":true\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"type\":\"string\"\n                    },\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.instances)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.name\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ],\n                        \"default\":\"ml.t3.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\"\n                            }\n                            #end\n                        ],\n                        \"default\":\"${DefaultNotebookRole.Arn}\"\n                    },\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys)\n                                \"$object.KeyId\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable/Disable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"]\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period in minutes\",\n                        \"type\":\"string\",\n                        \"enum\":[\"30\",\"60\",\"120\"]\n                    },\n                    \"GlueDevEndpoint\":{\n                        \"title\":\"Glue development endpoints\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.endpoints)\n                                \"$object\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    }\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
                 }
               }
             },
@@ -5982,7 +6252,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var ec2=new aws.EC2,pricing=new aws.Pricing,kms=new aws.KMS,iam=new aws.IAM,glue=new aws.Glue;function filterRoles(result){var doc=JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument));return console.log(doc.Statement),doc.Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var instances=new Promise((res,rej)=>{!function next(token,list){pricing.getProducts({ServiceCode:\"AmazonSageMaker\",Filters:[{Field:\"productFamily\",Type:\"TERM_MATCH\",Value:\"ML Instance\"},{Field:\"location\",Type:\"TERM_MATCH\",Value:\"US East (N. Virginia)\"}],MaxResults:100,NextToken:token}).promise().then(x=>{x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/)).map(y=>list.push({type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],cpus:y.product.attributes.vCpu,ram:y.product.attributes.memory,gpus:y.product.attributes.memory.physicalGpu,gpu:y.product.attributes.memory.gpu,price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD})),console.log(1),x.NextToken?next(x.NextToken,list):res(list)})}(null,[])}).then(x=>_.sortBy(x,y=>y.type).map(y=>({name:`${y.type}: $${parseFloat(y.price).toFixed(3)}`,value:y.type}))),roles=new Promise(function(res,rej){var out=[];!function next(token){iam.listRoles({Marker:token}).promise().then(result=>{console.log(result),result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}()}),keys=new Promise(function(res,rej){var out=[];!function next(token){kms.listKeys({Marker:token,Limit:1e3}).promise().then(result=>{console.log(result),result.Keys.forEach(x=>out.push(x)),result.Truncated?next(result.NextMarker):res(out)}).catch(rej)}()}),endpoints=new Promise(function(res,rej){var out=[];!function next(token){glue.getDevEndpoints({NextToken:token}).promise().then(result=>{console.log(result),result.DevEndpoints.forEach(x=>out.push(x.EndpointName)),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}()});Promise.all([keys,roles,endpoints,instances]).then(result=>callback(null,{keys:result[0],roles:result[1],endpoints:result[2],instances:result[3]})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var ec2=new aws.EC2,pricing=new aws.Pricing({region:\"us-east-1\"}),kms=new aws.KMS,iam=new aws.IAM,glue=new aws.Glue;function filterRoles(result){var doc=JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument));return console.log(doc.Statement),doc.Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var instances=new Promise((res,rej)=>{!function next(token,list){pricing.getProducts({ServiceCode:\"AmazonSageMaker\",Filters:[{Field:\"productFamily\",Type:\"TERM_MATCH\",Value:\"ML Instance\"},{Field:\"location\",Type:\"TERM_MATCH\",Value:process.env.REGIONNAME}],MaxResults:100,NextToken:token}).promise().then(x=>{x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/)).map(y=>list.push({type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],cpus:y.product.attributes.vCpu,ram:y.product.attributes.memory,gpus:y.product.attributes.memory.physicalGpu,gpu:y.product.attributes.memory.gpu,price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD})),console.log(1),x.NextToken?next(x.NextToken,list):res(list)})}(null,[])}).then(x=>_.sortBy(x,y=>y.type).map(y=>({name:`${y.type}: $${parseFloat(y.price).toFixed(3)}`,value:y.type}))),roles=new Promise(function(res,rej){var out=[];!function next(token){iam.listRoles({Marker:token}).promise().then(result=>{console.log(result),result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}()}),keys=new Promise(function(res,rej){var out=[];!function next(token){kms.listKeys({Marker:token,Limit:1e3}).promise().then(result=>{console.log(result),result.Keys.forEach(x=>out.push(x)),result.Truncated?next(result.NextMarker):res(out)}).catch(rej)}()}),endpoints=new Promise(function(res,rej){var out=[];!function next(token){glue.getDevEndpoints({NextToken:token}).promise().then(result=>{console.log(result),result.DevEndpoints.forEach(x=>out.push(x.EndpointName)),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}()});Promise.all([keys,roles,endpoints,instances]).then(result=>callback(null,{keys:result[0],roles:result[1],endpoints:result[2],instances:result[3]})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "896",
@@ -6603,7 +6873,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2018-12-16T20:01:12.834Z",
+        "buildDate": "2018-12-17T22:35:23.232Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -7262,6 +7532,35 @@
         ]
       }
     },
+    "CFNCognitoUILambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar _=require('lodash')\nvar s3=new aws.S3()\nvar cognito=new aws.CognitoIdentityServiceProvider()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n    if(event.RequestType!==\"Delete\"){\n        s3.getObject(params.ImageFile).promise()\n        .then(x=>{\n            console.log(x)\n            return cognito.setUICustomization(\n            Object.assign(\n                _.omit(params,[\"ImageFile\"]),\n                {ImageFile:x.Body}\n            )\n            ).promise()\n        })\n        .then(()=>response.send(event, context, response.SUCCESS))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\n\n\n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "CustomResource"
+          }
+        ],
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ]
+      }
+    },
     "CFNElasticSearchArnLambda": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -7888,6 +8187,32 @@
         ]
       }
     },
+    "UserPoolUI": {
+      "Type": "Custom::CognitoUI",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CFNCognitoUILambda",
+            "Arn"
+          ]
+        },
+        "UserPoolId": {
+          "Fn::GetAtt": [
+            "QNA",
+            "Outputs.UserPool"
+          ]
+        },
+        "CSS": ".logo-customizable {\n\tmax-width: 100%;\n\tmax-height: 100%;\n}\n.banner-customizable {\n\tpadding: 25px 0px 25px 0px;\n\tbackground-color: white;\n}\n.label-customizable {\n\tfont-weight: 410;\n}\n.textDescription-customizable {\n\tpadding-top: 10px;\n\tpadding-bottom: 10px;\n\tdisplay: block;\n\tfont-size: 16px;\n}\n.idpDescription-customizable {\n\tpadding-top: 10px;\n\tpadding-bottom: 10px;\n\tdisplay: block;\n\tfont-size: 16px;\n}\n.legalText-customizable {\n\tcolor: #747474;\n\tfont-size: 11px;\n}\n.submitButton-customizable {\n\tfont-size: 14px;\n\tfont-weight: bold;\n\tmargin: 20px 0px 10px 0px;\n\theight: 40px;\n\twidth: 100%;\n\tcolor: #fff;\n\tbackground-color: #1fbcd3;\n}\n.submitButton-customizable:hover {\n\tcolor: #fff;\n\tbackground-color: #06A3BA;\n}\n.errorMessage-customizable {\n\tpadding: 5px;\n\tfont-size: 14px;\n\twidth: 100%;\n\tbackground: #F5F5F5;\n\tborder: 2px solid #D64958;\n\tcolor: #D64958;\n}\n.inputField-customizable {\n\twidth: 100%;\n\theight: 34px;\n\tcolor: #555;\n\tbackground-color: #fff;\n\tborder: 1px solid #ccc;\n}\n.inputField-customizable:focus {\n\tborder-color: #66afe9;\n\toutline: 0;\n}\n.idpButton-customizable {\n\theight: 41px;\n\twidth: 100%;\n\twidth: 100%;\n\ttext-align: center;\n\tmargin-bottom: 15px;\n\tcolor: #fff;\n\tbackground-color: #5bc0de;\n\tborder-color: #46b8da;\n}\n.idpButton-customizable:hover {\n\tcolor: #fff;\n\tbackground-color: #31b0d5;\n}\n.socialButton-customizable {\n\theight: 40px;\n\ttext-align: left;\n\twidth: 100%;\n\tmargin-bottom: 15px;\n}\n.redirect-customizable {\n  display:none;\n\ttext-align: center;\n}\n.passwordCheck-notValid-customizable {\n\tcolor: #DF3312;\n}\n.passwordCheck-valid-customizable {\n\tcolor: #19BF00;\n}\n.background-customizable {\n\tbackground-color: #fff;\n}\n\n",
+        "ImageFile": {
+          "Bucket": {
+            "Ref": "AssetBucket"
+          },
+          "Key": {
+            "Fn::Sub": "${AssetPrefix}/logo.jpg"
+          }
+        }
+      }
+    },
     "UserPoolUpdate": {
       "Type": "Custom::CognitoPoolUpdate",
       "Properties": {
@@ -7930,6 +8255,7 @@
           "AdvancedSecurityMode": "ENFORCED"
         },
         "MfaConfiguration": "OPTIONAL",
+        "SmsAuthenticationMessage": "{####} is your authentication code for SageGuard",
         "SmsConfiguration": {
           "SnsCallerArn": {
             "Fn::GetAtt": [
@@ -7940,6 +8266,16 @@
           "ExternalId": {
             "Ref": "AWS::StackName"
           }
+        },
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "VerificationMessageTemplate": {
+          "DefaultEmailOption": "CONFIRM_WITH_LINK",
+          "EmailMessageByLink": {
+            "Fn::Sub": "<p>Hello {username},\n<p>Please follow the link below to verify your email address:\n<p>{##Verify Email##} \n<p>\n<p>Happy to help,\n<p>  SageGuard\n"
+          },
+          "EmailSubjectByLink": "SageGuard Email Verification"
         }
       }
     },
@@ -9075,7 +9411,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2018-12-16T20:01:13.057Z",
+        "BuildDate": "2018-12-17T22:35:23.417Z",
         "Version": "1.0.0"
       }
     },
@@ -9304,7 +9640,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2018-12-16T20:01:13.058Z"
+        "buildDate": "2018-12-17T22:35:23.418Z"
       },
       "DependsOn": "WebsiteClear"
     },
@@ -9315,7 +9651,7 @@
           "Ref": "AWS::StackName"
         },
         "DashboardBody": {
-          "Fn::Sub": "{\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# ${AWS::StackName} Dashboard\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":9,\"properties\":{\"markdown\":\"## Lambda Function\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":11,\"properties\":{\"markdown\":\"### ApiRouteHandler\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIAuthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIAuthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryIndexListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryIndexListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIFailLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIFailLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteWaitLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteWaitLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstancePostStateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstancePostStateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceRedirectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceRedirectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceStartStopLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceStartStopLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIOptionsLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIOptionsLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIRouterLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIRouterLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":55},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":55},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":61,\"properties\":{\"markdown\":\"### ApiTemplate\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIattachmentsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIattachmentsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIbulkTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIbulkTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIbulkPostTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIbulkPostTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceUserTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceUserTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":69},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceUserPostTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceUserPostTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":69},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstancesTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstancesTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":69},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIitemsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIitemsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":69},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":75,\"properties\":{\"markdown\":\"### CustomResource\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayCompressionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayCompressionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayDeploymentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayDeploymentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryDirectoryLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryDirectoryLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryIndexLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryIndexLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryObjectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryObjectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryPublishSchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryPublishSchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectorySchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectorySchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoDomainLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoDomainLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoLoginLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoLoginLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoMFALambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoMFALambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoPoolUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoPoolUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoRoleAttachmentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoRoleAttachmentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNElasticSearchArnLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNElasticSearchArnLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNEncodeURIComponentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNEncodeURIComponentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNQnABotImportLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNQnABotImportLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3ClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3ClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3VersionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3VersionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":101},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNUnzipLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNUnzipLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":101},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNVariableLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNVariableLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":101},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":107,\"properties\":{\"markdown\":\"### Cognito\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${SignupLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"SignupLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":109},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${PostauthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"PostauthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":109}]}"
+          "Fn::Sub": "{\"widgets\":[{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":0,\"properties\":{\"markdown\":\"# ${AWS::StackName} Dashboard\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":9,\"properties\":{\"markdown\":\"## Lambda Function\"}},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":11,\"properties\":{\"markdown\":\"### ApiRouteHandler\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIAuthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIAuthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":13},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryAttachmentListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryAttachmentListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryDetachPolicyLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryDetachPolicyLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryIndexListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryIndexListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":19},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryObjectUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryObjectUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":25},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APICloudDirectoryPolicyListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APICloudDirectoryPolicyListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIFailLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIFailLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":31},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceDeleteWaitLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceDeleteWaitLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceListLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceListLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":37},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstancePostStateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstancePostStateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceRedirectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceRedirectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceStartStopLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceStartStopLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIInstanceUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIInstanceUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":43},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIOptionsLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIOptionsLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIRouterLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIRouterLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserCreateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserCreateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserDeleteLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserDeleteLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":49},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserGetLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserGetLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":55},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIUserUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIUserUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":55},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":61,\"properties\":{\"markdown\":\"### ApiTemplate\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIattachmentsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIattachmentsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIbulkTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIbulkTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIbulkPostTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIbulkPostTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":63},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceUserTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceUserTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":69},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstanceUserPostTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstanceUserPostTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":69},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIinstancesTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIinstancesTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":69},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${APIitemsTemplateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"APIitemsTemplateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":69},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":75,\"properties\":{\"markdown\":\"### CustomResource\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayCompressionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayCompressionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNApiGatewayDeploymentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNApiGatewayDeploymentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryDirectoryLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryDirectoryLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryIndexLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryIndexLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":77},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryObjectLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryObjectLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectoryPublishSchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectoryPublishSchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCloudDirectorySchemaLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCloudDirectorySchemaLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoDomainLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoDomainLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":83},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoLoginLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoLoginLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoMFALambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoMFALambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoPoolUpdateLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoPoolUpdateLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoRoleAttachmentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoRoleAttachmentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":89},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNCognitoUILambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNCognitoUILambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNElasticSearchArnLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNElasticSearchArnLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNEncodeURIComponentLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNEncodeURIComponentLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNQnABotImportLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNQnABotImportLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":95},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3ClearLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3ClearLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":101},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNS3VersionLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNS3VersionLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":101},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNUnzipLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNUnzipLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":12,\"y\":101},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${CFNVariableLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"CFNVariableLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":18,\"y\":101},{\"type\":\"text\",\"width\":24,\"height\":2,\"x\":0,\"y\":107,\"properties\":{\"markdown\":\"### Cognito\"}},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${SignupLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"SignupLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":0,\"y\":109},{\"type\":\"metric\",\"properties\":{\"view\":\"timeSeries\",\"stacked\":false,\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"${PostauthLambda}\",{\"stat\":\"Sum\"}],[\".\",\"Invocations\",\".\",\".\",{\"stat\":\"Sum\"}],[\".\",\"Duration\",\".\",\".\",{\"yAxis\":\"right\"}],[\".\",\"Throttles\",\".\",\".\",{\"stat\":\"Sum\"}]],\"region\":\"${AWS::Region}\",\"title\":\"PostauthLambda\",\"period\":300},\"height\":6,\"width\":6,\"x\":6,\"y\":109}]}"
         }
       }
     }
@@ -9356,6 +9692,73 @@
           ]
         }
       ]
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "us-east-2": {
+        "name": "US East (Ohio)"
+      },
+      "us-east-1": {
+        "name": "US East (N. Virginia)"
+      },
+      "us-west-1": {
+        "name": "US West (N. California)"
+      },
+      "us-west-2": {
+        "name": "US West (Oregon)"
+      },
+      "ap-south-1": {
+        "name": "Asia Pacific (Mumbai)"
+      },
+      "ap-northeast-3": {
+        "name": "Asia Pacific (Osaka-Local)"
+      },
+      "ap-northeast-2": {
+        "name": "Asia Pacific (Seoul)"
+      },
+      "ap-southeast-1": {
+        "name": "Asia Pacific (Singapore)"
+      },
+      "ap-southeast-2": {
+        "name": "Asia Pacific (Sydney)"
+      },
+      "ap-northeast-1": {
+        "name": "Asia Pacific (Tokyo)"
+      },
+      "ca-central-1": {
+        "name": "Canada (Central)"
+      },
+      "cn-north-1": {
+        "name": "China (Beijing)"
+      },
+      "cn-northwest-1": {
+        "name": "China (Ningxia)"
+      },
+      "eu-central-1": {
+        "name": "EU (Frankfurt)"
+      },
+      "eu-west-1": {
+        "name": "EU (Ireland)"
+      },
+      "eu-west-2": {
+        "name": "EU (London)"
+      },
+      "eu-west-3": {
+        "name": "EU (Paris)"
+      },
+      "eu-north-1": {
+        "name": "EU (Stockholm)"
+      },
+      "sa-east-1": {
+        "name": "South America (São Paulo)"
+      },
+      "us-gov-east-1": {
+        "name": "AWS GovCloud (US-East)"
+      },
+      "us-gov-west-1": {
+        "name": "AWS GovCloud (US)"
+      }
     }
   },
   "Metadata": {

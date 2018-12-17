@@ -47,6 +47,14 @@
       v-btn.block(@click.native='add' tabindex='-1'
         :id="path+'-add'"
         ) Add Item
+      v-btn.block(tabindex='-1'
+        :href="csvTemplate"
+        ) Download CSV Template
+      input( type="file" :id="path+'-file'" @change="upload")
+      v-btn.block(@click.native='uploadClick' tabindex='-1'
+        ) Upload CSV
+      v-btn.block(@click.native='clear' tabindex='-1'
+        ) Clear
     div(v-if="schema.type==='object'")
       .subheading {{schema.title}}
       span {{schema.description}}
@@ -79,6 +87,7 @@ License for the specific language governing permissions and limitations under th
 var Ajv=require('ajv')
 var ajv=new Ajv()
 var empty=require('./empty')
+var csv=require('csvtojson')
 
 module.exports={
   props:["schema","value","required","name","index","path","pick","omit"],
@@ -116,6 +125,13 @@ module.exports={
     }
   },
   computed:{
+    csvTemplate:function(){
+      if(this.schema.type==="array"){
+        console.log(this.schema)
+        var header=Object.keys(this.schema.items.properties).join(',')
+        return `data:application/octet-stream;charset=utf-16le;base64,${btoa(header)}`
+      }
+    },
     properties:function(){
       var self=this
       if(this.schema.properties){ 
@@ -149,6 +165,34 @@ module.exports={
     }
   },
   methods:{
+    clear:function(){
+      this.local=[]
+    },
+    uploadClick:function(){
+      document.getElementById(`${this.path}-file`).click() 
+    },
+    upload:function(evt){
+      console.log(evt)
+      var self=this
+      this.local=[]
+      var files = evt.target.files
+      for (var i = 0, f; f = files[i]; i++) {
+        var reader = new FileReader();
+        reader.onload=function(e){
+          var text=reader.result
+
+          csv({
+            noheader:false,
+          })
+          .fromString(text)
+          .then(obj=>{
+            console.log(obj,self)
+            obj.forEach(x=>self.local.push(x))
+          })
+        }
+        reader.readAsText(f)
+      }
+    },
     remove:function(index){
       this.value.splice(index,1)
     },
@@ -186,6 +230,9 @@ module.exports={
         flex:0;
       }
     }
-
+  }
+  input[type=file] { 
+    width: 1px; 
+    visibility: hidden;
   }
 </style>

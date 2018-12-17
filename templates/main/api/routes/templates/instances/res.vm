@@ -11,6 +11,7 @@
                 "properties":{
                     "ID":{
                         "title":"Instance ID",
+                        "description":"The unique identifier for this instance",
                         "type":"string",
                         "immutable":true
                     },
@@ -50,7 +51,7 @@
                             }
                             #end
                         ],
-                        "default":"DefaultRole"
+                        "default":"${DefaultNotebookRole.Arn}"
                     },
                     "KmsKeyId":{
                         "title":"KMS key Id",
