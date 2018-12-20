@@ -121,7 +121,7 @@ function lambda(name){
                 LOGINFIREHOSE:{"Ref":"LoginFirehose"},
                 ESPROXY:{"Fn::GetAtt":["QNA","Outputs.ESProxyLambda"]},
                 ESADDRESS:{"Fn::GetAtt":["QNA","Outputs.ElasticsearchEndpoint"]},
-                API:{"Fn::GetAtt":["ApiUrl","href"]},
+                API:{"Fn::GetAtt":["URLs","API"]},
                 REGIONNAME:{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"name"]}
             },stateMachines)
         },

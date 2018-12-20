@@ -31,10 +31,10 @@ module.exports={
         var access_token=window.sessionStorage.getItem('access_token')
         
         if(!id_token){
-            var hash=window.location.hash.slice(1)
+            var hash=window.location.hash.slice(2)
             var id_token=query.parse(hash).id_token
             var access_token=query.parse(hash).access_token
-            if(!id_token) context.dispatch('logout')
+            //if(!id_token) context.dispatch('logout')
         }
 
         var token=jwt.decode(id_token)

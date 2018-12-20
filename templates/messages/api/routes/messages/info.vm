@@ -1,0 +1,15 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}/website/api")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root",
+    "links":[],
+    "items":[{
+            "href":"$root/messages/instance-request",
+            "title":"Instance Requests",
+            "rel":"collection"
+    }]
+}}
+
+

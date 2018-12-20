@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1.0">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="API" href="${URLs.API}">
+    <link rel="webAPI" href="${URLs.UserAPI}">
+    <meta name="View" content="$input.params('view')">
+    <meta name="PoolId" content="${IdPool}">
+    <meta name="Endpoint" content="${URLs.CognitoEndpoint}">
+    <meta name="UserPool" content="${QNA.Outputs.UserPool}">
+    <meta name="Region" content="${AWS::Region}">
+    #if( $input.params('view') == 'admin' )
+        <meta name="ClientId" content="${AdminClient}">
+        <link rel="Login" href="${AdminLogin.href}">
+        <title>SageGuard Administration</title>
+    #else
+        <meta name="ClientId" content="${UserClient}">
+        <link rel="Login" href="${UserLogin.href}">
+        <title>SageGuard User</title>
+    #end
+  </head>
+  <body>
+    <div id="App"></div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vuex"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js"></script>
+    <script src="website/assets/vendor.js"></script>
+    <script src="website/assets/app.js"></script>
+    #if( $input.params('view') == 'admin' )
+        <script src="${LexWebUi.Outputs.LoaderScriptUrl}"></script>
+        <script>
+          var chatbotUiConfig = {
+            ui: {
+                toolbarTitle: 'SageGuard Helper',
+                showDialogStateIcon: false,
+                AllowSuperDangerousHTMLInMessage: true,
+                toolbarColor: "grey lighten-4 black--text"
+            },
+            recorder:{
+                enable:false
+            }
+          };
+          var loaderOpts = {
+            baseUrl:"${LexWebUi.Outputs.LoaderScriptUrl}".split('/').slice(0,3).join('/'),
+          };
+          var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);
+          loader.load(chatbotUiConfig)
+            .then(x=>new Promise(function(res,rej){
+                next()
+                function next(){
+                    var nav=document.querySelector("#lex-web-ui nav")
+                    if(nav){
+                        console.log(nav)
+                        res(nav) 
+                    }else{
+                        setTimeout(next,1000)   
+                    }
+                }
+            }))
+            .then(nav=>{
+                console.log(nav)
+                nav.classList.add("theme--light")
+                nav.classList.remove("theme--dark")
+            })
+            .catch(function (error) { console.error(error); });
+        </script>
+    #end
+  </body>
+</html>

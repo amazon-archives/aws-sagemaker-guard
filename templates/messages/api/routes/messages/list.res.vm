@@ -1,0 +1,51 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}/website/api/messages/instance-request")
+
+{"collection":{
+    "version":"1.0",
+    #if ( $inputRoot.PrevToken.length())
+        "href":"$root",
+    #else
+        "href":"$root?NextToken=inputRoot.PrevToken",
+    #end
+    "links":[
+        #if ( $inputRoot.NextToken.length())
+        #else
+            {"rel":"next","href":"$root?NextToken=inputRoot.NextToken"}
+        #end
+    ],
+    "items":[
+        #foreach( $object in $inputRoot.items)
+        {"href":"$root/$object.key"}
+        #if( $foreach.hasNext ),#end
+        #end
+    ],
+    "template":[{
+        "data":{
+            "schema":$input.json('$.schema.instance'),
+            "prompt":"Request Creation of a new instance"
+        }
+    },{
+        "data":{
+            "schema":$input.json('$.schema.access'),
+            "prompt":"Request Creation of a new instance"
+        }
+    }],
+    "queries":[
+        {   
+            #if ( $inputRoot.NextToken.length())
+                "href":"$root?",
+            #else
+                "href":"$root?NextToken=inputRoot.NextToken",
+            #end
+            "rel":"search",
+            "prompt":"Search for messages by query",
+            "data":[
+                {"name":"MaxResults","prompt":"Maximum results to return"},
+                {"name":"Query","prompt":"Prefix to search by"}
+            ]
+        }
+    ]
+}}
+
+

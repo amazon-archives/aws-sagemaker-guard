@@ -1,0 +1,8 @@
+#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$root$context.path",
+    "error":$input.json('$.errorMessage')
+}}

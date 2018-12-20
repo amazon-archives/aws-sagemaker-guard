@@ -94,6 +94,7 @@ exports.handler=function(event,context,callback){
     })
     .then(body=>{
         console.log(body)
+        var href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`
         var out={
             collection:{
                 version:"1.0",
@@ -110,7 +111,6 @@ exports.handler=function(event,context,callback){
                 }]
             }
         }
-        var href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`
         
         if(body.attributes.NotebookInstanceStatus==="InService"){
             out.collection.template={

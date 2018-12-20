@@ -1,14 +1,28 @@
 var fs=require('fs')
 module.exports={
-"UserPoolUI": {
+"UserPoolAdmin": {
   "Type": "Custom::CognitoUI",
   "Properties": {
     "ServiceToken": { "Fn::GetAtt" : ["CFNCognitoUILambda", "Arn"] },
     UserPoolId:{"Fn::GetAtt":["QNA","Outputs.UserPool"]}, 
     CSS:fs.readFileSync(`${__dirname}/style/style.css`,'utf-8'),
+    ClientId:{"Ref":"UserClient"},
     ImageFile:{
         "Bucket":{"Ref":"AssetBucket"},
-        "Key":{"Fn::Sub":"${AssetPrefix}/logo.jpg"},
+        "Key":{"Fn::Sub":"${AssetPrefix}/logo_user.jpg"},
+    }
+  }
+},
+"UserPoolUser": {
+  "Type": "Custom::CognitoUI",
+  "Properties": {
+    "ServiceToken": { "Fn::GetAtt" : ["CFNCognitoUILambda", "Arn"] },
+    UserPoolId:{"Fn::GetAtt":["QNA","Outputs.UserPool"]}, 
+    CSS:fs.readFileSync(`${__dirname}/style/style.css`,'utf-8'),
+    ClientId:{"Ref":"AdminClient"},
+    ImageFile:{
+        "Bucket":{"Ref":"AssetBucket"},
+        "Key":{"Fn::Sub":"${AssetPrefix}/logo_admin.jpg"},
     }
   }
 },

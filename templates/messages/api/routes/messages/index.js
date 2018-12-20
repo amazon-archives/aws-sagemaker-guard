@@ -1,0 +1,49 @@
+var util=require('../util')
+var fs=require('fs')
+
+module.exports={
+    "MessagesResource":util.resource('messages',{"Ref":"WebsiteAPIResource"}),
+    "MessagesGet":util.mock({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        method:"Get",
+        auth:"NONE",
+        resource:{"Ref":"MessagesResource"},
+        template:`${__dirname}/info.vm`
+    }),
+    "MessagesOptions":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"MessagesResource"},
+        type:"AWS_PROXY",
+        method:"OPTIONS",
+        lambda:"APIOptionsLambda"
+    }),
+    "InstanceRequestMessages":util.resource('instance-request',{"Ref":"MessagesResource"}),
+    "InstanceRequestMessagesOptions":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessages"},
+        type:"AWS_PROXY",
+        method:"OPTIONS",
+        lambda:"APIOptionsLambda"
+    }),
+    "InstanceRequestMessagesGet":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessages"},
+        type:"AWS_PROXY",
+        method:"Get",
+        lambda:"APIMessageListLambda",
+    }),
+    "InstanceRequestMessage":util.resource('{id}',{"Ref":"InstanceRequestMessages"}),
+    "InstanceRequestMessageOptions":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessage"},
+        type:"AWS_PROXY",
+        method:"OPTIONS",
+        lambda:"APIOptionsLambda"
+    }),
+}
+    

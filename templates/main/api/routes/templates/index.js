@@ -101,7 +101,8 @@ function lambda(name,handler){
                 "OBJECTGETLAMBDA":{"Ref":"APICloudDirectoryObjectGetLambda"},
                 DIRECTORY:{"Ref":"Directory"},
                 SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
-                API:{"Fn::GetAtt":["ApiUrl","href"]},
+                API:{"Fn::GetAtt":["URLs","API"]},
+                REGIONNAME:{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"name"]}
             }
         },
         "TracingConfig":{

@@ -46,7 +46,7 @@ exports.handler=function(event,context,callback){
             })
         }
     })
-    .then(x=>_.sortBy(x,y=>y.type).map(y=>{return {
+    .then(x=>_.sortBy(x,y=>y.price).map(y=>{return {
         name:`${y.type}: \$${parseFloat(y.price).toFixed(3)}`,
         value:y.type
     }}))

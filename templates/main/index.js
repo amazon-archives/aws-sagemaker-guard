@@ -48,15 +48,15 @@ module.exports={
         "Value":{"Ref":"WebsiteBucket"}
     },
     "AdminLoginUrl":{
-        "Value":{"Fn::Sub":"${ApiUrl.href}/login/admin"},
+        "Value":{"Fn::GetAtt":["URLs","AdminLogin"]},
         "Description":""
     },
     "UserLoginUrl":{
-        "Value":{"Fn::Sub":"${ApiUrl.href}/login/user"},
+        "Value":{"Fn::GetAtt":["URLs","UserLogin"]},
         "Description":""
     },
     "APIUrl":{
-        "Value":{"Fn::Sub":"${ApiUrl.href}"},
+        "Value":{"Fn::GetAtt":["URLs","API"]},
         "Description":""
     }
   },

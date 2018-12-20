@@ -7,7 +7,7 @@ var crypto=require('crypto')
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
     var params=event.ResourceProperties
-    if(event.RequestType==="Create"){
+    if(event.RequestType!=="Delete"){
         var url=params.CallbackUrl
         
         return cognito.updateUserPoolClient({

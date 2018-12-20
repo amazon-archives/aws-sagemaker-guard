@@ -22,8 +22,7 @@ const extractSass = new ExtractTextPlugin({
 
 module.exports={
     entry:{
-        admin:"./admin/index.js",
-        user:"./user/index.js",
+        app:"./app/index.js"
     },
     output:{
         path:path.join(__dirname,'../build'),

@@ -24,5 +24,6 @@ async function run(){
             }})
 
     }).promise()
+    .then(()=>console.log((new Date()).toLocaleTimeString()))
     await wait()
 }

@@ -4,73 +4,56 @@ var util=require('../util')
 
 module.exports={
     "WebsiteResource":util.resource('website'),
+    "WebsiteResourceGet":{
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType":"NONE",
+        "HttpMethod":"GET",
+        RequestParameters:{
+            "method.request.querystring.view":"view"
+        },
+        "Integration": {
+          "Type": "MOCK",
+          "IntegrationResponses": [{
+            "ResponseTemplates":{
+                "text/html": {"Fn::Sub":fs.readFileSync(`${__dirname}/app.vm`,"utf8")}
+            },
+            "ResponseParameters":{
+                "method.response.header.Content-Type":"'text/html'"
+            },
+            "StatusCode":200
+          }],
+          "RequestTemplates": {
+            "application/json":"{\"statusCode\": 200}"
+          }
+        },
+        "ResourceId":{"Ref":"WebsiteResource"},
+        "MethodResponses": [{
+            "StatusCode": 200,
+            "ResponseParameters":{
+                "method.response.header.Content-Type":true
+            }
+        }],
+        "RestApiId":{"Ref":"API"} 
+      }
+    },
+    "WebsiteAPIResource":util.resource('api',{"Ref":"WebsiteResource"}),
+    "WebsiteAPIResourceGet":util.mock({
+        method:"Get",
+        auth:"NONE",
+        resource:{"Ref":"WebsiteAPIResource"},
+        template:`${__dirname}/info.vm`
+    }),
     "AdminWebsiteResource":util.resource('admin',{"Ref":"WebsiteResource"}),
-    "AdminLoginResource":util.resource('admin',{"Ref":"LoginWebsiteResource"}),
-    "AdminLoginResourceGet":util.redirect(
+    "AdminWebsiteResourceGet":util.redirect(
         {"Fn::GetAtt":["AdminLogin","href"]},
-        {"Ref":"AdminLoginResource"}
+        {"Ref":"AdminWebsiteResource"}
     ),
     "UserWebsiteResource":util.resource('user',{"Ref":"WebsiteResource"}),
-    "AdminWebsiteResourceGet":{
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "AuthorizationType":"NONE",
-        "HttpMethod":"GET",
-        "Integration": {
-          "Type": "MOCK",
-          "IntegrationResponses": [{
-            "ResponseTemplates":{
-                "text/html": {"Fn::Sub":fs.readFileSync(`${__dirname}/admin.vm`,"utf8")}
-            },
-            "ResponseParameters":{
-                "method.response.header.Content-Type":"'text/html'"
-            },
-            "StatusCode":200
-          }],
-          "RequestTemplates": {
-            "application/json":"{\"statusCode\": 200}"
-          }
-        },
-        "ResourceId":{"Ref":"AdminWebsiteResource"},
-        "MethodResponses": [{
-            "StatusCode": 200,
-            "ResponseParameters":{
-                "method.response.header.Content-Type":true
-            }
-        }],
-        "RestApiId":{"Ref":"API"} 
-      }
-    },
-    "UserWebsiteResourceGet":{
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "AuthorizationType":"NONE",
-        "HttpMethod":"GET",
-        "Integration": {
-          "Type": "MOCK",
-          "IntegrationResponses": [{
-            "ResponseTemplates":{
-                "text/html": {"Fn::Sub":fs.readFileSync(`${__dirname}/user.vm`,"utf8")}
-            },
-            "ResponseParameters":{
-                "method.response.header.Content-Type":"'text/html'"
-            },
-            "StatusCode":200
-          }],
-          "RequestTemplates": {
-            "application/json":"{\"statusCode\": 200}"
-          }
-        },
-        "ResourceId":{"Ref":"UserWebsiteResource"},
-        "MethodResponses": [{
-            "StatusCode": 200,
-            "ResponseParameters":{
-                "method.response.header.Content-Type":true
-            }
-        }],
-        "RestApiId":{"Ref":"API"} 
-      }
-    },
+    "UserWebsiteResourceGet":util.redirect(
+        {"Fn::GetAtt":["UserLogin","href"]},
+        {"Ref":"UserWebsiteResource"}
+    ),
     "WebsiteAssets":util.resource('assets',{"Ref":"WebsiteResource"}),
     "WebsiteAsset":util.resource('{proxy+}',{"Ref":"WebsiteAssets"}),
     "WebsiteAssetsAnyGet":util.proxy({

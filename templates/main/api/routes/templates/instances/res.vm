@@ -13,7 +13,8 @@
                         "title":"Instance ID",
                         "description":"The unique identifier for this instance",
                         "type":"string",
-                        "immutable":true
+                        "immutable":true,
+                        "default":"$context.requestId"
                     },
                     "DisplayName":{
                         "title":"Instance DisplayName",
@@ -42,12 +43,14 @@
                         "enum":[
                             {
                                 "text":"DefaultRole",
-                                "value":"${DefaultNotebookRole.Arn}"
+                                "value":"${DefaultNotebookRole.Arn}",
+                                "href":"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/${DefaultNotebookRole}"
                             }
                             #foreach( $object in $inputRoot.roles)
                             ,{
                                 "value":"$object.Arn",
-                                "text":"$object.RoleName"
+                                "text":"$object.RoleName",
+                                "href":"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/$object.RoleName"
                             }
                             #end
                         ],
@@ -68,12 +71,14 @@
                         "title":"Enable/Disable Direct Internet Access",
                         "type":"string",
                         "immutable":true,
-                        "enum":["Disabled","Enabled"]
+                        "enum":["Disabled","Enabled"],
+                        "default":"Enabled"
                     },
                     "IdleShutdown":{
                         "title":"Idle Shutdown Wait Period in minutes",
                         "type":"string",
-                        "enum":["30","60","120"]
+                        "enum":["30","60","120"],
+                        "default":"30"
                     },
                     "GlueDevEndpoint":{
                         "title":"Glue development endpoints",

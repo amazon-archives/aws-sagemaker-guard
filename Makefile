@@ -14,7 +14,7 @@ check: build
 	done;			
 
 website: build
-	$(MAKE) -C ./website && cp logo/logo-01.jpg build/logo.jpg
+	$(MAKE) -C ./website && cp logo/*.jpg build/
 
 upload: lambda check website
 	./bin/upload.sh

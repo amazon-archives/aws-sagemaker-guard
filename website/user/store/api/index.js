@@ -15,7 +15,8 @@ module.exports={
     namespaced: true,
     state:{ 
         loading:false,
-        instances:[]
+        instances:[],
+        state:{}
     },
     mutations:{
         loading:function(state,val){
@@ -23,7 +24,10 @@ module.exports={
         },
         instances:function(state,val){
             state.instances=val.collection.items
-        }
+        },
+        init:function(state,payload){
+            state.state=payload
+        },
     },
     getters:{},
     actions:require('./actions')

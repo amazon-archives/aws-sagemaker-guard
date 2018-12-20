@@ -1,0 +1,24 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $userRoot="$root/website/api")
+
+{"collection":{
+    "version":"1.0",
+    "href":"$userRoot",
+    "links":[],
+    "items":[{
+            "href":"$userRoot/instances",
+            "title":"instances",
+            "name":"instances",
+            "render":"computer",
+            "rel":"collection"
+    },{
+            "href":"$userRoot/messages",
+            "title":"messages",
+            "name":"messages",
+            "render":"email",
+            "rel":"collection"
+    }]
+}}
+
+

@@ -24,6 +24,13 @@ var reason=function(r){
 
 var failed=false
 module.exports={
+    init:async function(context,opts){
+        var result=await context.dispatch('_request',{
+            url:document.head.querySelector("link[rel=root]").href,
+            method:'get'
+        })
+        context.commit('init',result.collection)
+    },
     list:async function(context,opts){
         var result=await context.dispatch('_request',{
             url:document.head.querySelector("link[rel=root]").href,

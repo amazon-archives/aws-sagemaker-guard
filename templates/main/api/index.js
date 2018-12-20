@@ -46,6 +46,7 @@ module.exports=Object.assign(
 },
 "Stage":{
   "Type": "AWS::ApiGateway::Stage",
+  "DependsOn":["Messages"],
   "Properties": {
     "DeploymentId": {"Ref": "Deployment"},
     "RestApiId": {"Ref": "API"},

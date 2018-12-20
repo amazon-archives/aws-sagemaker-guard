@@ -26,6 +26,12 @@
             "prompt":"Manage Groups of users"
         },
         {   
+            "href":"$root/website/api/messages/instance-request",
+            "rel":"messages",
+            "name":"Instance Requests",
+            "render":"mail_outline"
+        },
+        {   
             "href":"https://${QNA.Outputs.ElasticsearchEndpoint}/_plugin/kibana/",
             "rel":"monitor",
             "name":"Kibana",

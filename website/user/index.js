@@ -10,9 +10,11 @@ or in the "license" file accompanying this file. This file is distributed on an 
 BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the
 License for the specific language governing permissions and limitations under the License.
 */
+var sync=require('vuex-router-sync').sync
 import IdleVue from 'idle-vue'
 
 Vue.use(Vuex)
+Vue.use(VueRouter)
 Vue.use(Vuetify,{
 theme:{
     primary: '#1fbcd3',
@@ -27,8 +29,11 @@ theme:{
 document.addEventListener('DOMContentLoaded',init)
 
 function init(){
+    console.log(require('./router'))
+    var router=new VueRouter(require('./router'))
     var store=new Vuex.Store(require('./store'))
-        
+    sync(store,router)
+
     Vue.use(IdleVue, {
         idleTime: 45*60*1000,
         eventEmitter:new Vue(),
@@ -37,6 +42,7 @@ function init(){
     })
     var app=require('./app.vue')
     var App=new Vue({
+        router,
         store,
         render:h=>h(app)
     })

@@ -8,74 +8,45 @@ module.exports={
         "Version":require('../../package').version
     }
 },
-"ApiUrl":{
+"URLs":{
     "Type": "Custom::Variable",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}"}
-    }
-},
-"AdminLoginUrl":{
-    "Type": "Custom::Variable",
-    "Properties": {
-        "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${ApiUrl.href}/login/admin"}
-    }
-},
-"UserLoginUrl":{
-    "Type": "Custom::Variable",
-    "Properties": {
-        "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${ApiUrl.href}/login/user"}
-    }
-},
-"CognitoEndpoint":{
-    "Type": "Custom::Variable",
-    "Properties": {
-        "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${QNA.Outputs.CognitoEndpoint}"}
-    }
-},
-"AdminLoginRoute":{
-    "Type": "Custom::Variable",
-    "Properties": {
-        "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${ApiUrl.href}/website/admin"}
-    }
-},
-"UserLoginRoute":{
-    "Type": "Custom::Variable",
-    "Properties": {
-        "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${ApiUrl.href}/website/user"}
+        "API":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}"},
+        "UserAPI":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}/website/api"},
+        "AdminLogin":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}/website/admin"},
+        "AdminPage":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}/website?view=admin"},
+        "UserPage":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}/website?view=user"},
+        "UserLogin":{"Fn::Sub":"https://${API}.execute-api.${AWS::Region}.amazonaws.com/${Constants.ApiStageName}/website/user"},
+        "CognitoEndpoint":{"Fn::Sub":"${QNA.Outputs.CognitoEndpoint}"}
     }
 },
 "AdminLoginRouteEncoded":{
     "Type": "Custom::URIEncodedString",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNEncodeURIComponentLambda", "Arn"] },
-        "value":{"Fn::GetAtt":["AdminLoginRoute","href"]}
+        "value":{"Fn::GetAtt":["URLs","AdminPage"]}
     }
 },
 "UserLoginRouteEncoded":{
     "Type": "Custom::URIEncodedString",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNEncodeURIComponentLambda", "Arn"] },
-        "value":{"Fn::GetAtt":["UserLoginRoute","href"]}
+        "value":{"Fn::GetAtt":["URLs","UserPage"]}
     }
 },
 "AdminLogin":{
     "Type": "Custom::Variable",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${CognitoEndpoint.href}/login?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"}
+        "href":{"Fn::Sub":"${URLs.CognitoEndpoint}/login?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"}
     }
 },
 "UserLogin":{
     "Type": "Custom::Variable",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${CognitoEndpoint.href}/login?redirect_uri=${UserLoginRouteEncoded.value}&response_type=token&client_id=${UserClient}"}
+        "href":{"Fn::Sub":"${URLs.CognitoEndpoint}/login?redirect_uri=${UserLoginRouteEncoded.value}&response_type=code&client_id=${UserClient}"}
     }
 }
 }

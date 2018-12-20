@@ -7,8 +7,8 @@ module.exports=_.mapKeys({
             "ServiceToken": { "Fn::GetAtt" : ["CFNCognitoLoginLambda", "Arn"] },
             "UserPool":{"Fn::GetAtt":["QNA","Outputs.UserPool"]},
             "ClientId":{"Ref":"UserClient"},
-            "LoginCallbackUrls":[{"Fn::GetAtt":["UserLoginRoute","href"]}],
-            "OAuthFlows":["implicit"]
+            "LoginCallbackUrls":[{"Fn::GetAtt":["URLs","UserPage"]}],
+            "OAuthFlows":["code","implicit"]
         }
     },
     "AdminLogin":{
@@ -17,7 +17,7 @@ module.exports=_.mapKeys({
             "ServiceToken": { "Fn::GetAtt" : ["CFNCognitoLoginLambda", "Arn"] },
             "UserPool":{"Fn::GetAtt":["QNA","Outputs.UserPool"]},
             "ClientId":{"Ref":"AdminClient"},
-            "LoginCallbackUrls":[{"Fn::GetAtt":["AdminLoginRoute","href"]}],
+            "LoginCallbackUrls":[{"Fn::GetAtt":["URLs","AdminPage"]}],
             "OAuthFlows":["code","implicit"]
         }
     }

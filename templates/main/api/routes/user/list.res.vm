@@ -1,0 +1,44 @@
+#set($inputRoot = $input.path('$'))
+#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $userRoot="$root/website/api")
+#set ( $instanceRoot="$userRoot/instances")
+
+
+
+{"collection":{
+    "version":"1.0",
+    #if ( $inputRoot.PrevToken.length())
+        "href":"$instanceRoot",
+    #else
+        "href":"$instanceRoot?NextToken=inputRoot.PrevToken",
+    #end
+    "links":[
+        #if ( $inputRoot.NextToken.length())
+        #else
+            {"rel":"next","href":"$instanceRoot?NextToken=inputRoot.NextToken"}
+        #end
+    ],
+    "items":[
+        #foreach( $object in $inputRoot.Links)
+        {"href":"$instanceRoot/$object.TargetObjectReference.Selector.substring(1)"}
+        #if( $foreach.hasNext ),#end
+        #end
+    ],
+    "queries":[
+        {   
+            #if ( $inputRoot.NextToken.length())
+                "href":"$instanceRoot?",
+            #else
+                "href":"$instanceRoot?NextToken=inputRoot.NextToken",
+            #end
+            "rel":"search",
+            "prompt":"Search for instances by ID",
+            "data":[
+                {"name":"MaxResults","prompt":"Maximum results to return"},
+                {"name":"Query","prompt":"Prefix to search by"}
+            ]
+        }
+    ]
+}}
+
+
