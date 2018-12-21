@@ -49,7 +49,7 @@ module.exports={
   computed:{
     pages:function(){
       return _.get(this,"$store.state.data.links.items",[])
-        .filter(x=>x.rel==="collection")
+        .filter(x=>x.rel==="resources")
     },
     templates:function(){
       return _.get(this,"$store.state.data.links.template",[])

@@ -26,29 +26,19 @@ var failed=false
 module.exports={
     list:async function(context,opts){
         var result=await context.dispatch('_request_cognito',{
-            url:document.head.querySelector("link[rel=webAPI]").href,
+            url:opts.root,
             method:'get'
         },{root:true})
-        
-        var href=result.collection.items
-            .filter(x=>x.title===opts.type)[0]
-            .href
-        context.commit('root',result)
-
-        console.log(result)
-        var data=await context.dispatch('_request_cognito',{
-            url:href,
-            method:'get'
-        },{root:true})
-        await Promise.all(data.collection.items.map(async x=>{
-            result=await context.dispatch('_request_cognito',{
+        console.log(result,opts)
+        await Promise.all(result.collection.items.map(async x=>{
+            var data=await context.dispatch('_request_cognito',{
                 url:x.href,
                 method:'get'
             },{root:true})
-            Object.assign(x,result.collection)
+            Object.assign(x,data.collection)
         }))
-        console.log(data)
-        context.commit('collection',{type:opts.type,val:data})
+        
+        context.commit('collection',result)
     },
     get:async function(context,opts){
         var result=await context.dispatch('_request_cognito',{
@@ -56,17 +46,7 @@ module.exports={
             method:'get'
         },{root:true})
         return result.collection.items[0]
-    },
-    state:async function(context,opts){
-        var result=await context.dispatch('_request_cognito',{
-            url:opts.href,
-            method:'POST',
-            body:JSON.stringify({
-                state:opts.template.data.schema.properties.state.enum[0]
-            })
-        },{root:true})
-        return result.collection.items[0]
-    },
+    }
 }
 
 

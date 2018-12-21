@@ -106,7 +106,10 @@ module.exports={
     try{
       var data=await this.$store.dispatch('data/get',this.item)
       Vue.set(this,"collection",data.collection)
-      this.allow=await this.$store.dispatch('options',this.item.href)
+      this.allow=await this.$store.dispatch('options',{
+        href:this.item.href,
+        auth:"aws"
+      })
     }catch(e){
       console.log(e)
     }finally{

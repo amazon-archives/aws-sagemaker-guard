@@ -12,18 +12,23 @@ License for the specific language governing permissions and limitations under th
 */
 
 module.exports={
-    base:'/',
-    routes:[
-        {
-            path:'/home/:page',
-            name:"home",
-            component:require('./components/page.vue'),
-            params:true
+    namespaced: true,
+    state:{ 
+        loading:false,
+        messages:[],
+        state:{}
+    },
+    mutations:{
+        loading:function(state,val){
+            state.loading=val 
         },
-        {
-            path:"*",
-            redirect:"/home/instances"
+        collection:function(state,val){
+            state.messages=val.collection
+        },
+        init:function(state,payload){
+            state.state=payload
         }
-    ]
+    },
+    getters:{},
+    actions:require('./actions')
 }
-

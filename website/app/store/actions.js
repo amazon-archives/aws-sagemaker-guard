@@ -28,9 +28,10 @@ var reason=function(r){
 var endpoint=document.head.querySelector("link[rel=API]").href
 var failed=false
 module.exports={
-    options:async function(context,href){
-        var headers=await context.dispatch('_request',{
-            href:href,
+    options:async function(context,opts){
+        var request=opts.auth==="cognito" ? "_request_cognito" : "_request"
+        var headers=await context.dispatch(request,{
+            href:opts.href,
             method:'OPTIONS',
             returnHeaders:true
         })
@@ -111,7 +112,7 @@ module.exports={
         }
     },
     _request_cognito:async function(context,opts){
-        var url=Url.parse(opts.url)
+        var url=Url.parse(opts.url || opts.href)
         var request={
             host:url.hostname,
             method:opts.method.toUpperCase(),
@@ -128,13 +129,32 @@ module.exports={
         try{
             context.commit('loading',true)
             var result=await axios(request)
-            return result.data
+            if(opts.returnHeaders){
+                return result.headers
+            }else{
+                return result.data
+            }
         }catch(e){
             console.log(JSON.stringify(_.get(e,"response",e),null,2))
             window.alert("Request Error:"+e.message)
         }finally{
             context.commit('loading',false)
         }
+    },
+    create:async function(context,opts){
+        return await context.dispatch(opts.request,{
+            href:opts.href,
+            method:opts.method || 'POST',
+            body:opts.body
+        })
+    },
+    getCognito:async function(context,opts){
+        var data=await context.dispatch("_request_cognito",{
+            href:opts.href,
+            method:'GET'
+        })
+        Object.assign(opts,data.collection)
+        return opts
     }
 }
 

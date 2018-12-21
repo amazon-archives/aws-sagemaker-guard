@@ -10,7 +10,7 @@
         v-model="local"
         :rules='[rules.required,rules.schema]'
         :id='id' :data-vv-name='id'
-        :textarea="schema.maxLength>'5001'"
+        :textarea="schema.maxLength>'80'"
         :data-path="path"
         @update:error="setValid"
         auto-grow

@@ -73,7 +73,7 @@ License for the specific language governing permissions and limitations under th
 var empty=require('./empty')
 
 module.exports={
-  props:['template','href','method'],
+  props:['template','href','method',"auth"],
   data:function(){
     return {
       open:false,
@@ -109,6 +109,9 @@ module.exports={
     optional:function(){
       return Object.keys(_.get(this,"schema.template.properties",{}))
         .filter(x=>!this.required.includes(x))
+    },
+    request:function(){
+      return this.auth==="cognito" ? "_request_cognito" : "_request"
     }
   },
   created:async function(){
@@ -123,7 +126,7 @@ module.exports={
     load:async function(){
       var self=this
       if(_.get(this,"template.data.schema.href")){
-          var result=await this.$store.dispatch('_request',{
+          var result=await this.$store.dispatch(this.request,{
             href:this.template.data.schema.href,
             method:"get"
           })
@@ -150,12 +153,13 @@ module.exports={
       this.loading=true 
       this.open=false
       try{
-        await this.$store.dispatch('data/create',{
+        await this.$store.dispatch('create',{
           href:this.href,      
           body:{
             template:{data:clean(this.local)}
           },
-          method:this.method || "POST"
+          method:this.method || "POST",
+          request:this.request
         })
         this.refresh()
       }catch(e){

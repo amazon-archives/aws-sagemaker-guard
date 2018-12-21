@@ -34,13 +34,7 @@ module.exports={
             method:'GET'
         },{root:true})
     },
-    create:async function(context,opts){
-        return await context.dispatch('_request',{
-            href:opts.href,
-            method:opts.method || 'POST',
-            body:opts.body
-        },{root:true})
-    },
+    
     api:_.once(async function(context,opts){
         var data=await context.dispatch('_request',{
             path:'/',

@@ -1,8 +1,11 @@
 <template lang='pug'>
-  v-container(fluid grid-list-md v-if="!loading")
-    v-layout(row wrap v-for="instance in instances" )
-      v-flex(xs8 offset-xs2)
-        instance(@refresh="refresh" :instance="instance")
+  div
+    v-card.ma-2(v-if="!loading && instances.length===0")
+      v-card-title(primary-title) You do not have access to any instances
+    v-container(fluid grid-list-md v-if="!loading")
+      v-layout(row wrap v-for="instance in instances" )
+        v-flex(xs8 offset-xs2)
+          instance(@refresh="refresh" :instance="instance")
 </template>
 
 <script>
@@ -42,11 +45,11 @@ module.exports={
     this.$store.dispatch('api/list',{
       type:"instances"
     })
-      .then(()=>this.loading=false)
-      .catch(e=>{
-        console.log(e)
-        this.loading=false
-      })
+    .then(()=>this.loading=false)
+    .catch(e=>{
+      console.log(e)
+      this.loading=false
+    })
   },
   methods:{
     logout:function(){

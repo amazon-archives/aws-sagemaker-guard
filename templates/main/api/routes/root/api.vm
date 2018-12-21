@@ -6,41 +6,41 @@
     "items":[
         {
             "href":"$root/api/users",
-            "rel":"collection",
+            "rel":"resources",
             "name":"Users",
             "render":"person",
             "prompt":"Manage users who log into SageMaker Notebook Instances"
         },
         {
             "href":"$root/api/instances",
-            "rel":"collection",
+            "rel":"resources",
             "name":"SageMaker Instances",
             "render":"computer",
             "prompt":"Manage SageMaker Notebook Instances"
         },
         {   
             "href":"$root/api/groups",
-            "rel":"collection",
+            "rel":"resources",
             "name":"Groups",
             "render":"people",
             "prompt":"Manage Groups of users"
         },
         {   
-            "href":"$root/website/api/messages/instance-request",
+            "href":"$root/website/api/messages?view=Admins",
             "rel":"messages",
-            "name":"Instance Requests",
+            "name":"Messages",
             "render":"mail_outline"
         },
         {   
             "href":"https://${QNA.Outputs.ElasticsearchEndpoint}/_plugin/kibana/",
-            "rel":"monitor",
+            "rel":"external",
             "name":"Kibana",
             "render":"show_chart",
             "prompt":"Analyze and Visualize logs"
         },
         {   
             "href":"https://console.aws.amazon.com/cognito/users/?region=${AWS::Region}#/pool/${QNA.Outputs.UserPool}",
-            "rel":"UserPool",
+            "rel":"external",
             "name":"Cognito UserPool Console",
             "render":"domain"
         }

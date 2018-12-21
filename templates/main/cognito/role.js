@@ -85,11 +85,6 @@ module.exports={
                 "MatchType":"Contains",
                 "Value":"Admins",
                 "RoleARN":{"Fn::GetAtt":["AdminRole","Arn"]}
-            },{
-                "Claim":"cognito:groups",
-                "MatchType":"Contains",
-                "Value":"User",
-                "RoleARN":{"Fn::GetAtt":["UserRole","Arn"]}
             }]}
         }]
     }

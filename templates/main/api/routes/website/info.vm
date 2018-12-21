@@ -11,13 +11,13 @@
             "title":"instances",
             "name":"instances",
             "render":"computer",
-            "rel":"collection"
+            "rel":"instances"
     },{
-            "href":"$userRoot/messages",
+            "href":"$userRoot/messages?view=Admins",
             "title":"messages",
             "name":"messages",
             "render":"email",
-            "rel":"collection"
+            "rel":"messages"
     }]
 }}
 

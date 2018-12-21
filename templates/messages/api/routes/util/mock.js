@@ -1,10 +1,12 @@
 var fs=require('fs')
+var clean=require('clean-deep')
 var _=require('lodash')
 module.exports=function(opts){
-    return {
+    return clean({
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
-        "AuthorizationType": opts.auth || "AWS_IAM",
+        "AuthorizationType":opts.authorization || "AWS_IAM",
+        "AuthorizerId":opts.authorizerId,
         "HttpMethod": opts.method.toUpperCase(),
         "Integration": {
           "Type": "MOCK",
@@ -26,5 +28,5 @@ module.exports=function(opts){
         })],
         "RestApiId":{"Ref":"API"} 
       }
-    }
+    })
 }

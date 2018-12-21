@@ -22,7 +22,8 @@
                     },
                     "Description":{
                         "title":"Instance Description",
-                        "type":"string"
+                        "type":"string",
+                        "maxLength":500
                     },
                     "InstanceType":{
                         "title":"Instance Compute Type",

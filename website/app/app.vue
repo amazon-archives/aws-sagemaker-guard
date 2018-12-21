@@ -15,6 +15,7 @@
           :href="'#/'+type+'/'"
           id="page-link-home"
           target='_self'
+          v-if="type==='admin'"
         )
           v-list-tile-avatar
             v-icon(color="primary") home
@@ -22,7 +23,7 @@
             v-list-tile-title home 
         v-list-tile(v-for="(page,index) in pages" :key="'page-link-'+page.name"
           @click="drawer=false"
-          :href="'#/'+type+'/'+page.name"
+          :href="'#/'+page.rel+'/'+page.name+'?href='+encodeURI(page.href)"
           :id="'page-link-'+page.name"
           target='_self'
           )
@@ -42,7 +43,9 @@
             v-list-tile-title {{link.name}}
             v-list-tile-sub-title {{link.prompt}}
       v-list(dense one-line)
-        v-list-group( prepend-icon="info" value="true" color="primary" expand="true")
+        v-list-group( prepend-icon="info" value="true" color="primary" expand="true"
+          v-if="Object.keys(info).length>=0"
+        )
           v-list-tile(slot="activator")
             v-list-tile-title Info
           v-list-tile(v-for="(value,name) in  info" 
@@ -86,13 +89,13 @@ module.exports={
   computed:{
     pages:function(){
       return _.get(this,"$store.state.data.links.items",[])
-        .concat(_.get(this,"$store.state.api.state.items",[]))
-        .filter(x=>x.rel==="collection")
+        .concat(_.get(this,"$store.state.api.root.items",[]))
+        .filter(x=>x.rel!=="external")
     },
     links:function(){
       return _.get(this,"$store.state.data.links.items",[])
-        .concat(_.get(this,"$store.state.api.links.items",[]))
-        .filter(x=>x.rel!=="collection")
+        .concat(_.get(this,"$store.state.api.root.items",[]))
+        .filter(x=>x.rel==="external")
     },
     info:function(){
       return _.get(this,"$store.state.data.info",{})

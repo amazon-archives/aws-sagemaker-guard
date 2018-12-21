@@ -1,8 +1,8 @@
 var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var send=require('request').send
-var _=require('lodash')
 var m=require('messages')
+var _=require('lodash')
 var lambda=new aws.Lambda()
 var dynamodb = new aws.DynamoDB.DocumentClient();
 
@@ -10,22 +10,19 @@ exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
     try{
         var opts=m.opts(event)
-         
+        
+        opts.item.ID= event.requestContext.requestId
+        opts.item.Requestor=id
+        opts.item.response="pending"
         Promise.all([
             send({
                 href:`${opts.base}/templates/instances`,
                 method:"GET"
             }),
-            opts.admin ? dynamodb.scan({
-                TableName:process.env.INSTANCEREQUESTTABLE,
-                ExclusiveStartKey:opts.token ? m.decode(opts.token) : null
-            }).promise() : dynamodb.query({
-                TableName:process.env.INSTANCEREQUESTTABLE,
-                ExclusiveStartKey:opts.token ? m.decode(opts.token) : null,
-                KeyConditionExpression:'Requestor = :x ',
-                ExpressionAttributeValues:{
-                    ":x":opts.id
-                }
+            dynamodb.put({
+                TableName:opts.TableName,
+                Item:opts.item,
+                ReturnValues:"ALL_OLD"
             }).promise()
         ])
         .then(result=>{
@@ -36,23 +33,19 @@ exports.handler=function(event,context,callback){
             schema.required.push("Description")
 
             console.log(JSON.stringify(result,null,2))
-            var next=result[1].LastEvaluatedKey ? m.encode(result[1].LastEvaluatedKey) : null
             var body={"collection":{
                 "version":"1.0",
                 "href":`${opts.href}?view=${opts.view}`,
-                "links":next ? [
-                    {"rel":"next","href":`${opts.href}?NextToken=${next}`}
-                ] : [],
-                "items":result[1].Items.map(x=>{return {
-                    "href":`${opts.href}/${m.encode(_.pick(x,["ID","Requestor"]))}?view=${opts.view}`
-                }}),
-                "template":!opts.admin ? {
+                "links":[],
+                "items":[Object.assign(item,{
+                    "href":`${opts.href}/${m.encode(_.pick(opts.item,["ID","Requestor"]))}?view=${opts.view}`
+                })],
+                "template":{
                     "data":{
                         "schema":schema,
-                        "prompt":"Request Creation of a new instance"
-                    },
-                    href:`${opts.href}?view=${opts.view}`
-                } : {},
+                        "prompt":""
+                    }
+                },
                 "queries":[]
             }}
             callback(null,{
@@ -68,4 +61,5 @@ exports.handler=function(event,context,callback){
         })
     }
 }
+
 

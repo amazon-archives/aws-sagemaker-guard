@@ -30,7 +30,7 @@ module.exports={
             params:false
         },
         {
-            path:'/admin/:type?/:id?',
+            path:'/resources/:type?/:id?',
             name:"page",
             component:require('./components/page.vue'),
             props:true
@@ -38,17 +38,19 @@ module.exports={
         {
             path:"/user",
             name:"user",
-            redirect:"/user/instances"
+            redirect:"/instances"
         },
         {
-            path:'/user/instances',
+            path:'/instances/:id?',
             name:"instances",
             component:require('./components/instances.vue'),
+            props:true
         },
         {
-            path:'/user/messages',
+            path:'/messages/:type',
             name:"messages",
-            component:require('./components/messages.vue')
+            component:require('./components/messages.vue'),
+            props:true
         }
     ]
 }

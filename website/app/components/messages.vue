@@ -1,8 +1,33 @@
 <template lang='pug'>
-  v-container(fluid grid-list-md v-if="!loading")
-    v-layout(row wrap v-for="instance in instances" )
-      v-flex(xs8 offset-xs2)
-        instance(@refresh="refresh" :instance="instance")
+  div 
+    v-card
+      v-card-title(primary-title)
+        h2 Messages
+      v-card-text
+        v-progress-linear(v-if="loading" indeterminate)
+        v-radio-group( v-model="selected" v-if="messageTypes.length>1")
+          v-radio( v-for="messageType in messageTypes"
+            :key="messageType.title"
+            :label="messageType.title"
+            :value="messageType.title"
+          )
+      v-card-actions
+        v-spacer
+        temp( 
+          v-if="template"
+          :template="template"
+          :href="template.href"
+          auth="cognito"
+        )
+    v-container(fluid grid-list-md)
+      v-layout(column justify-center)
+        v-flex(xs12 v-for="(item,index) in items")
+          message( 
+            :item="item" 
+            :key="index"
+            v-on:remove="remove(index)"
+            @remove="refresh"
+          )
 </template>
 
 <script>
@@ -24,45 +49,53 @@ module.exports={
   data:()=>{
     return {
       loading:false,
-      open:false
+      open:false,
+      selected:""
   }},
   components:{
-    instance:require('./instance.vue') 
+    message:require('./message.vue'),
+    temp:require('./template.vue')
   },
   computed:{
-    loginUrl:function(){
-      return document.head.querySelector("link[rel=login]").href
+    root:function(){
+      return _.get(this,"$store.state.route.query.href",[])
     },
-    instances:function(){
-      return _.get(this,"$store.state.api.instances",[])
+    messageTypes:function(){
+      return _.get(this,"$store.state.messages.messages.items",[])
+    },
+    items:function(){
+      return _.get(this,"messages.items",[])
+    },
+    template:function(){
+      return _.get(this,"messages.template")
+    },
+    messages:function(){
+      return this.messageTypes.filter(x=>x.title===this.selected)[0]
     }
   },
   created:function(){
     this.loading=true
-    this.$store.dispatch('api/list',{
-      type:"messages"
+    this.$store.dispatch('messages/list',{
+      root:this.root
     })
-      .then(()=>this.loading=false)
-      .catch(e=>{
-        console.log(e)
-        this.loading=false
-      })
+    .then(()=>this.loading=false)
+    .then(()=>this.selected=this.messageTypes[0].title)
+    .catch(e=>{
+      console.log(e)
+      this.loading=false
+    })
   },
   methods:{
-    logout:function(){
-      this.$store.dispatch('user/logout')
-      window.location=this.loginUrl
-    },
+    
     refresh:function(){
       this.loading=true
       this.$store.dispatch('api/list')
         .then(()=>this.loading=false)
         .catch(()=>this.loading=false)
+    },
+    remove:function(index){
+      this.items.splice(index,1)
     }
-  },
-  onIdle:function(){
-    window.alert("Sorry, you are being logged out for being idle. Please log back in")
-    this.logout()
   }
 }
 </script>

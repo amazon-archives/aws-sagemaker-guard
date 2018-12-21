@@ -16,11 +16,15 @@ module.exports={
     state:{ 
         loading:false,
         instances:[],
-        state:{}
+        state:{},
+        root:{}
     },
     mutations:{
         loading:function(state,val){
             state.loading=val 
+        },
+        root:function(state,val){
+            state.root=val.collection
         },
         collection:function(state,{type,val}){
             state[type]=val.collection.items

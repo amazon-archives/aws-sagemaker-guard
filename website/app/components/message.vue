@@ -1,33 +1,41 @@
 <template lang='pug'>
   v-card.ma-2
     v-card-title(primary-title)
-      div
-        div
-          span.headline {{item.data.ID}}:
-          span {{item.data.NotebookInstanceStatus}}
-        span {{item.data.InstanceType}}
-        span(v-if="item.data.Description") {{item.data.Description}}
-    v-card-text
-      v-list(three-line dense)
-        v-container.pa-0
-          v-layout(row  wrap)
-            v-flex.xs6(v-for="(value,key) in data" )
-              v-list-tile
-                v-list-tile-content
-                  v-list-tile-title {{key}} 
-                  v-list-tile-sub-title(v-if="!Array.isArray(value)") {{value}} 
-                  v-list-tile-sub-title(
-                    v-if="Array.isArray(value)"
-                    v-for="v in value"
-                  ) {{v}} 
-    v-card-actions
-      v-btn(flat 
-        v-if="instance.template" 
-        @click.native="state"
-        :loading="updating"
-        ) {{instance.template.data.prompt}}
+      v-btn(flat icon @click.native="show=!show")
+        v-icon {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
+      h3(@click.native="show=!show") {{data.DisplayName || data.ID}}
+      span(v-if="data.Description") {{data.Description}}: 
       v-spacer
-      v-btn(flat v-if="login" :href="login") login
+      v-btn(flat icon 
+        @click.native="remove" 
+        :loading="removing"
+        v-if="allow.includes('DELETE')"
+      ) 
+        v-icon() delete
+    v-slide-y-transition
+      v-card-text(v-if="show")
+        v-card-text
+          v-progress-linear(v-if="loading" indeterminate)
+          v-list(two-line dense)
+            v-container.pa-0
+              v-layout(row  wrap)
+                v-flex.xs6(v-for="(value,key) in data" )
+                  v-list-tile
+                    v-list-tile-content
+                      v-list-tile-title {{key}} 
+                      v-list-tile-sub-title(v-if="!Array.isArray(value)") {{value}} 
+                      v-list-tile-sub-title(
+                        v-if="Array.isArray(value)"
+                        v-for="v in value"
+                      ) {{v}} 
+        v-card-actions
+          v-spacer
+          temp( 
+              v-if="schema"
+              :template="template"
+              :href="template.href"
+              auth="cognito"
+          )
 </template>
 
 <script>
@@ -45,39 +53,50 @@ License for the specific language governing permissions and limitations under th
 */
 
 module.exports={
-  props:["instance"],
+  props:["item"],
   data:function(){
     return {
-      updating:false 
+      updating:false,
+      loading:false,
+      removing:false,
+      show:false,
+      allow:[],
+      collection:{}
     }
   },
   components:{
+    temp:require('./template.vue')
   },
   computed:{
-    login:function(){
-      return _.get(
-        _.find(this.item.links,x=>x.rel==="login"),
-        "href")
-    },
-    item:function(){
-      return _.get(this,"instance.items[0]",{})
-    },
     data:function(){
-      return _.omit(this.item.data,["ID","InstanceType","NotebookInstanceStatus"])
+      return _.get(this,'collection.items[0]',{})
+    },
+    template:function(){
+      return _.get(this,'collection.template')
+    },
+    schema:function(){
+      return _.get(this,'collection.template.schema')
     }
   },
   created:function(){
-      this.$store.dispatch('api/init',this.instance)
+    this.loading=true
+    this.$store.dispatch('getCognito',this.item)
+    .then(x=>{
+      Vue.set(this,"collection",x)
+      return this.getOptions()
+    })
+    .catch(console.log)
+    .then(()=>this.loading=false)
   },
   methods:{
-    state:function(){
-      this.updating=true
-      this.$store.dispatch('api/state',this.instance)
-      .then(()=>{
-        this.updating=false
-        setTimeout(()=>this.$emit('refresh'))
+    getOptions:function(){
+      this.$store.dispatch("options",{
+        auth:"cognito",
+        href:this.collection.href
       })
-    }
+      .then(x=>this.allow=x)
+    },   
+    remove:function(){}
   }
 }
 </script>

@@ -22,6 +22,7 @@ module.exports={
     modules:{
         user:require('./user'),
         data:require('./data'),
-        api:require('./api')
+        api:require('./api'),
+        messages:require('./messages')
     }
 }

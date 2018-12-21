@@ -18,15 +18,16 @@ import IdleVue from 'idle-vue'
 Vue.use(Vuex)
 Vue.use(VueRouter)
 Vue.use(Vuetify,{
-theme:{
-    primary: '#1fbcd3',
-    accent: '#ffbb00',
-    secondary: '#3157d5',
-    info: '#0D47A1',
-    warning: '#ffba21',
-    error: '#a71000',
-    success: '#1ddf48'
-}})
+    theme:{
+        primary: '#1fbcd3',
+        accent: '#ffbb00',
+        secondary: '#3157d5',
+        info: '#0D47A1',
+        warning: '#ffba21',
+        error: '#a71000',
+        success: '#1ddf48'
+    }
+})
 
 document.addEventListener('DOMContentLoaded',init)
 

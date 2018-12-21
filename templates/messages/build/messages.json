@@ -41,11 +41,227 @@
   },
   "Outputs": {},
   "Resources": {
+    "APIMessageCreateLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var send=require(\"request\").send,m=require(\"messages\"),_=require(\"lodash\"),lambda=new aws.Lambda,dynamodb=new aws.DynamoDB.DocumentClient;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var opts=m.opts(event);opts.item.ID=event.requestContext.requestId,opts.item.Requestor=id,opts.item.response=\"pending\",Promise.all([send({href:`${opts.base}/templates/instances`,method:\"GET\"}),dynamodb.put({TableName:opts.TableName,Item:opts.item,ReturnValues:\"ALL_OLD\"}).promise()]).then(result=>{var schema=result[0].collection.template.data.schema;schema.properties=_.omit(schema.properties,[\"ID\",\"DisplayName\"]),schema.properties.Description.title=\"business purpose/justification\",schema.properties.Description.description=\"please provide a use case description for this instance\",schema.required.push(\"Description\"),console.log(JSON.stringify(result,null,2));var body={collection:{version:\"1.0\",href:`${opts.href}?view=${opts.view}`,links:[],items:[Object.assign(item,{href:`${opts.href}/${m.encode(_.pick(opts.item,[\"ID\",\"Requestor\"]))}?view=${opts.view}`})],template:{data:{schema:schema,prompt:\"\"}},queries:[]}};callback(null,{statusCode:200,body:JSON.stringify(body)})})}catch(e){console.log(e),callback(null,{responseCode:500,body:e})}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Ref": "APILambdaRoleArn"
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "INSTANCEREQUESTTABLE": {
+              "Ref": "MessagesTable"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
+    "APIMessageDeleteLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var send=require(\"request\").send,_=require(\"lodash\"),m=require(\"messages\"),lambda=new aws.Lambda,dynamodb=new aws.DynamoDB.DocumentClient;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var opts=m.opts(event);dynamodb.delete({TableName:process.env.INSTANCEREQUESTTABLE,Key:opts.messageId}).promise().then(result=>{console.log(JSON.stringify(result,null,2));var body={collection:{version:\"1.0\",href:`${opts.href}?view=${opts.view}`,links:[],items:[],queries:[]}};callback(null,{statusCode:200,body:JSON.stringify(body)})})}catch(e){console.log(e),callback(null,{responseCode:500,body:e})}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Ref": "APILambdaRoleArn"
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "INSTANCEREQUESTTABLE": {
+              "Ref": "MessagesTable"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
+    "APIMessageGetLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var send=require(\"request\").send,_=require(\"lodash\"),m=require(\"messages\"),lambda=new aws.Lambda,dynamodb=new aws.DynamoDB.DocumentClient;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var opts=m.opts(event);Promise.all([send({href:`${opts.base}/templates/instances`,method:\"GET\"}),dynamodb.get({TableName:opts.TableName,Key:opts.messageId}).promise()]).then(result=>{var item=result[1].Item,schema=result[0].collection.template.data.schema;schema.properties=_.omit(schema.properties,[\"ID\",\"DisplayName\"]),schema.properties.Request=schema.properties.Description,delete schema.properties.Description,schema.required.push(\"Request\"),console.log(JSON.stringify(result,null,2));var body={collection:{version:\"1.0\",href:`${opts.href}?view=${opts.view}`,links:[],items:[item],template:\"Approved\"!==item.response?opts.admin?{data:{schema:{type:\"object\",properties:{response:{type:\"string\",enum:[\"Approve\",\"Pending\",\"Deny\"]},comment:{type:\"string\",maxLength:500}},required:[\"response\"]},prompt:\"respond to request\"}}:{data:{schema:schema,prompt:\"Edit request\"}}:{},queries:[]}};callback(null,{statusCode:200,body:JSON.stringify(body)})})}catch(e){console.log(e),callback(null,{responseCode:500,body:e})}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Ref": "APILambdaRoleArn"
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "INSTANCEREQUESTTABLE": {
+              "Ref": "MessagesTable"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
+    "APIMessageGetOptionsLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cognito=new aws.CognitoIdentityServiceProvider,send=require(\"request\").send,lambda=new aws.Lambda,m=require(\"messages\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),m.isAdmin(event)?callback(null,{statusCode:200,headers:{Allow:\"OPTIONS, GET, PUT\"}}):callback(null,{statusCode:200,headers:{Allow:\"OPTIONS, GET, PUT, DELETE\"}})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Ref": "APILambdaRoleArn"
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "INSTANCEREQUESTTABLE": {
+              "Ref": "MessagesTable"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
     "APIMessageListLambda": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var send=require(\"request\").send,_=require(\"lodash\"),lambda=new aws.Lambda,dynamodb=new AWS.DynamoDB.DocumentClient;function isAdmin(event){var groups=event.requestContext.authorizer.claims[\"cognito:groups\"];return\"string\"==typeof groups?\"admins\"===groups:groups.includes(\"admins\")}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var base=`https://${event.requestContext.domainPrefix}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.stage}`,href=`${base}/${event.requestContext.path}`,id=event.requestContext.authorizer.claims[\"cognito:username\"],admin=isAdmin(event);_.get(event.queryStringParameters,\"NextToken\");Promise.all([send({href:`${base}/templates/instances`,method:\"GET\"}),admin?dynamodb.scan({TableName:process.env.INSTANCEREQUESTTABLE}).promise():dynamodb.query({TableName:process.env.INSTANCEREQUESTTABLE,KeyConditionExpression:\"Requestor = :x \",ExpressionAttributeValues:{\":x\":id}}).promise()]).then(result=>{console.log(JSON.stringify(result,null,2));var body={collection:{version:\"1.0\",href:href,links:[],items:[{href:\"$root/$object.key\"}],template:[{data:{schema:result[0].collection.template.data.schema,prompt:\"Request Creation of a new instance\"}}],queries:[]}};callback(null,{statusCode:200,body:JSON.stringify(body)})})}catch(e){console.log(e),callback(null,{responseCode:500,body:e})}};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var send=require(\"request\").send,_=require(\"lodash\"),m=require(\"messages\"),lambda=new aws.Lambda,dynamodb=new aws.DynamoDB.DocumentClient;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var opts=m.opts(event);Promise.all([send({href:`${opts.base}/templates/instances`,method:\"GET\"}),opts.admin?dynamodb.scan({TableName:process.env.INSTANCEREQUESTTABLE,ExclusiveStartKey:opts.token?m.decode(opts.token):null}).promise():dynamodb.query({TableName:process.env.INSTANCEREQUESTTABLE,ExclusiveStartKey:opts.token?m.decode(opts.token):null,KeyConditionExpression:\"Requestor = :x \",ExpressionAttributeValues:{\":x\":opts.id}}).promise()]).then(result=>{var schema=result[0].collection.template.data.schema;schema.properties=_.omit(schema.properties,[\"ID\",\"DisplayName\"]),schema.properties.Description.title=\"business purpose/justification\",schema.properties.Description.description=\"please provide a use case description for this instance\",schema.required.push(\"Description\"),console.log(JSON.stringify(result,null,2));var next=result[1].LastEvaluatedKey?m.encode(result[1].LastEvaluatedKey):null,body={collection:{version:\"1.0\",href:`${opts.href}?view=${opts.view}`,links:next?[{rel:\"next\",href:`${opts.href}?NextToken=${next}`}]:[],items:result[1].Items.map(x=>({href:`${opts.href}/${m.encode(_.pick(x,[\"ID\",\"Requestor\"]))}?view=${opts.view}`})),template:opts.admin?{}:{data:{schema:schema,prompt:\"Request Creation of a new instance\"},href:`${opts.href}?view=${opts.view}`},queries:[]}};callback(null,{statusCode:200,body:JSON.stringify(body)})})}catch(e){console.log(e),callback(null,{responseCode:500,body:e})}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Ref": "APILambdaRoleArn"
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "INSTANCEREQUESTTABLE": {
+              "Ref": "MessagesTable"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
+    "APIMessageListOptionsLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cognito=new aws.CognitoIdentityServiceProvider,send=require(\"request\").send,m=require(\"messages\"),lambda=new aws.Lambda;function isAdmin(event){var groups=event.requestContext.authorizer.claims[\"cognito:groups\"];return\"string\"==typeof groups?\"admins\"===groups:groups.includes(\"admins\")}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),m.isAdmin(event)?callback(null,{statusCode:200,headers:{Allow:\"OPTIONS, GET\"}}):callback(null,{statusCode:200,headers:{Allow:\"OPTIONS, GET, PUT\"}})};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "1024",
+        "Role": {
+          "Ref": "APILambdaRoleArn"
+        },
+        "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "UtilLambdaLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "INSTANCEREQUESTTABLE": {
+              "Ref": "MessagesTable"
+            }
+          }
+        },
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Timeout": 60,
+        "Tags": [
+          {
+            "Key": "Type",
+            "Value": "ApiRouteHandler"
+          }
+        ]
+      }
+    },
+    "APIMessageUpdateLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var send=require(\"request\").send,m=require(\"messages\"),_=require(\"lodash\"),lambda=new aws.Lambda,dynamodb=new aws.DynamoDB.DocumentClient;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var opts=m.opts(event);Promise.all([send({href:`${opts.base}/templates/instances`,method:\"GET\"}),dynamodb.put({TableName:TableName,Item:Object.assign(opts.item,opts.messageId),ReturnValues:\"ALL_NEW\"}).promise()]).then(result=>{var item=result[0].Attributes;console.log(JSON.stringify(result,null,2));var body={collection:{version:\"1.0\",href:`${href}?view=${opts.view}`,links:[],items:[Object.assign(opts.item,{href:`${opts.href}/${opts.messageId}?view=${opts.view}`})],template:{},queries:[]}};admin?\"Approve\"===opts.item.response&&Promise.all([wait(opts.base,\"users\",opts.id),send({href:`${opts.base}/templates/instances`,method:\"POST\",body:JSON.stringify({template:{data:item}})})]).then(results=>{var user=results[0].collection.href.split(\"/\").reverse()[0],instance=results[1].collection.href.split(\"/\").reverse()[0];return send({href:`${process.env.API}/api/users/${user}/children/instances`,method:\"POST\",body:JSON.stringify({template:{data:{ID:instance}}})})}).then(()=>{body.collection.template={},callback(null,{statusCode:200,body:JSON.stringify(body)})}):callback(null,{statusCode:200,body:JSON.stringify(body)})})}catch(e){console.log(e),callback(null,{responseCode:500,body:e})}};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -151,7 +367,10 @@
     "MessagesGet": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "CognitoAuthorizer"
+        },
         "HttpMethod": "GET",
         "Integration": {
           "Type": "MOCK",
@@ -174,8 +393,7 @@
         },
         "MethodResponses": [
           {
-            "StatusCode": 200,
-            "ResponseParameters": {}
+            "StatusCode": 200
           }
         ],
         "RestApiId": {
@@ -291,7 +509,7 @@
           "Type": "AWS_PROXY",
           "IntegrationHttpMethod": "POST",
           "Uri": {
-            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIOptionsLambda.Arn}/invocations"
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIMessageListOptionsLambda.Arn}/invocations"
           },
           "IntegrationResponses": [
             {
@@ -447,6 +665,90 @@
         }
       }
     },
+    "InstanceRequestMessagesPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "CognitoAuthorizer"
+        },
+        "HttpMethod": "POST",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIMessageCreateLambda.Arn}/invocations"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200
+            },
+            {
+              "SelectionPattern": ".*[InternalServiceError].*",
+              "StatusCode": 500,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[BadRequest].*",
+              "StatusCode": 400,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[Conflict].*",
+              "StatusCode": 409,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[NotFound].*",
+              "StatusCode": 404,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            }
+          ],
+          "Credentials": {
+            "Ref": "ApiGatewayRole"
+          }
+        },
+        "ResourceId": {
+          "Ref": "InstanceRequestMessages"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200
+          },
+          {
+            "StatusCode": 404
+          },
+          {
+            "StatusCode": 409
+          },
+          {
+            "StatusCode": 400
+          },
+          {
+            "StatusCode": 500
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
     "InstanceRequestMessage": {
       "Type": "AWS::ApiGateway::Resource",
       "Properties": {
@@ -471,7 +773,259 @@
           "Type": "AWS_PROXY",
           "IntegrationHttpMethod": "POST",
           "Uri": {
-            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIOptionsLambda.Arn}/invocations"
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIMessageGetOptionsLambda.Arn}/invocations"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200
+            },
+            {
+              "SelectionPattern": ".*[InternalServiceError].*",
+              "StatusCode": 500,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[BadRequest].*",
+              "StatusCode": 400,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[Conflict].*",
+              "StatusCode": 409,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[NotFound].*",
+              "StatusCode": 404,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            }
+          ],
+          "Credentials": {
+            "Ref": "ApiGatewayRole"
+          }
+        },
+        "ResourceId": {
+          "Ref": "InstanceRequestMessage"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200
+          },
+          {
+            "StatusCode": 404
+          },
+          {
+            "StatusCode": 409
+          },
+          {
+            "StatusCode": 400
+          },
+          {
+            "StatusCode": 500
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "InstanceRequestMessageGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "CognitoAuthorizer"
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIMessageGetLambda.Arn}/invocations"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200
+            },
+            {
+              "SelectionPattern": ".*[InternalServiceError].*",
+              "StatusCode": 500,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[BadRequest].*",
+              "StatusCode": 400,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[Conflict].*",
+              "StatusCode": 409,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[NotFound].*",
+              "StatusCode": 404,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            }
+          ],
+          "Credentials": {
+            "Ref": "ApiGatewayRole"
+          }
+        },
+        "ResourceId": {
+          "Ref": "InstanceRequestMessage"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200
+          },
+          {
+            "StatusCode": 404
+          },
+          {
+            "StatusCode": 409
+          },
+          {
+            "StatusCode": 400
+          },
+          {
+            "StatusCode": 500
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "InstanceRequestMessagePut": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "CognitoAuthorizer"
+        },
+        "HttpMethod": "PUT",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIMessageUpdateLambda.Arn}/invocations"
+          },
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200
+            },
+            {
+              "SelectionPattern": ".*[InternalServiceError].*",
+              "StatusCode": 500,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[BadRequest].*",
+              "StatusCode": 400,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[Conflict].*",
+              "StatusCode": 409,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            },
+            {
+              "SelectionPattern": ".*[NotFound].*",
+              "StatusCode": 404,
+              "ResponseTemplates": {
+                "application/json": {
+                  "Fn::Sub": "#set ($errorMessageObj = $util.parseJson($input.path('$.errorMessage')))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root$context.path\",\n    \"error\":$input.json('$.errorMessage')\n}}\n"
+                }
+              }
+            }
+          ],
+          "Credentials": {
+            "Ref": "ApiGatewayRole"
+          }
+        },
+        "ResourceId": {
+          "Ref": "InstanceRequestMessage"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 200
+          },
+          {
+            "StatusCode": 404
+          },
+          {
+            "StatusCode": 409
+          },
+          {
+            "StatusCode": 400
+          },
+          {
+            "StatusCode": 500
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "InstanceRequestMessageDelete": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "CognitoAuthorizer"
+        },
+        "HttpMethod": "DELETE",
+        "Integration": {
+          "Type": "AWS_PROXY",
+          "IntegrationHttpMethod": "POST",
+          "Uri": {
+            "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIMessageDeleteLambda.Arn}/invocations"
           },
           "IntegrationResponses": [
             {
@@ -558,7 +1112,43 @@
               "Resource": [
                 {
                   "Fn::GetAtt": [
+                    "APIMessageCreateLambda",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
+                    "APIMessageDeleteLambda",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
+                    "APIMessageGetLambda",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
+                    "APIMessageGetOptionsLambda",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
                     "APIMessageListLambda",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
+                    "APIMessageListOptionsLambda",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::GetAtt": [
+                    "APIMessageUpdateLambda",
                     "Arn"
                   ]
                 },

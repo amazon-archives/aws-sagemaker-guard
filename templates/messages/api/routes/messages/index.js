@@ -6,8 +6,7 @@ module.exports={
     "MessagesGet":util.mock({
         authorization:"COGNITO_USER_POOLS",
         authorizerId:{"Ref":"CognitoAuthorizer"},
-        method:"Get",
-        auth:"NONE",
+        method:"GET",
         resource:{"Ref":"MessagesResource"},
         template:`${__dirname}/info.vm`
     }),
@@ -26,15 +25,23 @@ module.exports={
         resource:{"Ref":"InstanceRequestMessages"},
         type:"AWS_PROXY",
         method:"OPTIONS",
-        lambda:"APIOptionsLambda"
+        lambda:"APIMessageListOptionsLambda"
     }),
     "InstanceRequestMessagesGet":util.lambda({
         authorization:"COGNITO_USER_POOLS",
         authorizerId:{"Ref":"CognitoAuthorizer"},
         resource:{"Ref":"InstanceRequestMessages"},
         type:"AWS_PROXY",
-        method:"Get",
+        method:"GET",
         lambda:"APIMessageListLambda",
+    }),
+    "InstanceRequestMessagesPost":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessages"},
+        type:"AWS_PROXY",
+        method:"POST",
+        lambda:"APIMessageCreateLambda",
     }),
     "InstanceRequestMessage":util.resource('{id}',{"Ref":"InstanceRequestMessages"}),
     "InstanceRequestMessageOptions":util.lambda({
@@ -43,7 +50,31 @@ module.exports={
         resource:{"Ref":"InstanceRequestMessage"},
         type:"AWS_PROXY",
         method:"OPTIONS",
-        lambda:"APIOptionsLambda"
+        lambda:"APIMessageGetOptionsLambda"
     }),
+    "InstanceRequestMessageGet":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessage"},
+        type:"AWS_PROXY",
+        method:"GET",
+        lambda:"APIMessageGetLambda",
+    }),
+    "InstanceRequestMessagePut":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessage"},
+        type:"AWS_PROXY",
+        method:"PUT",
+        lambda:"APIMessageUpdateLambda",
+    }),
+    "InstanceRequestMessageDelete":util.lambda({
+        authorization:"COGNITO_USER_POOLS",
+        authorizerId:{"Ref":"CognitoAuthorizer"},
+        resource:{"Ref":"InstanceRequestMessage"},
+        type:"AWS_PROXY",
+        method:"DELETE",
+        lambda:"APIMessageDeleteLambda",
+    })
 }
     
