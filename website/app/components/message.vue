@@ -85,7 +85,7 @@ module.exports={
       return _.get(this,'collection.template')
     },
     schema:function(){
-      return _.get(this,'collection.template.schema')
+      return _.get(this,'collection.template.data.schema')
     }
   },
   created:function(){

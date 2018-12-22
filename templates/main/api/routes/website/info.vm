@@ -14,7 +14,7 @@
             "render":"computer",
             "rel":"instances"
     },{
-            "href":"$userRoot/messages?view=Admins",
+            "href":"$userRoot/messages?view=Users",
             "title":"Requests",
             "prompt":"Request access from your Admin to notebook instances",
             "name":"messages",

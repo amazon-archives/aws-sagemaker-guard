@@ -83,7 +83,6 @@ module.exports={
     this.$store.dispatch('messages/list',{
       root:this.root
     })
-    .then(()=>this.loading=false)
     .then(()=>this.selected=this.messageTypes[0].title)
     .catch(e=>{
       console.log(e)

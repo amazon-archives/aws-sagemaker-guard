@@ -1,5 +1,14 @@
 <template lang='pug'>
   v-app
+    v-toolbar
+      v-toolbar-side-icon.primary--text(
+        id="nav-open"
+        @click.stop="open = !open"
+      )
+      v-toolbar-title {{title}}
+      v-spacer
+      v-toolbar-items
+        v-btn(flat @click="logout") Logout
     v-navigation-drawer(temporary v-model="open" app)
       v-toolbar(flat)
         v-list
@@ -51,15 +60,6 @@
           v-list-tile(v-for="(value,name) in  info" 
                 :key="name")
             v-list-tile-title {{name}}: {{value}}
-    v-toolbar
-      v-toolbar-side-icon.primary--text(
-        id="nav-open"
-        @click.stop="open = !open"
-      )
-      v-toolbar-title {{title}}
-      v-spacer
-      v-toolbar-items
-        v-btn(flat @click="logout") Logout
     v-container(fluid id="workspace")
       v-layout(column)
         v-flex
@@ -83,7 +83,7 @@ License for the specific language governing permissions and limitations under th
 module.exports={
   data:()=>{
     return {
-      open:false
+      open:null
   }},
   components:{},
   computed:{

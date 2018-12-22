@@ -3294,7 +3294,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2018-12-22T00:17:36.386Z"
+        "BuildDate": "2018-12-22T05:44:37.866Z"
       }
     },
     "UtilLambdaLayer": {
@@ -6465,7 +6465,7 @@
             {
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n#set ( $userRoot=\"$root/website/api\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$userRoot\",\n    \"links\":[],\n    \"items\":[{\n            \"href\":\"$userRoot/instances\",\n            \"title\":\"Notebook Instances\",\n            \"prompt\":\"Access your notebook instances\",\n            \"name\":\"instances\",\n            \"render\":\"computer\",\n            \"rel\":\"instances\"\n    },{\n            \"href\":\"$userRoot/messages?view=Admins\",\n            \"title\":\"Requests\",\n            \"prompt\":\"Request access from your Admin to notebook instances\",\n            \"name\":\"messages\",\n            \"render\":\"email\",\n            \"rel\":\"messages\"\n    }]\n}}\n\n\n"
+                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n#set ( $userRoot=\"$root/website/api\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$userRoot\",\n    \"links\":[],\n    \"items\":[{\n            \"href\":\"$userRoot/instances\",\n            \"title\":\"Notebook Instances\",\n            \"prompt\":\"Access your notebook instances\",\n            \"name\":\"instances\",\n            \"render\":\"computer\",\n            \"rel\":\"instances\"\n    },{\n            \"href\":\"$userRoot/messages?view=Users\",\n            \"title\":\"Requests\",\n            \"prompt\":\"Request access from your Admin to notebook instances\",\n            \"name\":\"messages\",\n            \"render\":\"email\",\n            \"rel\":\"messages\"\n    }]\n}}\n\n\n"
                 }
               },
               "StatusCode": "200"
@@ -6890,7 +6890,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2018-12-22T00:17:36.389Z",
+        "buildDate": "2018-12-22T05:44:37.868Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -9507,7 +9507,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2018-12-22T00:17:36.656Z",
+        "BuildDate": "2018-12-22T05:44:38.343Z",
         "Version": "1.0.0"
       }
     },
@@ -9684,7 +9684,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2018-12-22T00:17:36.658Z"
+        "buildDate": "2018-12-22T05:44:38.345Z"
       },
       "DependsOn": "WebsiteClear"
     },
