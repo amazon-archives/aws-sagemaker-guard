@@ -31,7 +31,7 @@ module.exports={
         },{root:true})
         
         var href=result.collection.items
-            .filter(x=>x.title===opts.type)[0]
+            .filter(x=>x.name===opts.type)[0]
             .href
         context.commit('root',result)
 

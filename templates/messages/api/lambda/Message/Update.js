@@ -18,7 +18,7 @@ exports.handler=function(event,context,callback){
             }),
             dynamodb.put({
                 TableName,
-                Item:Object.assign(opts.item,opts.messageId),
+                Item:Object.assign(opts.item,m.decode(opts.messageId)),
                 ReturnValues:"ALL_NEW"
             }).promise()
         ])

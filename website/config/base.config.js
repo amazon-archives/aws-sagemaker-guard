@@ -22,7 +22,8 @@ const extractSass = new ExtractTextPlugin({
 
 module.exports={
     entry:{
-        app:"./app/index.js"
+        app:"./app/index.js",
+        vendor:["ajv","csvtojson","elliptic","bn.js"]
     },
     output:{
         path:path.join(__dirname,'../build'),
@@ -33,7 +34,10 @@ module.exports={
         extractSass,
         new webpack.optimize.CommonsChunkPlugin({
             name:'vendor',
-            minChunks:2
+            minChunks(module, count) {
+                var context = module.context;
+                return context && context.indexOf('node_modules') >= 0;
+            }
         })
     ]),
     resolve:{

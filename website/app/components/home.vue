@@ -10,19 +10,20 @@
           v-for="template in templates"
           :template="template"
           :href="template.href"
+          :key="template.href"
         )
     v-container(grid-list-sm)
       v-layout(row wrap)
         v-flex(v-if="pages.length===0")
           v-progress-linear(indeterminate) 
-        v-flex.xs4(v-for="page in pages")
+        v-flex.xs4(v-for="page in pages" :key="page.href")
           v-card(height="200px")
             v-card-title {{page.name}}
             v-card-text
               p {{page.prompt}}
             v-card-actions
               v-spacer
-              v-btn(:href="'#/admin/'+page.name") go to
+              v-btn(:href="'#/'+page.rel+'/'+page.name+'?href'+encodeURI(page.href)") go to
 </template>
 
 <script>
@@ -57,7 +58,7 @@ module.exports={
   },
   created:async function(){
     var self=this
-    await self.$store.dispatch('data/init')
+    await self.$store.dispatch('data/init').catch(console.log)
   },
   methods:{
   }

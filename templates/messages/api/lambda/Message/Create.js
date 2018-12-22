@@ -12,7 +12,7 @@ exports.handler=function(event,context,callback){
         var opts=m.opts(event)
         
         opts.item.ID= event.requestContext.requestId
-        opts.item.Requestor=id
+        opts.item.Requestor=opts.id
         opts.item.response="pending"
         Promise.all([
             send({
@@ -37,7 +37,7 @@ exports.handler=function(event,context,callback){
                 "version":"1.0",
                 "href":`${opts.href}?view=${opts.view}`,
                 "links":[],
-                "items":[Object.assign(item,{
+                "items":[Object.assign(opts.item,{
                     "href":`${opts.href}/${m.encode(_.pick(opts.item,["ID","Requestor"]))}?view=${opts.view}`
                 })],
                 "template":{

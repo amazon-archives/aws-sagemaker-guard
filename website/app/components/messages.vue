@@ -14,19 +14,21 @@
       v-card-actions
         v-spacer
         temp( 
-          v-if="template"
+          v-if="ifTemplate"
           :template="template"
           :href="template.href"
           auth="cognito"
+          @new="add"
         )
+        v-btn(@click="refresh") Refresh
     v-container(fluid grid-list-md)
       v-layout(column justify-center)
-        v-flex(xs12 v-for="(item,index) in items")
+        v-flex(xs12 v-for="(item,index) in items" :key="item.href")
           message( 
             :item="item" 
-            :key="index"
+            :key="item.href"
+            :index="index"
             v-on:remove="remove(index)"
-            @remove="refresh"
           )
 </template>
 
@@ -66,6 +68,9 @@ module.exports={
     items:function(){
       return _.get(this,"messages.items",[])
     },
+    ifTemplate:function(){
+      return !_.isEmpty(this.template)
+    },
     template:function(){
       return _.get(this,"messages.template")
     },
@@ -86,15 +91,19 @@ module.exports={
     })
   },
   methods:{
-    
+    add:function(x){
+      this.messages.items.unshift(x)
+    },
     refresh:function(){
       this.loading=true
-      this.$store.dispatch('api/list')
-        .then(()=>this.loading=false)
-        .catch(()=>this.loading=false)
+      this.$store.dispatch('messages/list',{
+        root:this.root
+      })
+      .catch(console.log)
+      .then(()=>this.loading=false)
     },
     remove:function(index){
-      this.items.splice(index,1)
+      this.$delete(this.items,index)
     }
   }
 }

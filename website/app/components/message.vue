@@ -1,25 +1,29 @@
 <template lang='pug'>
   v-card.ma-2
-    v-card-title(primary-title)
+    v-progress-linear(v-if="loading" indeterminate)
+    v-card-title(primary-title v-if="!loading")
       v-btn(flat icon @click.native="show=!show")
-        v-icon {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
-      h3(@click.native="show=!show") {{data.DisplayName || data.ID}}
-      span(v-if="data.Description") {{data.Description}}: 
+        v-icon(color="primary") {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
+      h3(@click.native="show=!show") {{title}}
       v-spacer
       v-btn(flat icon 
-        @click.native="remove" 
+        @click.native="remove(index)" 
         :loading="removing"
         v-if="allow.includes('DELETE')"
       ) 
         v-icon() delete
     v-slide-y-transition
-      v-card-text(v-if="show")
+      v-card-text(v-if="show && !loading")
         v-card-text
+          h4 Description
+          p(v-if="data.Description") {{data.Description}}
+          v-divider
+          h4 Information
           v-progress-linear(v-if="loading" indeterminate)
           v-list(two-line dense)
             v-container.pa-0
               v-layout(row  wrap)
-                v-flex.xs6(v-for="(value,key) in data" )
+                v-flex.xs6(v-for="(value,key) in data" :key="value")
                   v-list-tile
                     v-list-tile-content
                       v-list-tile-title {{key}} 
@@ -27,7 +31,8 @@
                       v-list-tile-sub-title(
                         v-if="Array.isArray(value)"
                         v-for="v in value"
-                      ) {{v}} 
+                        :key="v"
+                      ) {{v}}
         v-card-actions
           v-spacer
           temp( 
@@ -53,7 +58,7 @@ License for the specific language governing permissions and limitations under th
 */
 
 module.exports={
-  props:["item"],
+  props:["item","index"],
   data:function(){
     return {
       updating:false,
@@ -68,6 +73,11 @@ module.exports={
     temp:require('./template.vue')
   },
   computed:{
+    title:function(){
+      return this.data.Requestor ? 
+        `${this.data.Requestor}: ${this.data.InstanceType}`:
+        `${this.data.InstanceType}: ${this.data.response}`
+    },
     data:function(){
       return _.get(this,'collection.items[0]',{})
     },
@@ -80,7 +90,7 @@ module.exports={
   },
   created:function(){
     this.loading=true
-    this.$store.dispatch('getCognito',this.item)
+    this.$store.dispatch('get',Object.assign(this.item,{auth:"cognito"}))
     .then(x=>{
       Vue.set(this,"collection",x)
       return this.getOptions()
@@ -96,7 +106,16 @@ module.exports={
       })
       .then(x=>this.allow=x)
     },   
-    remove:function(){}
+    remove:function(index){
+      this.removing=true
+      this.$store.dispatch("rm",{
+        auth:"cognito",
+        href:this.collection.href
+      })
+      .then(()=>this.$emit("remove",index))
+      .catch(console.log)
+      .then(()=>this.removing=false)
+    }
   }
 }
 </script>

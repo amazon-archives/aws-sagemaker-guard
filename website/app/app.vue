@@ -30,7 +30,7 @@
           v-list-tile-avatar( v-if="page.render")
             v-icon(color="primary") {{page.render}}
           v-list-tile-content
-            v-list-tile-title {{page.name}}
+            v-list-tile-title {{page.title || page.name}}
             v-list-tile-sub-title {{page.prompt}}
         v-list-tile(v-for="(link,index) in links" :key="'page-link-'+link.name"
           :href="link.href"
@@ -44,7 +44,7 @@
             v-list-tile-sub-title {{link.prompt}}
       v-list(dense one-line)
         v-list-group( prepend-icon="info" value="true" color="primary" expand="true"
-          v-if="Object.keys(info).length>=0"
+          v-if="Object.keys(info).length>0"
         )
           v-list-tile(slot="activator")
             v-list-tile-title Info
@@ -112,7 +112,17 @@ module.exports={
       }
     }
   },
-  created:function(){},
+  created:function(){
+    this.$vuetify.theme={
+        primary: '#1fbcd3',
+        accent: '#ffbb00',
+        secondary: '#3157d5',
+        info: '#0D47A1',
+        warning: '#ffba21',
+        error: '#a71000',
+        success: '#1ddf48'
+    }
+  },
   methods:{
     logout:function(){
       this.$store.dispatch('user/logout')

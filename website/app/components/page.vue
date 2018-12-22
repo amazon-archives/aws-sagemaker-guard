@@ -10,6 +10,7 @@
               v-flex(xs10)
                 query(v-for="query in queries" 
                   :query="query"
+                  :key="query.href"
                   @query="Query(query)"
                 )
               v-flex
@@ -22,9 +23,10 @@
                 v-btn(@click.native="refresh") refresh
       v-flex(xs-12 v-if="loading")
         v-progress-linear(indeterminate)
-      v-flex(xs-12 v-for="(item,index) in collection.collection.items")
+      v-flex(xs-12 v-for="(item,index) in collection.collection.items" :key="item.href")
         Item( 
           :item="item" 
+          :key="item.href"
           v-on:remove="remove(index)"
           @remove="refresh"
         )
@@ -75,7 +77,7 @@ module.exports={
       return _.find(this.collection.collection.links,x=>x.rel==="prev")
     },
     queries:function(){
-      return this.collection.collection.queries
+      return _.get(this,"collection.collection.queries",[])
     },
     collection:function(){
       return _.get(_.get(this,"$store.state.data.links.items",[])
@@ -111,7 +113,8 @@ module.exports={
         this.collection.collection.items=[]
         await this.$store.dispatch('data/init')
       }catch(e){
-        window.alert(JSON.stringify(JSON.parse(e.response.collection.error),null,2))
+        console.log(e)
+        window.alert(_.get(e,"response.collection.error",e))
       }finally{
         this.loading=false
       }
@@ -120,8 +123,8 @@ module.exports={
       this.loading=true
       try{
         this.collection.collection.items=[]
-        var collection=await this.$store.dispatch('data/get',opts)
-        this.collection.collection=collection.collection
+        var collection=await this.$store.dispatch('get',opts)
+        this.collection.collection=collection
       }catch(e){
         console.log(e)
         window.alert(JSON.stringify(JSON.parse(e.response.collection.error),null,2))

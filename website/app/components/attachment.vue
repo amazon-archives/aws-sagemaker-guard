@@ -10,7 +10,7 @@
           v-list-tile-content
             v-list-tile-title empty
       v-list(one-line v-if="items.length > 0")
-        v-list-tile(v-for="(item,index) in items")
+        v-list-tile(v-for="(item,index) in items" :key="item.href")
           v-list-tile-action
             v-btn(v-if="!loading && item.rel==='attachment'" @click.native="remove(item,index)" flat icon)
               v-icon() clear
@@ -21,6 +21,7 @@
         v-flex(xs10)
           query(v-for="query in collection.queries" 
             :query="query"
+            :key="query.href"
             @query="Query(query)"
           )
         v-flex
@@ -79,8 +80,8 @@ module.exports={
       this.loading=true
       try{
         this.collection.items=[]
-        var data=await this.$store.dispatch('data/get',this.data)
-        Vue.set(this,"collection",data.collection)
+        var data=await this.$store.dispatch('get',this.data)
+        Vue.set(this,"collection",data)
         await this.load()
       }catch(e){
         console.log(e)
@@ -107,17 +108,17 @@ module.exports={
       var self=this
       await Promise.all(this.collection.items
         .map(async (x,i)=>{
-          var data=await self.$store.dispatch('data/get',x)
+          var data=await self.$store.dispatch('get',x)
           console.log(data)
           result=Object.assign(
-            data.collection.items[0],
+            data.items[0],
             x)
           x=result
           self.collection.items[i]=x
         }))
     },
     remove:async function(item,index){
-      await this.$store.dispatch('data/rm',item)
+      await this.$store.dispatch('rm',Object.assign(item,{auth:"aws"}))
       this.collection.items.splice(index,1)
     }
   }

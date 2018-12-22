@@ -17,7 +17,7 @@
           v-list(three-line dense)
             v-container.pa-0
               v-layout(row  wrap)
-                v-flex.xs6(v-for="(value,key) in data" )
+                v-flex.xs6(v-for="(value,key) in data" :key="key")
                   v-list-tile
                     v-list-tile-content
                       v-list-tile-title {{key}} 
@@ -25,9 +25,10 @@
                       v-list-tile-sub-title(
                         v-if="Array.isArray(value)"
                         v-for="v in value"
-                      ) {{v}} 
+                        :key="v"
+                      ) {{v}}
                 v-flex.xs6
-                  v-list-tile( v-for="link in links")
+                  v-list-tile( v-for="link in links" :key="links.href")
                     v-list-tile-content
                       v-list-tile-title {{link.title}}
                       v-list-tile-sub-title
@@ -43,8 +44,8 @@
               )
           v-container.pa-0
             v-layout(column)
-              attachment(v-for="attachment in children" :data="attachment")
-              attachment(v-for="attachment in parents" :data="attachment")
+              attachment(v-for="attachment in children" :data="attachment" :key="attachment.href")
+              attachment(v-for="attachment in parents" :data="attachment" :key="attachment.href")
     v-card.ml-4.mr-4(v-if="loading")
       v-progress-linear(indeterminate)
 </template>
@@ -104,8 +105,8 @@ module.exports={
   created:async function(){
     this.loading=true
     try{
-      var data=await this.$store.dispatch('data/get',this.item)
-      Vue.set(this,"collection",data.collection)
+      var data=await this.$store.dispatch('get',this.item)
+      Vue.set(this,"collection",data)
       this.allow=await this.$store.dispatch('options',{
         href:this.item.href,
         auth:"aws"
@@ -120,7 +121,7 @@ module.exports={
     remove:async function(){
       this.removing=true
       try{
-        await this.$store.dispatch('data/rm',this.item)
+        await this.$store.dispatch('rm',Object.assign(this.item,{auth:"aws"}))
         await new Promise(resolve => setTimeout(resolve, 2000))
         this.$emit("remove")
       }catch(e){

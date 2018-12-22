@@ -1,9 +1,14 @@
 <template lang='pug'>
   div
     v-card.ma-2(v-if="!loading && instances.length===0")
-      v-card-title(primary-title) You do not have access to any instances
+      v-card-title(primary-title) 
+        h2 Instance Access
+      v-card-text(v-if="!loading && instances.length!==0")
+        p Login in to you instances
+      v-card-text(v-if="loading")
+        v-progress-linear(v-if="loading" indeterminate)
     v-container(fluid grid-list-md v-if="!loading")
-      v-layout(row wrap v-for="instance in instances" )
+      v-layout(row wrap v-for="instance in instances" :key="instance.href")
         v-flex(xs8 offset-xs2)
           instance(@refresh="refresh" :instance="instance")
 </template>
@@ -46,6 +51,14 @@ module.exports={
       type:"instances"
     })
     .then(()=>this.loading=false)
+    .then(()=>{
+      if(this.instances.length===0){
+        this.$router.replace({name:"messages",query:{
+          href:_.get(this,"$store.state.api.root.items",[])
+            .filter(x=>x.rel==="messages")[0].href
+        }})
+      }
+    })
     .catch(e=>{
       console.log(e)
       this.loading=false

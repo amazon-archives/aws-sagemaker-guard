@@ -11,7 +11,7 @@
       v-list(three-line dense)
         v-container.pa-0
           v-layout(row  wrap)
-            v-flex.xs6(v-for="(value,key) in data" )
+            v-flex.xs6(v-for="(value,key) in data" :key="value")
               v-list-tile
                 v-list-tile-content
                   v-list-tile-title {{key}} 
@@ -19,7 +19,8 @@
                   v-list-tile-sub-title(
                     v-if="Array.isArray(value)"
                     v-for="v in value"
-                  ) {{v}} 
+                    :key="v"
+                  ) {{v}}
     v-card-actions
       v-btn(flat 
         v-if="instance.template" 

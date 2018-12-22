@@ -6,7 +6,7 @@
     "href":"$root",
     "links":[],
     "items":[{
-            "href":"$root/messages/instance-request",
+            "href":"$root/messages/instance-request?view=$input.params('view')",
             "title":"Instance Requests",
             "rel":"collection"
     }]

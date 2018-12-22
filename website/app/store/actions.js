@@ -135,8 +135,19 @@ module.exports={
                 return result.data
             }
         }catch(e){
-            console.log(JSON.stringify(_.get(e,"response",e),null,2))
-            window.alert("Request Error:"+e.message)
+            console.log(JSON.stringify(e,null,2))
+            if(_.get(e,"response.data.message")==="The incoming token has expired" && _.get(e,"response.status")===401){
+                var login=document.head.querySelector("link[rel=Login]").href
+                var result=window.confirm("Your credentials have expired. Click ok to be redirected to the login page.") 
+                if(result){
+                    context.dispatch('user/logout',{},{root:true})
+                    window.window.location.href=login
+                }else{
+                    throw e
+                }
+            }else{
+                window.alert("Request Error:"+e.message)
+            }
         }finally{
             context.commit('loading',false)
         }
@@ -148,13 +159,21 @@ module.exports={
             body:opts.body
         })
     },
-    getCognito:async function(context,opts){
-        var data=await context.dispatch("_request_cognito",{
+    get:async function(context,opts){
+        var request=opts.auth==="cognito" ? "_request_cognito" : "_request"
+        var data=await context.dispatch(request,{
             href:opts.href,
             method:'GET'
         })
         Object.assign(opts,data.collection)
         return opts
+    },
+    rm:async function(context,opts){
+        var request=opts.auth==="cognito" ? "_request_cognito" : "_request"
+        return await context.dispatch(request,{
+            href:opts.href,
+            method:'DELETE'
+        })
     }
 }
 

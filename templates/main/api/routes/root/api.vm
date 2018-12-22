@@ -29,7 +29,9 @@
             "href":"$root/website/api/messages?view=Admins",
             "rel":"messages",
             "name":"Messages",
-            "render":"mail_outline"
+            "render":"mail_outline",
+            "title":"Requests",
+            "prompt":"Approve/Deny requests from your users"
         },
         {   
             "href":"https://${QNA.Outputs.ElasticsearchEndpoint}/_plugin/kibana/",
@@ -43,6 +45,13 @@
             "rel":"external",
             "name":"Cognito UserPool Console",
             "render":"domain"
+        },
+        {
+            "href":"$root/website/api/instances",
+            "title":"instances",
+            "name":"instances",
+            "render":"computer",
+            "rel":"instances"
         }
     ],
     "template":[{

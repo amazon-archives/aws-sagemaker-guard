@@ -137,7 +137,6 @@ module.exports={
         this.schema.template=this.template.data.schema
         this.refresh()
       }
-      this.local=defaultFromSchema(this.schema.template)
       this.schema.loading=false
     },
     reset:function(){
@@ -147,13 +146,13 @@ module.exports={
       this.error=false
     },
     refresh:function(){
-      this.local=empty(this.schema.template)
+      this.local=defaultFromSchema(this.schema.template)
     },
     submit:async function(){
       this.loading=true 
       this.open=false
       try{
-        await this.$store.dispatch('create',{
+        var result=await this.$store.dispatch('create',{
           href:this.href,      
           body:{
             template:{data:clean(this.local)}
@@ -162,6 +161,7 @@ module.exports={
           request:this.request
         })
         this.refresh()
+        this.$emit("new",result)
       }catch(e){
         console.log(e)
         this.error=e.response.collection.error

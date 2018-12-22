@@ -22,19 +22,6 @@ module.exports={
             method:'GET'
         },{root:true})
     },
-    rm:async function(context,opts){
-        return await context.dispatch('_request',{
-            href:opts.href,
-            method:'DELETE'
-        },{root:true})
-    },
-    get:async function(context,opts){
-        return await context.dispatch('_request',{
-            href:opts.href,
-            method:'GET'
-        },{root:true})
-    },
-    
     api:_.once(async function(context,opts){
         var data=await context.dispatch('_request',{
             path:'/',
@@ -57,7 +44,7 @@ module.exports={
 
         await Promise.all(
             root.collection.items
-            .filter(x=>x.rel==="collection")
+            .filter(x=>x.rel==="resources")
             .map(async x=>{
                 x.method='get'
                 var result=await context.dispatch('_request',x,{root:true})

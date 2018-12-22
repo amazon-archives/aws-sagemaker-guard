@@ -8,13 +8,15 @@
     "links":[],
     "items":[{
             "href":"$userRoot/instances",
-            "title":"instances",
+            "title":"Notebook Instances",
+            "prompt":"Access your notebook instances",
             "name":"instances",
             "render":"computer",
             "rel":"instances"
     },{
             "href":"$userRoot/messages?view=Admins",
-            "title":"messages",
+            "title":"Requests",
+            "prompt":"Request access from your Admin to notebook instances",
             "name":"messages",
             "render":"email",
             "rel":"messages"

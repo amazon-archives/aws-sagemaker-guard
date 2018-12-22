@@ -47,7 +47,7 @@ module.exports={
             props:true
         },
         {
-            path:'/messages/:type',
+            path:'/messages/:type?',
             name:"messages",
             component:require('./components/messages.vue'),
             props:true

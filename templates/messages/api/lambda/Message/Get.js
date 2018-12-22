@@ -23,6 +23,9 @@ exports.handler=function(event,context,callback){
         ])
         .then(result=>{
             var item=result[1].Item
+            if(!opts.admin){
+                item=_.omit(item,["Requestor","ID"])
+            }
             var schema=result[0].collection.template.data.schema
             schema.properties=_.omit(schema.properties,["ID","DisplayName"])
             schema.properties.Request=schema.properties.Description
