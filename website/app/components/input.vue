@@ -18,8 +18,9 @@
       )
       v-autocomplete(
         v-if="schema.enum"
-        :label="name"
+        :label="schema.title || name"
         :required="required"
+        :hint="schema.description"
         :items="schema.enum"
         clearable=true
         v-model="local"

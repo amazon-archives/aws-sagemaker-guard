@@ -30,7 +30,7 @@ module.exports={
             method:'get'
         },{root:true})
         console.log(result,opts)
-        await Promise.all(result.collection.items.map(async x=>{
+        await Promise.all(result.collection.links.map(async x=>{
             var data=await context.dispatch('_request_cognito',{
                 url:x.href,
                 method:'get'

@@ -1,0 +1,10 @@
+#lex-web-ui nav button{
+    color:black; 
+}
+
+.message-bot .message-text{
+    color:#1fbcd3;
+}
+.message-bot .message-bubble{
+    background-color:#d2d2d2 !important;
+}

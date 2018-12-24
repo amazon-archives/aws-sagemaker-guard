@@ -3,7 +3,13 @@
 {"collection":{
     "version":"1.0",
     "href":"$root/api",
-    "items":[
+    "items":[{
+        "data":{
+            "title":"Welcome to SageGuard",
+            "description":"from here you can create, remove, and manager users,groups and notebook instances."
+        }
+    }],
+    "links":[
         {
             "href":"$root/api/users",
             "rel":"resources",
@@ -44,6 +50,7 @@
             "href":"https://console.aws.amazon.com/cognito/users/?region=${AWS::Region}#/pool/${QNA.Outputs.UserPool}",
             "rel":"external",
             "name":"Cognito UserPool Console",
+            "prompt":"View/Edit your Cognito User Pool",
             "render":"domain"
         },
         {
@@ -51,7 +58,8 @@
             "title":"instances",
             "name":"instances",
             "render":"computer",
-            "rel":"instances"
+            "rel":"instances",
+            "prompt":"login to the instances you have access to"
         }
     ],
     "template":[{

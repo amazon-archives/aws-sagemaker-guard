@@ -14,16 +14,27 @@
     #end
     "links":[
         #if ( $inputRoot.NextToken.length())
-        #else
-            {"rel":"next","href":"$instanceRoot?NextToken=inputRoot.NextToken"}
+            {"rel":"next","href":"$instanceRoot?NextToken=$inputRoot.NextToken"}
         #end
-    ],
-    "items":[
+        #if(  $inputRoot.NextToken.length() && $inputRoot.Links.length()),#end
         #foreach( $object in $inputRoot.Links)
-        {"href":"$instanceRoot/$object.TargetObjectReference.Selector.substring(1)"}
+        {
+            "href":"$instanceRoot/$object.TargetObjectReference.Selector.substring(1)",
+            "rel":"item"
+        }
         #if( $foreach.hasNext ),#end
         #end
     ],
+    "items":[{
+        "data":{
+            "title":"SageMaker Notebook Instances",
+            #if($inputRoot.Links() == 0)
+                "description":"You do not have access to any notebook instances"
+            #else
+                "description":"You currently have access to the following instances"
+            #end
+        }
+    }],
     "queries":[
         {   
             #if ( $inputRoot.NextToken.length())

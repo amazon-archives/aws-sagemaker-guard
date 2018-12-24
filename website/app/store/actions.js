@@ -35,7 +35,6 @@ module.exports={
             method:'OPTIONS',
             returnHeaders:true
         })
-        console.log(headers)
         return headers.allow.split(', ')
     },
     _request:async function(context,opts){

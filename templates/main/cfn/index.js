@@ -42,6 +42,7 @@ module.exports=Object.assign(
                     Effect:"Allow",
                     Action:[
                         "cloudformation:*",
+                        "s3:*"
                     ],
                     "Resource":"*"
               },{

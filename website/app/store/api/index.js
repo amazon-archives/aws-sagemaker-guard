@@ -27,7 +27,7 @@ module.exports={
             state.root=val.collection
         },
         collection:function(state,{type,val}){
-            state[type]=val.collection.items
+            state[type]=val.collection
         },
         init:function(state,payload){
             state.state=payload

@@ -5,8 +5,8 @@
 {"collection":{
     "version":"1.0",
     "href":"$userRoot",
-    "links":[],
-    "items":[{
+    "items":[],
+    "links":[{
             "href":"$userRoot/instances",
             "title":"Notebook Instances",
             "prompt":"Access your notebook instances",

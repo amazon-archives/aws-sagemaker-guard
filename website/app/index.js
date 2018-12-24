@@ -11,23 +11,13 @@ BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the
 License for the specific language governing permissions and limitations under the License.
 */
 
-
 var sync=require('vuex-router-sync').sync
 import IdleVue from 'idle-vue'
 
 Vue.use(Vuex)
 Vue.use(VueRouter)
-Vue.use(Vuetify,{
-    theme:{
-        primary: '#1fbcd3',
-        accent: '#ffbb00',
-        secondary: '#3157d5',
-        info: '#0D47A1',
-        warning: '#ffba21',
-        error: '#a71000',
-        success: '#1ddf48'
-    }
-})
+Vue.use(Vuetify)
+
 
 document.addEventListener('DOMContentLoaded',init)
 
@@ -36,13 +26,14 @@ function init(){
     var store=new Vuex.Store(require('./store'))
     sync(store,router)
     router.replace('/loading')
-        
+    
     Vue.use(IdleVue, {
         idleTime: 45*60*1000,
         eventEmitter:new Vue(),
         store:store,
         startAtIdle:false
     })
+    
     var app=require('./app.vue')
     var App=new Vue({
         router,

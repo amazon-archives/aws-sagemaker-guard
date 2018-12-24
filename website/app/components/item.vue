@@ -106,6 +106,7 @@ module.exports={
     this.loading=true
     try{
       var data=await this.$store.dispatch('get',this.item)
+      console.log(data)
       Vue.set(this,"collection",data)
       this.allow=await this.$store.dispatch('options',{
         href:this.item.href,

@@ -18,15 +18,18 @@
                     },
                     "DisplayName":{
                         "title":"Instance DisplayName",
+                        "description":"A friendly name for this instance",
                         "type":"string"
                     },
                     "Description":{
                         "title":"Instance Description",
+                        "description":"A brief description of how this instance will be used",
                         "type":"string",
                         "maxLength":500
                     },
                     "InstanceType":{
                         "title":"Instance Compute Type",
+                        "description":"The EC2 instance type for this notebook",
                         "type":"string",
                         "enum":[
                             #foreach( $object in $inputRoot.instances)
@@ -40,6 +43,7 @@
                     },
                     "RoleArn":{
                         "title":"Instance IAM RoleArn",
+                        "description":"Choose the IAM role that will give users on the notebook instance to call AWS APIs",
                         "type":"string",
                         "enum":[
                             {
@@ -59,6 +63,7 @@
                     },
                     "KmsKeyId":{
                         "title":"KMS key Id",
+                        "description":"A AWS KMS key to use for encrypting the data volumnes of the instance",
                         "type":"string",
                         "immutable":true,
                         "enum":[

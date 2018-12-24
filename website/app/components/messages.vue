@@ -2,7 +2,7 @@
   div 
     v-card
       v-card-title(primary-title)
-        h2 Messages
+        h2 {{data.title}}
       v-card-text
         v-progress-linear(v-if="loading" indeterminate)
         v-radio-group( v-model="selected" v-if="messageTypes.length>1")
@@ -11,6 +11,7 @@
             :label="messageType.title"
             :value="messageType.title"
           )
+        p {{data.description}}
       v-card-actions
         v-spacer
         temp( 
@@ -63,10 +64,14 @@ module.exports={
       return _.get(this,"$store.state.route.query.href",[])
     },
     messageTypes:function(){
-      return _.get(this,"$store.state.messages.messages.items",[])
+      return _.get(this,"$store.state.messages.messages.links",[])
+        .filter(x=>x.rel==="collection")
     },
     items:function(){
-      return _.get(this,"messages.items",[])
+      return _.get(this,"messages.links",[])
+    },
+    data:function(){
+      return _.get(this,"messages.items[0].data",{})
     },
     ifTemplate:function(){
       return !_.isEmpty(this.template)
@@ -86,8 +91,8 @@ module.exports={
     .then(()=>this.selected=this.messageTypes[0].title)
     .catch(e=>{
       console.log(e)
-      this.loading=false
     })
+    .then(()=>this.loading=false)
   },
   methods:{
     add:function(x){

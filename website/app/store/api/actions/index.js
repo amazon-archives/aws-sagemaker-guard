@@ -30,23 +30,25 @@ module.exports={
             method:'get'
         },{root:true})
         
-        var href=result.collection.items
+        var href=result.collection.links
             .filter(x=>x.name===opts.type)[0]
             .href
         context.commit('root',result)
 
-        console.log(result)
         var data=await context.dispatch('_request_cognito',{
             url:href,
             method:'get'
         },{root:true})
-        await Promise.all(data.collection.items.map(async x=>{
-            result=await context.dispatch('_request_cognito',{
-                url:x.href,
-                method:'get'
-            },{root:true})
-            Object.assign(x,result.collection)
-        }))
+        
+        await Promise.all(data.collection.links
+            .filter(x=>x.rel==="item")
+            .map(async x=>{
+                result=await context.dispatch('_request_cognito',{
+                    url:x.href,
+                    method:'get'
+                },{root:true})
+                Object.assign(x,result.collection)
+            }))
         console.log(data)
         context.commit('collection',{type:opts.type,val:data})
     },

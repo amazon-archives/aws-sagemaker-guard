@@ -43,7 +43,7 @@ module.exports={
         var root=await context.dispatch('api')
 
         await Promise.all(
-            root.collection.items
+            root.collection.links
             .filter(x=>x.rel==="resources")
             .map(async x=>{
                 x.method='get'

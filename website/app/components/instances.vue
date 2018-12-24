@@ -1,10 +1,10 @@
 <template lang='pug'>
   div
-    v-card.ma-2(v-if="!loading && instances.length===0")
+    v-card.ma-2
       v-card-title(primary-title) 
-        h2 Instance Access
-      v-card-text(v-if="!loading && instances.length!==0")
-        p Login in to you instances
+        h2 {{data.title}}
+      v-card-text
+        p {{data.description}}
       v-card-text(v-if="loading")
         v-progress-linear(v-if="loading" indeterminate)
     v-container(fluid grid-list-md v-if="!loading")
@@ -42,7 +42,11 @@ module.exports={
       return document.head.querySelector("link[rel=login]").href
     },
     instances:function(){
-      return _.get(this,"$store.state.api.instances",[])
+      return _.get(this,"$store.state.api.instances.links",[])
+        .filter(x=>x.rel==="item")
+    },
+    data:function(){
+      return _.get(this,"$store.state.api.instances.items[0].data",{})
     }
   },
   created:function(){

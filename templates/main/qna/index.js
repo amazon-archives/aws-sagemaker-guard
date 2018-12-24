@@ -38,5 +38,16 @@ module.exports={
             "content":require('./content'),
             "QnABotUrl":{"Fn::GetAtt":["QNA","Outputs.ClientURL"]}
         }
+    },
+    "LexWebUICSS":{
+        "Type": "Custom::LexWebUICSS",
+        "DependsOn":["CFNLambdaPolicy"],
+        "Properties": {
+            "ServiceToken": { "Fn::GetAtt" : ["CFNLexWebUICSSLambda", "Arn"] },
+            "URL":{"Fn::GetAtt":["LexWebUi","Outputs.LoaderScriptUrl"]},
+            "Bucket":{"Ref":"AssetBucket"},
+            "Index":{"Fn::Sub":"${AssetPrefix}/assets/index.html"},
+            "CSS":{"Fn::Sub":"${AssetPrefix}/assets/custom.css"}
+        }
     }
 }

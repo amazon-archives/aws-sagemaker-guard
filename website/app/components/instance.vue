@@ -19,7 +19,7 @@
                   v-list-tile-sub-title(
                     v-if="Array.isArray(value)"
                     v-for="v in value"
-                    :key="v"
+                    :key="JSON.stringify(v)"
                   ) {{v}}
     v-card-actions
       v-btn(flat 
@@ -68,7 +68,6 @@ module.exports={
     }
   },
   created:function(){
-      this.$store.dispatch('api/init',this.instance)
   },
   methods:{
     state:function(){

@@ -88,13 +88,13 @@ module.exports={
   components:{},
   computed:{
     pages:function(){
-      return _.get(this,"$store.state.data.links.items",[])
-        .concat(_.get(this,"$store.state.api.root.items",[]))
+      return _.get(this,"$store.state.data.links.links",[])
+        .concat(_.get(this,"$store.state.api.root.links",[]))
         .filter(x=>x.rel!=="external")
     },
     links:function(){
-      return _.get(this,"$store.state.data.links.items",[])
-        .concat(_.get(this,"$store.state.api.root.items",[]))
+      return _.get(this,"$store.state.data.links.links",[])
+        .concat(_.get(this,"$store.state.api.root.links",[]))
         .filter(x=>x.rel==="external")
     },
     info:function(){

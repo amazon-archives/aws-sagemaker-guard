@@ -80,7 +80,7 @@ module.exports={
       return _.get(this,"collection.collection.queries",[])
     },
     collection:function(){
-      return _.get(_.get(this,"$store.state.data.links.items",[])
+      return _.get(_.get(this,"$store.state.data.links.links",[])
         .filter(x=>x.name===this.type),0)
     }
   },

@@ -40,12 +40,20 @@ exports.handler=function(event,context,callback){
             var body={"collection":{
                 "version":"1.0",
                 "href":`${opts.href}?view=${opts.view}`,
-                "links":next ? [
+                "links":(next ? [
                     {"rel":"next","href":`${opts.href}?NextToken=${next}`}
-                ] : [],
-                "items":result[1].Items.map(x=>{return {
-                    "href":`${opts.href}/${m.encode(_.pick(x,["ID","Requestor"]))}?view=${opts.view}`
-                }}),
+                ] : []).concat(
+                    result[1].Items.map(x=>{return {
+                    "href":`${opts.href}/${m.encode(_.pick(x,["ID","Requestor"]))}?view=${opts.view}`,
+                    "rel":"collection"
+                    }})
+                ),
+                "items":[{
+                    "data":{
+                        "title":"Request",
+                        "description":"Request creation of sagemaker notebook instances from your administrator"
+                    }
+                }],
                 "template":!opts.admin ? {
                     "data":{
                         "schema":schema,

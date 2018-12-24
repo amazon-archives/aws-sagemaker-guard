@@ -2,9 +2,9 @@
   div 
     v-card
       v-card-title(primary-title)
-        h2 Welcome to SageGuard
+        h2 {{data.title}}
       v-card-text
-        .subheading from here you can create, remove, and manager users,groups and notebook instances.
+        .subheading {{data.description}}
       v-card-actions
         temp( 
           v-for="template in templates"
@@ -48,8 +48,11 @@ module.exports={
     temp:require('./template.vue')
   },
   computed:{
+    data:function(){
+      return _.get(this,"$store.state.data.links.items[0].data",{})
+    },
     pages:function(){
-      return _.get(this,"$store.state.data.links.items",[])
+      return _.get(this,"$store.state.data.links.links",[])
         .filter(x=>x.rel==="resources")
     },
     templates:function(){
