@@ -20,7 +20,7 @@
                   @refresh="refresh"
                 )
               v-flex
-                v-btn(@click.native="refresh") refresh
+                v-btn.primary--text(flat @click.native="refresh") refresh
       v-flex(xs-12 v-if="loading")
         v-progress-linear(indeterminate)
       v-flex(xs-12 v-for="(item,index) in collection.collection.items" :key="item.href")
@@ -34,9 +34,9 @@
         v-container(fluid grid-list-lg)
           v-layout( row )
             v-flex(xs-6 v-if="prev")
-              v-btn(block @click.native="get(prev)" ) previous
+              v-btn.primary--text(block @click.native="get(prev)" ) previous
             v-flex(xs-6 v-if="next")
-              v-btn(block @click.native="get(next)" ) next
+              v-btn.primary--text(block @click.native="get(next)" ) next
 </template>
 <script>
 /*

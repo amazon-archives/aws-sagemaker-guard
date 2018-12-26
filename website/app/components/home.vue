@@ -6,6 +6,7 @@
       v-card-text
         .subheading {{data.description}}
       v-card-actions
+        v-spacer
         temp( 
           v-for="template in templates"
           :template="template"
@@ -18,12 +19,13 @@
           v-progress-linear(indeterminate) 
         v-flex.xs4(v-for="page in pages" :key="page.href")
           v-card(height="200px")
-            v-card-title {{page.name}}
+            v-card-title 
+              h3 {{page.name}}
             v-card-text
               p {{page.prompt}}
             v-card-actions
               v-spacer
-              v-btn(:href="'#/'+page.rel+'/'+page.name+'?href'+encodeURI(page.href)") go to
+              v-btn.primary--text(flat :href="'#/'+page.rel+'/'+page.name+'?href'+encodeURI(page.href)") go to
 </template>
 
 <script>

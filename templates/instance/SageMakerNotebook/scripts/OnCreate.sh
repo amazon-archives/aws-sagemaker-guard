@@ -42,4 +42,20 @@ amazon-ssm-agent -register -y \
 start amazon-ssm-agent
 
 ID=$(cat /var/lib/amazon/ssm/Vault/Store/RegistrationKey | jq '.instanceID' --raw-output)
+
 /opt/aws/bin/cfn-signal --success=true --data=$ID --id=id "${WaitHandle}"
+
+while ! test -f "/var/lib/amazon/ssm/init"; do
+    sleep 10
+    echo "Still waiting"
+done
+
+if [ "${OnCreateDocument}" != "EMPTY" ]; then 
+    aws ssm send-command                                                \
+        --document-name "${OnStartDocument}"                            \
+        --targets "Key=instanceids,Values=$ID"                          \
+        --comment "OnCreate script for instance ${AWS::StackName}:$ID"  \
+        --parameters "{{{params}}}"
+fi
+
+

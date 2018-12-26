@@ -21,7 +21,7 @@
           auth="cognito"
           @new="add"
         )
-        v-btn(@click="refresh") Refresh
+        v-btn.primary--text(flat @click="refresh") Refresh
     v-container(fluid grid-list-md)
       v-layout(column justify-center)
         v-flex(xs12 v-for="(item,index) in items" :key="item.href")

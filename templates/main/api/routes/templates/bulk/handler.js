@@ -17,6 +17,7 @@ exports.handler=function(event,context,callback){
         })
     ])
     .then(results=>{
+        console.log(JSON.stringify(results,null,2))
         instances=results[0]
         users=results[1]
         user_schema=users.collection.template.data.schema

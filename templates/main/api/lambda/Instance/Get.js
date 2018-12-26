@@ -3,6 +3,7 @@ aws.config.region=process.env.AWS_REGION
 var lambda=new aws.Lambda()
 var sagemaker=new aws.SageMaker()
 var cf=new aws.CloudFormation()
+var _=require('lodash')
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
@@ -44,6 +45,7 @@ exports.handler=function(event,context,callback){
     }))
     .then(results=>{
         var result=results[0]
+        result.attributes=_.omit(result.attributes,["policy_type","policy_document"])
         var es=results[1]
         if(es.hits.total>0){
             var logins=es.hits.hits
@@ -66,8 +68,6 @@ exports.handler=function(event,context,callback){
                 }).promise()
                 .then(function(info){
                     Object.assign(result.attributes,outputs,info)
-                    delete result.attributes.policy_type
-                    delete result.attributes.policy_document
                     if(logins) result.attributes["Last Logins"]=logins 
                     callback(null,Object.assign(
                         {attributes:result.attributes},
@@ -76,8 +76,6 @@ exports.handler=function(event,context,callback){
                 })
             }else{
                 result.attributes.status="creating"
-                delete result.attributes.policy_type
-                delete result.attributes.policy_document
 
                 if(logins) result.attributes["Last Logins"]=logins 
                 callback(null,Object.assign(

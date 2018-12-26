@@ -12,7 +12,7 @@
       v-list(one-line v-if="items.length > 0")
         v-list-tile(v-for="(item,index) in items" :key="item.href")
           v-list-tile-action
-            v-btn(v-if="!loading && item.rel==='attachment'" @click.native="remove(item,index)" flat icon)
+            v-btn.primary--text(v-if="!loading && item.rel==='attachment'" @click.native="remove(item,index)" flat icon)
               v-icon() clear
             v-progress-circular(v-if="loading" indeterminate color="primary")
           v-list-tile-content
@@ -31,7 +31,7 @@
             @refresh="refresh"
           )
         v-flex
-          v-btn(@click.native="refresh") refresh
+          v-btn.primary--text(flat @click.native="refresh") refresh
 
 </template>
 

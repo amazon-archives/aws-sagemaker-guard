@@ -2,16 +2,15 @@
   span
     v-card.ml-4.mr-4(v-if="!loading")
       v-card-title
-        v-btn(flat icon @click.native="show=!show")
+        v-btn.primary--text(flat icon @click.native="show=!show")
           v-icon {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
         h3(@click.native="show=!show") {{data.DisplayName || ID}}
         v-spacer
-        v-btn(flat icon 
-          @click.native="remove" 
+        rm(
+          @click="remove(index)" 
           :loading="removing"
           v-if="allow.includes('DELETE')"
         ) 
-          v-icon() delete
       v-slide-y-transition
         v-card-text(v-if="show")
           v-list(three-line dense)
@@ -78,6 +77,7 @@ module.exports={
   components:{
     temp:require('./template.vue'),
     attachment:require('./attachment.vue'),
+    rm:require('./delete.vue')
   },
   computed:{
     ID:function(){

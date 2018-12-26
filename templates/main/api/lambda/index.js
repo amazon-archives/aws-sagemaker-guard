@@ -66,7 +66,7 @@ module.exports=Object.assign(
                 Statement:{
                     Effect:"Allow",
                     Resource:"*",
-                    Action:["iam:Describe*","iam:Get*","iam:List*","firehose:*"]
+                    Action:["iam:Describe*","iam:Get*","iam:List*","firehose:*","ssm:*"]
                 }
             }
         }]

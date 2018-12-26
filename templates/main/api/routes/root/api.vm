@@ -53,6 +53,13 @@
             "prompt":"View/Edit your Cognito User Pool",
             "render":"domain"
         },
+        {   
+            "href":"https://github.com/aws-samples/aws-sagemaker-build/issues",
+            "rel":"external",
+            "name":"GitHub Issues",
+            "prompt":"Having Trouble? Want new features? submit a ticket in the github repo",
+            "render":"message"
+        },
         {
             "href":"$root/website/api/instances",
             "title":"instances",

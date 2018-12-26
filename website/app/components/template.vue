@@ -8,7 +8,7 @@
           p.success--text success
         v-card-actions
           v-spacer
-          v-btn(@click="reset") close
+          v-btn.primary--text(@click="reset") close
       v-card(v-if="error")
         v-card-title
           h3 Error: {{Error.type}}
@@ -16,7 +16,7 @@
           pre.error--text {{Error}}
         v-card-actions
           v-spacer
-          v-btn(@click="reset") close
+          v-btn.primary--text(@click="reset") close
     v-dialog(v-model="loading")
       v-card
         v-card-title
@@ -26,7 +26,7 @@
     v-dialog(v-model="open")
       v-card
         v-card-title
-          h3 {{template.data.prompt}}
+          h2 {{template.data.prompt}}
         v-card-text
           v-progress-linear(indeterminate v-if="schema.loading") 
           v-form(v-if="!schema.loading")
@@ -39,7 +39,9 @@
             )
           v-expansion-panel.elevation-0(v-if="!schema.loading && optional.length>0")
             v-expansion-panel-content( style="display:block")
-              div( slot="header") Advanced
+              v-divider
+              div( slot="header") 
+                h4 Advanced
               v-form
                 schema-input( 
                   v-model="local"
@@ -50,10 +52,11 @@
                 )
         v-card-actions
           v-spacer
-          v-btn(@click="submit") Submit
-          v-btn(@click="open=false") Cancel
-    v-btn( 
+          v-btn.primary--text(flat @click="submit") Submit
+          v-btn.primary--text(flat @click="open=false") Cancel
+    v-btn.ml-2.mr-2.primary--text( 
       @click="open=!open"
+      flat
     ) {{template.data.prompt}}
 </template>
 
@@ -89,7 +92,7 @@ module.exports={
     }
   },
   components:{
-    schemaInput:require('./input.vue')
+    schemaInput:require('./input.vue'),
   },
   computed:{
     Error:function(){

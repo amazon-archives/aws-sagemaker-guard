@@ -36,7 +36,7 @@ exports.handler=function(event,context,callback){
                 "queries":[]
             }}
             if(admin){
-                if(opts.item.response==="Approve"){
+                if(opts.item.Status==="Approve"){
                     Promise.all([
                         wait(opts.base,"users",opts.id),
                         send({

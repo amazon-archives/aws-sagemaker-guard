@@ -1,5 +1,13 @@
 {
   "Parameters": {
+    "OnStartDocument": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
+    "OnCreateDocument": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
     "ParentStack": {
       "Type": "String"
     },
@@ -42,6 +50,30 @@
     }
   },
   "Conditions": {
+    "IfOnStartDocument": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OnStartDocument"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfOnCreateDocument": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OnCreateDocument"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
     "IfKmsKeyId": {
       "Fn::Not": [
         {
@@ -152,6 +184,24 @@
         "Timeout": 60
       }
     },
+    "RoleNameLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response = require('cfn-response')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    try{\n        var params=event.ResourceProperties\n        var name=params.Arn.match(/arn:.*:.*::.*:role\\/(.*)/)[1]\n\n        response.send(event, context, response.SUCCESS,params,name)\n    }catch(e){\n        console.log(e)\n        response.send(event, context, response.FAILED,params,name)\n    }\n}\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
     "SSMActivationLambda": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -175,6 +225,24 @@
       "Properties": {
         "Code": {
           "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    params.AssociationName=event.LogicalResourceId\n    delete params.ServiceToken\n\n    if(event.RequestType!==\"Delete\"){\n        ssm.createAssociation(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS,x.AssociationDescription,x.AssociationDescription.AssociationId)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else {\n        ssm.deleteAssociation({\n            AssociationId:event.PhysicalResourceId,\n            InstanceId:params.InstanceId,\n            Name:params.Name\n        }).promise()\n        .then(()=>response.send(event, context, response.SUCCESS))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.SUCCESS)\n        })\n    }\n}\n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "SSMRunLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    if(event.RequestType===\"Create\"){\n        ssm.sendCommand(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\n"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -310,6 +378,9 @@
         "InstanceType": {
           "Ref": "InstanceType"
         },
+        "NotebookInstanceName": {
+          "Ref": "AWS::StackName"
+        },
         "RoleArn": {
           "Ref": "RoleArn"
         },
@@ -358,7 +429,7 @@
           {
             "Content": {
               "Fn::Base64": {
-                "Fn::Sub": "#! /bin/bash\nset -ex \n\nstop amazon-ssm-agent\nyum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm amazon-efs-utils\nstop amazon-ssm-agent\n\nmkdir -p /mnt/efs\nmount -t efs ${EFS}:/ /mnt/efs\nmkdir -p /mnt/efs/${AWS::StackName}/ssm\nrm -rf /mnt/efs/${AWS::StackName}/ssm/*\n\nmount -t efs ${EFS}:/${AWS::StackName}/ssm /var/lib/amazon/ssm\n\n\ncat > /etc/amazon/ssm/seelog.xml <<- EOM\n<seelog type=\"adaptive\" mininterval=\"2000000\" maxinterval=\"100000000\" critmsgcount=\"500\" minlevel=\"info\">\n    <exceptions>\n        <exception filepattern=\"test*\" minlevel=\"error\"/>\n    </exceptions>\n    <outputs formatid=\"fmtinfo\">\n        <console formatid=\"fmtinfo\"/>\n        <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/amazon-ssm-agent.log\" maxsize=\"30000000\" maxrolls=\"5\"/>\n        <filter levels=\"error,critical\" formatid=\"fmterror\">\n            <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/errors.log\" maxsize=\"10000000\" maxrolls=\"5\"/>\n        </filter>\n        <custom name=\"cloudwatch_receiver\" formatid=\"fmtdebug\" data-log-group=\"${SSMLogGroup}\"/>\n    </outputs>    \n    <formats>\n        <format id=\"fmterror\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>        \n        <format id=\"fmtdebug\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>\n        <format id=\"fmtinfo\" format=\"%Date %Time %LEVEL %Msg%n\"/>    \n    </formats>\n</seelog>\nEOM\n\namazon-ssm-agent -register -y \\\n    -code \"${SSMActivation.ActivationCode}\" \\\n    -id \"${SSMActivation.ActivationId}\" \\\n    -region \"${AWS::Region}\"\n\nstart amazon-ssm-agent\n\nID=$(cat /var/lib/amazon/ssm/Vault/Store/RegistrationKey | jq '.instanceID' --raw-output)\n/opt/aws/bin/cfn-signal --success=true --data=$ID --id=id \"${WaitHandle}\"\n"
+                "Fn::Sub": "#! /bin/bash\nset -ex \n\nstop amazon-ssm-agent\nyum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm amazon-efs-utils\nstop amazon-ssm-agent\n\nmkdir -p /mnt/efs\nmount -t efs ${EFS}:/ /mnt/efs\nmkdir -p /mnt/efs/${AWS::StackName}/ssm\nrm -rf /mnt/efs/${AWS::StackName}/ssm/*\n\nmount -t efs ${EFS}:/${AWS::StackName}/ssm /var/lib/amazon/ssm\n\n\ncat > /etc/amazon/ssm/seelog.xml <<- EOM\n<seelog type=\"adaptive\" mininterval=\"2000000\" maxinterval=\"100000000\" critmsgcount=\"500\" minlevel=\"info\">\n    <exceptions>\n        <exception filepattern=\"test*\" minlevel=\"error\"/>\n    </exceptions>\n    <outputs formatid=\"fmtinfo\">\n        <console formatid=\"fmtinfo\"/>\n        <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/amazon-ssm-agent.log\" maxsize=\"30000000\" maxrolls=\"5\"/>\n        <filter levels=\"error,critical\" formatid=\"fmterror\">\n            <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/errors.log\" maxsize=\"10000000\" maxrolls=\"5\"/>\n        </filter>\n        <custom name=\"cloudwatch_receiver\" formatid=\"fmtdebug\" data-log-group=\"${SSMLogGroup}\"/>\n    </outputs>    \n    <formats>\n        <format id=\"fmterror\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>        \n        <format id=\"fmtdebug\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>\n        <format id=\"fmtinfo\" format=\"%Date %Time %LEVEL %Msg%n\"/>    \n    </formats>\n</seelog>\nEOM\n\namazon-ssm-agent -register -y \\\n    -code \"${SSMActivation.ActivationCode}\" \\\n    -id \"${SSMActivation.ActivationId}\" \\\n    -region \"${AWS::Region}\"\n\nstart amazon-ssm-agent\n\nID=$(cat /var/lib/amazon/ssm/Vault/Store/RegistrationKey | jq '.instanceID' --raw-output)\n\n/opt/aws/bin/cfn-signal --success=true --data=$ID --id=id \"${WaitHandle}\"\n\nwhile ! test -f \"/var/lib/amazon/ssm/init\"; do\n    sleep 10\n    echo \"Still waiting\"\ndone\n\nif [ \"${OnCreateDocument}\" != \"EMPTY\" ]; then \n    aws ssm send-command                                                \\\n        --document-name \"${OnStartDocument}\"                            \\\n        --targets \"Key=instanceids,Values=$ID\"                          \\\n        --comment \"OnCreate script for instance ${AWS::StackName}:$ID\"  \\\n        --parameters \"OnStartDocument=${OnStartDocument},OnCreateDocument=${OnCreateDocument},ParentStack=${ParentStack},SSMLogGroup=${SSMLogGroup},LogsBucket=${LogsBucket},EFS=${EFS},InstanceType=${InstanceType},RoleArn=${RoleArn},KmsKeyId=${KmsKeyId},SecurityGroupId=${SecurityGroupId},SubnetId=${SubnetId},DirectInternetAccess=${DirectInternetAccess},IdleShutdown=${IdleShutdown},GlueDevEndpoint=${GlueDevEndpoint},StackName=${AWS::StackName}\"\nfi\n\n\n"
               }
             }
           }
@@ -367,7 +438,7 @@
           {
             "Content": {
               "Fn::Base64": {
-                "Fn::Sub": "#! /bin/bash\nset -ex \n\nstop amazon-ssm-agent\nif [ ! -d /mnt/efs ]; then\n    yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm amazon-efs-utils\n    stop amazon-ssm-agent\n\n    mkdir -p /mnt/efs\n    mount -t efs ${EFS}:/ /mnt/efs\n    mkdir -p /mnt/efs/${AWS::StackName}/ssm\n    mount -t efs ${EFS}:/${AWS::StackName}/ssm /var/lib/amazon/ssm\nfi\n\nID=$(cat /var/lib/amazon/ssm/Vault/Store/RegistrationKey | jq '.instanceID' --raw-output)\ncat >> /etc/awslogs/awslogs.conf<<- EOM\n\n[/var/log/jupyter.log]\nfile = /var/log/jupyter*\nbuffer_duration = 5000\nlog_stream_name = $ID-jupyter\n/LifecycleConfigOnStartinitial_position = start_of_file\nlog_group_name = ${SSMLogGroup}\nEOM\nservice awslogs restart\n\ncat > /etc/amazon/ssm/seelog.xml <<- EOM\n<seelog type=\"adaptive\" mininterval=\"2000000\" maxinterval=\"100000000\" critmsgcount=\"500\" minlevel=\"info\">\n    <exceptions>\n        <exception filepattern=\"test*\" minlevel=\"error\"/>\n    </exceptions>\n    <outputs formatid=\"fmtinfo\">\n        <console formatid=\"fmtinfo\"/>\n        <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/amazon-ssm-agent.log\" maxsize=\"30000000\" maxrolls=\"5\"/>\n        <filter levels=\"error,critical\" formatid=\"fmterror\">\n            <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/errors.log\" maxsize=\"10000000\" maxrolls=\"5\"/>\n        </filter>\n        <custom name=\"cloudwatch_receiver\" formatid=\"fmtdebug\" data-log-group=\"${SSMLogGroup}\"/>\n    </outputs>    \n    <formats>\n        <format id=\"fmterror\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>        \n        <format id=\"fmtdebug\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>\n        <format id=\"fmtinfo\" format=\"%Date %Time %LEVEL %Msg%n\"/>    \n    </formats>\n</seelog>\nEOM\n\nstart amazon-ssm-agent\n\nif [ \"${GlueDevEndpoint}\" != \"EMPTY\" ]; then \n    set -ex\n    [ -e /home/ec2-user/glue_ready ] && exit 0\n     \n    mkdir /home/ec2-user/glue\n    cd /home/ec2-user/glue\n    DEV_ENDPOINT_NAME=${GlueDevEndpoint}\n    aws s3 cp s3://aws-glue-jes-prod-us-east-1-assets/sagemaker/assets/ . --recursive\n     \n    tar -xf autossh-1.4e.tgz\n    cd autossh-1.4e\n    ./configure\n    make\n    sudo make install\n    pip install pandas==0.22.0\n     \n    mkdir -p /home/ec2-user/.sparkmagic\n    cp /home/ec2-user/glue/config.json /home/ec2-user/.sparkmagic/config.json\n     \n    mkdir -p /home/ec2-user/SageMaker/Glue\\ Examples\n    mv /home/ec2-user/glue/notebook-samples/* /home/ec2-user/SageMaker/Glue\\ Examples/\n     \n    sudo cp /home/ec2-user/glue/autossh.conf /etc/init/\n    python3 /home/ec2-user/glue/bootstrap.py --devendpointname $DEV_ENDPOINT_NAME --endpoint https://glue.${AWS::Region}.amazonaws.com --notebookname $ID\n    sudo touch /home/ec2-user/glue_ready\nfi\n"
+                "Fn::Sub": "#! /bin/bash\nset -ex \n\nstop amazon-ssm-agent\nif [ ! -d /mnt/efs ]; then\n    yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm amazon-efs-utils\n    stop amazon-ssm-agent\n\n    mkdir -p /mnt/efs\n    mount -t efs ${EFS}:/ /mnt/efs\n    mkdir -p /mnt/efs/${AWS::StackName}/ssm\n    mount -t efs ${EFS}:/${AWS::StackName}/ssm /var/lib/amazon/ssm\nfi\n\nID=$(cat /var/lib/amazon/ssm/Vault/Store/RegistrationKey | jq '.instanceID' --raw-output)\ncat >> /etc/awslogs/awslogs.conf<<- EOM\n\n[/var/log/jupyter.log]\nfile = /var/log/jupyter*\nbuffer_duration = 5000\nlog_stream_name = $ID-jupyter\n/LifecycleConfigOnStartinitial_position = start_of_file\nlog_group_name = ${SSMLogGroup}\nEOM\nservice awslogs restart\n\ncat > /etc/amazon/ssm/seelog.xml <<- EOM\n<seelog type=\"adaptive\" mininterval=\"2000000\" maxinterval=\"100000000\" critmsgcount=\"500\" minlevel=\"info\">\n    <exceptions>\n        <exception filepattern=\"test*\" minlevel=\"error\"/>\n    </exceptions>\n    <outputs formatid=\"fmtinfo\">\n        <console formatid=\"fmtinfo\"/>\n        <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/amazon-ssm-agent.log\" maxsize=\"30000000\" maxrolls=\"5\"/>\n        <filter levels=\"error,critical\" formatid=\"fmterror\">\n            <rollingfile type=\"size\" filename=\"/var/log/amazon/ssm/errors.log\" maxsize=\"10000000\" maxrolls=\"5\"/>\n        </filter>\n        <custom name=\"cloudwatch_receiver\" formatid=\"fmtdebug\" data-log-group=\"${SSMLogGroup}\"/>\n    </outputs>    \n    <formats>\n        <format id=\"fmterror\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>        \n        <format id=\"fmtdebug\" format=\"%Date %Time %LEVEL [%FuncShort @ %File.%Line] %Msg%n\"/>\n        <format id=\"fmtinfo\" format=\"%Date %Time %LEVEL %Msg%n\"/>    \n    </formats>\n</seelog>\nEOM\n\nstart amazon-ssm-agent\n\nif [ \"${GlueDevEndpoint}\" != \"EMPTY\" ]; then \n    set -ex\n    [ -e /home/ec2-user/glue_ready ] && exit 0\n     \n    mkdir /home/ec2-user/glue\n    cd /home/ec2-user/glue\n    DEV_ENDPOINT_NAME=${GlueDevEndpoint}\n    aws s3 cp s3://aws-glue-jes-prod-us-east-1-assets/sagemaker/assets/ . --recursive\n     \n    tar -xf autossh-1.4e.tgz\n    cd autossh-1.4e\n    ./configure\n    make\n    sudo make install\n    pip install pandas==0.22.0\n     \n    mkdir -p /home/ec2-user/.sparkmagic\n    cp /home/ec2-user/glue/config.json /home/ec2-user/.sparkmagic/config.json\n     \n    mkdir -p /home/ec2-user/SageMaker/Glue\\ Examples\n    mv /home/ec2-user/glue/notebook-samples/* /home/ec2-user/SageMaker/Glue\\ Examples/\n     \n    sudo cp /home/ec2-user/glue/autossh.conf /etc/init/\n    python3 /home/ec2-user/glue/bootstrap.py --devendpointname $DEV_ENDPOINT_NAME --endpoint https://glue.${AWS::Region}.amazonaws.com --notebookname $ID\n    sudo touch /home/ec2-user/glue_ready\nfi\n\n\nif [ \"${OnStartDocument}\" != \"EMPTY\" ]; then \n    aws ssm send-command                                                \\\n        --document-name \"${OnStartDocument}\"                            \\\n        --targets \"Key=instanceids,Values=$ID\"                          \\\n        --comment \"OnStart script for instance ${AWS::StackName}:$ID\"   \\\n        --parameters \"OnStartDocument=${OnStartDocument},OnCreateDocument=${OnCreateDocument},ParentStack=${ParentStack},SSMLogGroup=${SSMLogGroup},LogsBucket=${LogsBucket},EFS=${EFS},InstanceType=${InstanceType},RoleArn=${RoleArn},KmsKeyId=${KmsKeyId},SecurityGroupId=${SecurityGroupId},SubnetId=${SubnetId},DirectInternetAccess=${DirectInternetAccess},IdleShutdown=${IdleShutdown},GlueDevEndpoint=${GlueDevEndpoint},StackName=${AWS::StackName}\"\nfi\n"
               }
             }
           }
@@ -440,8 +511,83 @@
         "Handle": {
           "Ref": "WaitHandle"
         },
-        "Timeout": "300",
+        "Timeout": "900",
         "Count": "1"
+      }
+    },
+    "NoteBookPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ssm:SendCommand"
+              ],
+              "Resource": [
+                "*"
+              ]
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "RoleName"
+          },
+          {
+            "Ref": "SSMRole"
+          }
+        ]
+      }
+    },
+    "InitDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "install conda requirements",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! /bin/bash\n\ntouch /var/lib/amazon/ssm/init\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {}
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "RunInitDocument": {
+      "Type": "Custom::SSMTags",
+      "DependsOn": [
+        "InstanceSSMTags",
+        "NoteBookPolicy"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "SSMRunLambda",
+            "Arn"
+          ]
+        },
+        "DocumentName": {
+          "Ref": "InitDocument"
+        },
+        "InstanceIds": [
+          {
+            "Fn::GetAtt": [
+              "WaitConditionData",
+              "id"
+            ]
+          }
+        ]
       }
     },
     "InstanceSSMTags": {
@@ -578,6 +724,20 @@
           "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
         ],
         "Policies": []
+      }
+    },
+    "RoleName": {
+      "Type": "Custom::RoleName",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "RoleNameLambda",
+            "Arn"
+          ]
+        },
+        "Arn": {
+          "Ref": "RoleArn"
+        }
       }
     }
   },

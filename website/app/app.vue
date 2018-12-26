@@ -5,7 +5,8 @@
         id="nav-open"
         @click.stop="open = !open"
       )
-      v-toolbar-title {{title}}
+      v-toolbar-title 
+        h1 {{title}}
       v-spacer
       v-toolbar-items
         v-btn(flat @click="logout") Logout
@@ -29,7 +30,8 @@
           v-list-tile-avatar
             v-icon(color="primary") home
           v-list-tile-content
-            v-list-tile-title home 
+            v-list-tile-title 
+              h4 home 
         v-list-tile(v-for="(page,index) in pages" :key="'page-link-'+page.name"
           @click="drawer=false"
           :href="'#/'+page.rel+'/'+page.name+'?href='+encodeURI(page.href)"
@@ -39,7 +41,8 @@
           v-list-tile-avatar( v-if="page.render")
             v-icon(color="primary") {{page.render}}
           v-list-tile-content
-            v-list-tile-title {{page.title || page.name}}
+            v-list-tile-title 
+              h4 {{page.title || page.name}}
             v-list-tile-sub-title {{page.prompt}}
         v-list-tile(v-for="(link,index) in links" :key="'page-link-'+link.name"
           :href="link.href"
@@ -135,6 +138,13 @@ module.exports={
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
+body .application {
+  font-family: 'Nunito', sans-serif;
+}
+
+body .v-btn {
+  font-weight:800;
+}
 </style>
 

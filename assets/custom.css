@@ -2,9 +2,17 @@
     color:black; 
 }
 
+body .application {
+  font-family: 'Nunito', sans-serif;
+}
+
 .message-bot .message-text{
-    color:#1fbcd3;
+    color:#1fbcd3 !important;
 }
 .message-bot .message-bubble{
     background-color:#d2d2d2 !important;
+}
+
+#app .v-text-field__details {
+    margin-left:20px;
 }

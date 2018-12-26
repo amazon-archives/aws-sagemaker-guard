@@ -19,6 +19,7 @@
       v-autocomplete(
         v-if="schema.enum"
         :label="schema.title || name"
+        :persistent-hint="true"
         :required="required"
         :hint="schema.description"
         :items="schema.enum"
@@ -41,20 +42,25 @@
             style="display:inline-block;width:80%"
             @update:valid="isValid"
           )
-          v-btn.delete(icon @click.native='remove(index)' 
+          v-btn.primary--text.delete(icon @click.native='remove(index)' 
             :id="path+'-remove-'+index"
+            flat
             tabindex='-1')
             v-icon delete
-      v-btn.block(@click.native='add' tabindex='-1'
+      v-btn.block.primary--text(@click.native='add' tabindex='-1'
         :id="path+'-add'"
+        flat
         ) Add Item
-      v-btn.block(tabindex='-1'
+      v-btn.block.primary--text(tabindex='-1'
         :href="csvTemplate"
+        flat
         ) Download CSV Template
       input( type="file" :id="path+'-file'" @change="upload")
-      v-btn.block(@click.native='uploadClick' tabindex='-1'
+      v-btn.block.primary--text(@click.native='uploadClick' tabindex='-1'
+        flat
         ) Upload CSV
-      v-btn.block(@click.native='clear' tabindex='-1'
+      v-btn.block.primary--text(@click.native='clear' tabindex='-1'
+        flat
         ) Clear
     div(v-if="schema.type==='object'")
       .subheading {{schema.title}}

@@ -242,6 +242,14 @@
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -270,6 +278,14 @@
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -298,6 +314,118 @@
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ],
+        "DocumentType": "Command"
+      }
+    },
+    "ExampleDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "Command Document Example JSON Template",
+          "parameters": {
+            "OnStartDocument": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "OnCreateDocument": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "example",
+              "inputs": {
+                "runCommand": [
+                  "echo 'hello'"
+                ]
+              }
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        ],
         "DocumentType": "Command"
       }
     },

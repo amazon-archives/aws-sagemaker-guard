@@ -102,7 +102,9 @@ function lambda(name,handler){
                 DIRECTORY:{"Ref":"Directory"},
                 SCHEMA:{"Fn::GetAtt":["Directory","AppliedSchemaArn"]},
                 API:{"Fn::GetAtt":["URLs","API"]},
-                REGIONNAME:{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"name"]}
+                REGIONNAME:{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"name"]},
+                ASSETBUCKET:{"Ref":"AssetBucket"},
+                ASSETPREFIX:{"Ref":"AssetPrefix"}
             }
         },
         "TracingConfig":{

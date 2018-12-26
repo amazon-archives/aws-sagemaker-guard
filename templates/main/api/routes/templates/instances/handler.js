@@ -1,6 +1,8 @@
 var aws=require('aws-sdk')
 var _=require('lodash')
 aws.config.region=process.env.AWS_REGION
+var s3=new aws.S3()
+var ssm=new aws.SSM()
 var ec2=new aws.EC2()
 var pricing=new aws.Pricing({region:"us-east-1"})
 var kms=new aws.KMS()
@@ -9,6 +11,17 @@ var glue=new aws.Glue()
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
+
+    var params=s3.getObject({
+        Bucket:process.env.ASSETBUCKET,
+        Key:`${process.env.ASSETPREFIX}/instance.json`
+    }).promise()
+    .then(result=>{
+        var template=JSON.parse(result.Body.toString())
+        var out=_.keys(template.Parameters)
+        out.push("StackName")
+        return out
+    })
 
     var instances=new Promise((res,rej)=>{
         next(null,[])
@@ -37,7 +50,6 @@ exports.handler=function(event,context,callback){
                     gpu:y.product.attributes.memory.gpu,
                     price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD
                 }))
-                console.log(1)
                 if(x.NextToken){
                     next(x.NextToken,list)
                 }else{
@@ -50,7 +62,51 @@ exports.handler=function(event,context,callback){
         name:`${y.type}: \$${parseFloat(y.price).toFixed(3)}`,
         value:y.type
     }}))
-    
+    var documents=new Promise(function(res,rej){
+        var out=[]
+
+        function next(token){
+            Promise.all([ssm.listDocuments({
+                DocumentFilterList:[{
+                    key:"PlatformTypes",
+                    value:"Linux"
+                },
+                {
+                    key:"DocumentType",
+                    value:"Command"
+                }],
+                NextToken:token
+            }).promise(),params])
+            .then(results=>{
+                var result=results[0]
+                var param=results[1]
+                
+                Promise.all(result.DocumentIdentifiers
+                    .map(x=>ssm.getDocument({
+                        Name:x.Name
+                    }).promise())
+                ).then(x=>{
+                    x.filter(y=>{
+                        console.log(y,param)
+                        return _.xor(
+                            _.keys(JSON.parse(y.Content).parameters),
+                            param
+                        ).length===0
+                    })
+                    .forEach(y=>out.push(_.omit(y,'Content')))
+                    
+                    if(result.NextToken){
+                        next(result.NextToken)
+                    }else{
+                        res(out)
+                    }
+                })
+                .catch(rej)
+            })
+            .catch(rej)
+        }
+        next()
+    })
     var roles=new Promise(function(res,rej){
         var out=[]
 
@@ -59,7 +115,6 @@ exports.handler=function(event,context,callback){
                 Marker:token
             }).promise()
             .then(result=>{
-                console.log(result)
                 result.Roles
                     .filter(filterRoles)
                     .map(x=>{return{
@@ -86,7 +141,6 @@ exports.handler=function(event,context,callback){
                 Limit:1000,
             }).promise()
             .then(result=>{
-                console.log(result)
                 result.Keys
                     .forEach(x=>out.push(x))
 
@@ -109,7 +163,6 @@ exports.handler=function(event,context,callback){
                 NextToken:token
             }).promise()
             .then(result=>{
-                console.log(result)
                 result.DevEndpoints
                     .forEach(x=>out.push(x.EndpointName))
 
@@ -127,13 +180,17 @@ exports.handler=function(event,context,callback){
         keys,
         roles,
         endpoints,
-        instances
+        instances,
+        documents,
+        params
     ])
     .then(result=>callback(null,{
         keys:result[0],
         roles:result[1],
         endpoints:result[2],
-        instances:result[3]
+        instances:result[3],
+        documents:result[4],
+        params:result[5]
     }))
     .catch(error=>{
         console.log(error)
@@ -150,7 +207,6 @@ function filterRoles(result){
     var doc=JSON.parse(
         decodeURIComponent(result.AssumeRolePolicyDocument)
         )
-    console.log(doc.Statement)        
     return doc.Statement
         .filter(x=>x.Principal.Service==="sagemaker.amazonaws.com")
         .length

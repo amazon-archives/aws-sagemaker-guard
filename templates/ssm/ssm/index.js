@@ -1,3 +1,8 @@
+var Tags=[{
+    Key:"StackName",
+    Value:{"Ref":"AWS::StackName"}
+}]
+
 module.exports={
     "InstanceInventory":{
         "Type": "AWS::SSM::Association",
@@ -37,6 +42,7 @@ module.exports={
         "Type" : "AWS::SSM::Document",
         "Properties" : {
             Content:require('./inventory-doc'),
+            Tags,
             DocumentType:"Command"
         }
     },
@@ -44,6 +50,7 @@ module.exports={
         "Type" : "AWS::SSM::Document",
         "Properties" : {
             Content:require('./install-doc'),
+            Tags,
             DocumentType:"Command"
         }
     },
@@ -51,6 +58,15 @@ module.exports={
         "Type" : "AWS::SSM::Document",
         "Properties" : {
             Content:require('./uninstall-doc'),
+            Tags,
+            DocumentType:"Command"
+        }
+    },
+    "ExampleDocument":{
+        "Type" : "AWS::SSM::Document",
+        "Properties" : {
+            Content:require('./example-doc'),
+            Tags,
             DocumentType:"Command"
         }
     }

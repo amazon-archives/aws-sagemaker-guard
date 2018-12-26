@@ -11,7 +11,7 @@
       v-list(three-line dense)
         v-container.pa-0
           v-layout(row  wrap)
-            v-flex.xs6(v-for="(value,key) in data" :key="value")
+            v-flex.xs6(v-for="(value,key) in data" :key="JSON.stringify(value)")
               v-list-tile
                 v-list-tile-content
                   v-list-tile-title {{key}} 
@@ -22,13 +22,13 @@
                     :key="JSON.stringify(v)"
                   ) {{v}}
     v-card-actions
-      v-btn(flat 
+      v-btn.primary--text(flat 
         v-if="instance.template" 
         @click.native="state"
         :loading="updating"
         ) {{instance.template.data.prompt}}
       v-spacer
-      v-btn(flat v-if="login" :href="login") login
+      v-btn.primary--text(flat v-if="login" :href="login") login
 </template>
 
 <script>

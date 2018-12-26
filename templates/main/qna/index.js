@@ -47,7 +47,8 @@ module.exports={
             "URL":{"Fn::GetAtt":["LexWebUi","Outputs.LoaderScriptUrl"]},
             "Bucket":{"Ref":"AssetBucket"},
             "Index":{"Fn::Sub":"${AssetPrefix}/assets/index.html"},
-            "CSS":{"Fn::Sub":"${AssetPrefix}/assets/custom.css"}
+            "CSS":{"Fn::Sub":"${AssetPrefix}/assets/custom.css"},
+            "Date":new Date(),
         }
     }
 }

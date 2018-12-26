@@ -1,12 +1,18 @@
 var fs=require('fs')
 var Promise=require('bluebird')
 var _=require('lodash')
+var handlebars = require('handlebars')
+var params=_.keys(require('../params')).map(x=>`${x}=\${${x}}`)
+
+params.push("StackName=${AWS::StackName}")
+params=params.join(',')
 
 module.exports=Object.assign({
     "SageMakerNotebookInstance":{
         "Type": "AWS::SageMaker::NotebookInstance",
         "Properties": {
             InstanceType:{"Ref":"InstanceType"},
+            NotebookInstanceName:{"Ref":"AWS::StackName"},
             RoleArn:{"Ref":"RoleArn"},
             LifecycleConfigName:{"Fn::GetAtt":["SageMakerNotebookLifecycle","NotebookInstanceLifecycleConfigName"]},
             SecurityGroupIds:[{"Ref":"SecurityGroupId"}],
@@ -27,10 +33,18 @@ module.exports=Object.assign({
         "Type" : "AWS::SageMaker::NotebookInstanceLifecycleConfig",
         "Properties" : {
             OnCreate:[{
-                Content:{"Fn::Base64":{"Fn::Sub":fs.readFileSync(`${__dirname}/scripts/OnCreate.sh`,"utf-8")}}
+                Content:{"Fn::Base64":{
+                    "Fn::Sub":handlebars.compile(fs.readFileSync(`${__dirname}/scripts/OnCreate.sh`,"utf-8"))({
+                        params:params            
+                    })
+                }}
             }],
             OnStart:[{
-                Content:{"Fn::Base64":{"Fn::Sub":fs.readFileSync(`${__dirname}/scripts/OnStart.sh`,"utf-8")}}
+                Content:{"Fn::Base64":{
+                    "Fn::Sub":handlebars.compile(fs.readFileSync(`${__dirname}/scripts/OnStart.sh`,"utf-8"))({
+                        params:params
+                    })
+                }}
             }]
         }
     },
@@ -79,8 +93,31 @@ module.exports=Object.assign({
        "Type" : "AWS::CloudFormation::WaitCondition",
        "Properties" : {
           "Handle"  : { "Ref" : "WaitHandle" },
-          "Timeout" : "300",
+          "Timeout" : JSON.stringify(60*15),
           "Count"   : "1"
        }
-    }   
+    },
+    "NoteBookPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [   
+                "ssm:SendCommand"
+              ],
+              "Resource": [
+                /*{"Fn::Sub":"arn:aws:ssm:*:*:document/${OnStartDocument}"},
+                {"Fn::Sub":"arn:aws:ssm:*:*:document/${OnCreateDocument}"},
+                {"Fn::Sub":"arn:aws:ssm:*:*:managed-instance/${WaitConditionData.id}"},*/
+                "*"
+              ],
+            }
+          ]
+        },
+        "Roles":[{"Ref":"RoleName"},{"Ref":"SSMRole"}]
+      }
+    }
 },require('./ssm'))

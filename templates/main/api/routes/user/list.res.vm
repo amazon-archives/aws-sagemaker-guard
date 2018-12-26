@@ -45,7 +45,9 @@
             "rel":"search",
             "prompt":"Search for instances by ID",
             "data":[
-                {"name":"MaxResults","prompt":"Maximum results to return"},
+                #if ( $inputRoot.NextToken.length())
+                    {"name":"MaxResults","prompt":"Maximum results to return"},
+                #else
                 {"name":"Query","prompt":"Prefix to search by"}
             ]
         }

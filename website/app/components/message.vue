@@ -2,16 +2,15 @@
   v-card.ma-2
     v-progress-linear(v-if="loading" indeterminate)
     v-card-title(primary-title v-if="!loading")
-      v-btn(flat icon @click.native="show=!show")
+      v-btn.primary--text(flat icon @click.native="show=!show")
         v-icon(color="primary") {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
       h3(@click.native="show=!show") {{title}}
       v-spacer
-      v-btn(flat icon 
-        @click.native="remove(index)" 
+      rm(
+        @click="remove(index)" 
         :loading="removing"
         v-if="allow.includes('DELETE')"
       ) 
-        v-icon() delete
     v-slide-y-transition
       v-card-text(v-if="show && !loading")
         v-card-text
@@ -70,7 +69,8 @@ module.exports={
     }
   },
   components:{
-    temp:require('./template.vue')
+    temp:require('./template.vue'),
+    rm:require('./delete.vue')
   },
   computed:{
     title:function(){

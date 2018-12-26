@@ -3,7 +3,7 @@
 {
     "collection":{
         "version":"1.0",
-        "href":"$root/api/$input.path('$.Type')",
+        "href":"$base",
         "links":[],
         "items":[{
             "href":"$base",
