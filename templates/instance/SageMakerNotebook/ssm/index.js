@@ -6,8 +6,17 @@ module.exports={
             DocumentType:"Command"
         }
     },
+    "RunTerminateDocument":{
+        "Type": "Custom::RunDocument",
+        "Condition":"IfOnTerminateDocument", 
+        "Properties":{
+            "ServiceToken": { "Fn::GetAtt" : ["SSMRunDeleteLambda", "Arn"] },
+            "DocumentName":{"Ref":"InitDocument"},
+            InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+        }
+    },
     "RunInitDocument":{
-        "Type": "Custom::SSMTags",
+        "Type": "Custom::RunDocument",
         "DependsOn":["InstanceSSMTags","NoteBookPolicy"],
         "Properties":{
             "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },

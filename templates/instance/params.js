@@ -10,6 +10,10 @@ module.exports={
         "Type":"String",
         "Default":"EMPTY"
     },
+    OnTerminateDocument:{
+        "Type":"String",
+        "Default":"EMPTY"
+    },
     ParentStack:{
         "Type":"String"
     },
