@@ -12,7 +12,3 @@ body .application {
 .message-bot .message-bubble{
     background-color:#d2d2d2 !important;
 }
-
-#app .v-text-field__details {
-    margin-left:20px;
-}

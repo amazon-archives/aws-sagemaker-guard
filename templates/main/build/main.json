@@ -3295,7 +3295,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2018-12-26T06:15:23.443Z"
+        "BuildDate": "2018-12-27T07:16:12.510Z"
       }
     },
     "UtilLambdaLayer": {
@@ -3345,7 +3345,7 @@
               "StatusCode": 200,
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    #if ( $inputRoot.PrevToken==\"null\")\n        \"href\":\"$root/api/$inputRoot.Type\",\n    #else\n        \"href\":\"$root/api/$inputRoot.Type?NextToken=$inputRoot.PrevToken\",\n    #end\n    \"links\":[\n        #if ( $inputRoot.NextToken!=\"null\")\n            {\"rel\":\"next\",\"href\":\" $root/api/$inputRoot.Type?NextToken=$inputRoot.NextToken\"}\n        #end\n    ],\n    \"items\":[\n        #foreach( $object in $inputRoot.IndexAttachments)\n        {\"href\":\"$root/api/$inputRoot.Type/$object.ObjectIdentifier\"}\n        #if( $foreach.hasNext ),#end\n        #end\n    ],\n    \"template\":{\n        \"data\":{\n            #if ($input.params('type') == 'groups')\n                \"schema\":{\"type\":\"object\",\"properties\":{\"ID\":{\"type\":\"string\",\"title\":\"User ID\",\"immutable\":true},\"DisplayName\":{\"title\":\"Display Name\",\"type\":\"string\"},\"Description\":{\"title\":\"Group Description\",\"type\":\"string\"}},\"required\":[\"ID\"]},\n                \"prompt\":\"Create a new group\"\n            #elseif ($input.params('type') == 'users')\n                \"schema\":{\"type\":\"object\",\"properties\":{\"ID\":{\"type\":\"string\",\"title\":\"ID\",\"immutable\":true},\"email\":{\"title\":\"User Email Address\",\"type\":\"string\"},\"phone_number\":{\"title\":\"User Phone Number\",\"description\":\"User's phone number used for MFA, in format +112345678901\",\"pattern\":\"^\\\\+[0-9]{11}$\",\"type\":\"string\"}},\"required\":[\"ID\",\"email\",\"phone_number\"]},\n                \"prompt\":\"Add a new user\"\n            #elseif ($input.params('type') == 'instances')\n                \"schema\":{\n                    \"href\":\"$root/templates/instances\"\n                },\n                \"prompt\":\"Create a new SageMaker Notebook instance\"\n            #end\n        }\n    },\n    \"queries\":[\n        {   \n            \"href\":\"$root/api/$inputRoot.Type?\",\n            \"rel\":\"search\",\n            \"prompt\":\"Search for $input.params('type') by ID\",\n            \"data\":[\n                {\"name\":\"MaxResults\",\"prompt\":\"Maximum results to return\"},\n                {\"name\":\"Query\",\"prompt\":\"Prefix to search by\"}\n            ]\n        }\n    ]\n}}\n\n\n"
+                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    #if ( $inputRoot.PrevToken==\"null\")\n        \"href\":\"$root/api/$inputRoot.Type\",\n    #else\n        \"href\":\"$root/api/$inputRoot.Type?NextToken=$inputRoot.PrevToken\",\n    #end\n    \"links\":[\n        #if ( $inputRoot.NextToken!=\"null\")\n            {\"rel\":\"next\",\"href\":\" $root/api/$inputRoot.Type?NextToken=$inputRoot.NextToken\"}\n        #end\n    ],\n    \"items\":[\n        #foreach( $object in $inputRoot.IndexAttachments)\n        {\"href\":\"$root/api/$inputRoot.Type/$object.ObjectIdentifier\"}\n        #if( $foreach.hasNext ),#end\n        #end\n    ],\n    \"template\":{\n        \"data\":{\n            #if ($input.params('type') == 'groups')\n                \"schema\":{\"type\":\"object\",\"properties\":{\"ID\":{\"type\":\"string\",\"title\":\"User ID\",\"immutable\":true},\"DisplayName\":{\"title\":\"Display Name\",\"type\":\"string\"},\"Description\":{\"title\":\"Group Description\",\"type\":\"string\"}},\"required\":[\"ID\"]},\n                \"prompt\":\"Create a new group\"\n            #elseif ($input.params('type') == 'users')\n                \"schema\":{\"type\":\"object\",\"properties\":{\"ID\":{\"type\":\"string\",\"description\":\"The users name or unique ID\",\"title\":\"ID\",\"immutable\":true},\"email\":{\"title\":\"User Email Address\",\"description\":\"Users email address. Used for password setting and reseting\",\"type\":\"string\"},\"phone_number\":{\"title\":\"User Phone Number\",\"description\":\"User's phone number used for MFA, in format +112345678901\",\"pattern\":\"^\\\\+[0-9]{11}$\",\"type\":\"string\"}},\"required\":[\"ID\",\"email\",\"phone_number\"]},\n                \"prompt\":\"Add a new user\"\n            #elseif ($input.params('type') == 'instances')\n                \"schema\":{\n                    \"href\":\"$root/templates/instances\"\n                },\n                \"prompt\":\"Create a new SageMaker Notebook instance\"\n            #end\n        }\n    },\n    \"queries\":[\n        {   \n            \"href\":\"$root/api/$inputRoot.Type?\",\n            \"rel\":\"search\",\n            \"prompt\":\"Search for $input.params('type') by ID\",\n            \"data\":[\n                {\"name\":\"MaxResults\",\"prompt\":\"Maximum results to return\"},\n                {\"name\":\"Query\",\"prompt\":\"Prefix to search by\"}\n            ]\n        }\n    ]\n}}\n\n\n"
                 }
               }
             },
@@ -4443,7 +4443,7 @@
             {
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root\",\n    \"items\":[{\n        \"href\":\"$root\",\n        \"data\":[\n            {\"name\":\"region\",\"value\":\"${AWS::Region}\"},\n            {\"name\":\"stackname\",\"value\":\"${AWS::StackName}\"},\n            {\"name\":\"account\",\"value\":\"${AWS::AccountId}\"},\n            {\"name\":\"version\",\"value\":\"${Constants.Version}\"},\n            {\"name\":\"build-date\",\"value\":\"${Constants.BuildDate}\"},\n            {\"name\":\"vpc\",\"value\":\"${VPC.Outputs.VPC}\"}\n        ],\n        \"links\":[\n            {\n                \"rel\":\"api\",\n                \"href\":\"$root/api\"\n            },\n            {\"rel\":\"login\",\"href\":\"$root/login\"}\n        ]\n    }]\n}}\n"
+                  "Fn::Sub": "#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root\",\n    \"items\":[{\n        \"href\":\"$root\",\n        \"data\":[\n            {\"name\":\"region\",\"value\":\"${AWS::Region}\"},\n            {\"name\":\"stackname\",\"value\":\"${AWS::StackName}\"},\n            {\"name\":\"account\",\"value\":\"${AWS::AccountId}\"},\n            {\"name\":\"version\",\"value\":\"${Constants.Version}\"},\n            {\"name\":\"build-date\",\"value\":\"${Constants.BuildDate}\"},\n            {\"name\":\"vpc\",\"value\":\"${VPC.Outputs.VPC}\"}\n        ],\n        \"links\":[\n            {\n                \"rel\":\"api\",\n                \"href\":\"$root/api\"\n            },\n            {\"rel\":\"login\",\"href\":\"$root/website/admin\"},\n            {\"rel\":\"logout\",\"href\":\"$root/website/admin/logout\"}\n        ]\n    }]\n}}\n"
                 }
               },
               "StatusCode": "200"
@@ -5685,7 +5685,7 @@
               "StatusCode": 200,
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"description\":\"The unique identifier for this instance\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"default\":\"$context.requestId\"\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"description\":\"A friendly name for this instance\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"description\":\"A brief description of how this instance will be used\",\n                        \"type\":\"string\",\n                        \"maxLength\":500\n                    },\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"description\":\"The EC2 instance type for this notebook\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.instances)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.name\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ],\n                        \"default\":\"ml.t3.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"description\":\"Choose the IAM role that will give users on the notebook instance to call AWS APIs\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\",\n                                \"href\":\"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/${DefaultNotebookRole}\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\",\n                                \"href\":\"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/$object.RoleName\"\n                            }\n                            #end\n                        ],\n                        \"default\":\"${DefaultNotebookRole.Arn}\"\n                    },\n                    #if( $inputRoot.keys.length() != 0)\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"description\":\"A AWS KMS key to use for encrypting the data volumnes of the instance\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys)\n                                \"$object.KeyId\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    #end\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable/Disable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"],\n                        \"default\":\"Enabled\"\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period in minutes\",\n                        \"description\":\"The number of minutes of inactivity before the instance is shutdown to save cost\",\n                        \"type\":\"string\",\n                        \"enum\":[\"30\",\"60\",\"120\"],\n                        \"default\":\"30\"\n                    },\n                    #if ($inputRoot.endpoints.length() != 0)\n                    \"GlueDevEndpoint\":{\n                        \"title\":\"Glue development endpoints\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.endpoints)\n                                \"$object\"\n                            #if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },#end\n                    #if ($inputRoot.documents.length() != 0)\n                    \"OnStartDocument\":{\n                        \"title\":\"SSM OnStart Document\",\n                        \"description\":\"An SSM document to run on each instance start up. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.documents)\n                                \"$object.Name\"#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    \"OnCreateDocument\":{\n                        \"title\":\"SSM OnCreate Document\",\n                        \"immutable\":true,\n                        \"description\":\"An SSM document to run on instance creation. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.documents)\n                                \"$object.Name\"#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    }#end\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
+                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"description\":\"The unique identifier for this instance\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"default\":\"$context.requestId\"\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"description\":\"A friendly name for this instance\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"description\":\"A brief description of how this instance will be used\",\n                        \"type\":\"string\",\n                        \"maxLength\":500\n                    },\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"description\":\"The EC2 instance type for this notebook\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.instances)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.name\",\n                                \"description\":\"$object.description\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ],\n                        \"default\":\"ml.t3.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"description\":\"Choose the IAM role that will give users on the notebook instance to call AWS APIs\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\",\n                                \"href\":\"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/${DefaultNotebookRole}\",\n                                \"description\":\"Default Sagemaker Role\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\",\n                                \"href\":\"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/$object.RoleName\",\n                                \"description\":\"$object.Description\"\n                            }\n                            #end\n                        ],\n                        \"default\":\"${DefaultNotebookRole.Arn}\"\n                    },\n                    #if( $inputRoot.keys.length() != 0)\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"description\":\"A AWS KMS key to use for encrypting the data volumnes of the instance\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys){\n                                \"text\":\"$object.KeyId\",\n                                \"value\":\"$object.KeyId\",\n                                \"href\":\"https://console.aws.amazon.com/kms/home?region=${AWS::Region}#/kms/keys/$object.KeyId/\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    #end\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable/Disable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"],\n                        \"default\":\"Enabled\"\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period in minutes\",\n                        \"description\":\"The number of minutes of inactivity before the instance is shutdown to save cost\",\n                        \"type\":\"string\",\n                        \"enum\":[{\n                            \"value\":\"30\",\n                            \"text\":\"30 minutes\"\n                        },{\n                            \"value\":\"45\",\n                            \"text\":\"45 minutes\"\n                        },{\n                            \"value\":\"60\",\n                            \"text\":\"1 hr\"\n                        }],\n                        \"default\":\"30\"\n                    },\n                    #if ($inputRoot.endpoints.length() != 0)\n                    \"GlueDevEndpoint\":{\n                        \"title\":\"Glue development endpoints\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.endpoints){\n                                \"text\":\"$object.name\",\n                                \"value\":\"$object.name\",\n                                \"description\":\"Nodes:$object.nodes VPC:$object.vpc\",\n                                \"href\":\"https://console.aws.amazon.com/glue/home?region=${AWS::Region}#devEndpoint:name=$object.name\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },#end\n                    #if ($inputRoot.documents.length() != 0)\n                    \"OnStartDocument\":{\n                        \"title\":\"SSM OnStart Document\",\n                        \"description\":\"An SSM document to run on each instance start up. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.documents){\n                                \"text\":\"$object.Name\",\n                                \"value\":\"$object.Name\",\n                                \"href\":\"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}\"\n                            }#if( $foreach.hasNext ),#end#end\n                        ]\n                    },\n                    \"OnCreateDocument\":{\n                        \"title\":\"SSM OnCreate Document\",\n                        \"immutable\":true,\n                        \"description\":\"An SSM document to run on instance creation. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.\",\n                        \"ask\":\"Tell me about the OnCreate Document\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.documents){\n                                \"text\":\"$object.Name\",\n                                \"value\":\"$object.Name\",\n                                \"href\":\"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}\"\n                            }#if( $foreach.hasNext ),#end#end\n                        ]\n                    }#end\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
                 }
               }
             },
@@ -5774,7 +5774,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var s3=new aws.S3,ssm=new aws.SSM,ec2=new aws.EC2,pricing=new aws.Pricing({region:\"us-east-1\"}),kms=new aws.KMS,iam=new aws.IAM,glue=new aws.Glue;function filterRoles(result){return JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument)).Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=s3.getObject({Bucket:process.env.ASSETBUCKET,Key:`${process.env.ASSETPREFIX}/instance.json`}).promise().then(result=>{var template=JSON.parse(result.Body.toString()),out=_.keys(template.Parameters);return out.push(\"StackName\"),out}),instances=new Promise((res,rej)=>{!function next(token,list){pricing.getProducts({ServiceCode:\"AmazonSageMaker\",Filters:[{Field:\"productFamily\",Type:\"TERM_MATCH\",Value:\"ML Instance\"},{Field:\"location\",Type:\"TERM_MATCH\",Value:process.env.REGIONNAME}],MaxResults:100,NextToken:token}).promise().then(x=>{x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/)).map(y=>list.push({type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],cpus:y.product.attributes.vCpu,ram:y.product.attributes.memory,gpus:y.product.attributes.memory.physicalGpu,gpu:y.product.attributes.memory.gpu,price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD})),x.NextToken?next(x.NextToken,list):res(list)})}(null,[])}).then(x=>_.sortBy(x,y=>y.price).map(y=>({name:`${y.type}: $${parseFloat(y.price).toFixed(3)}`,value:y.type}))),documents=new Promise(function(res,rej){var out=[];!function next(token){Promise.all([ssm.listDocuments({DocumentFilterList:[{key:\"PlatformTypes\",value:\"Linux\"},{key:\"DocumentType\",value:\"Command\"}],NextToken:token}).promise(),params]).then(results=>{var result=results[0],param=results[1];Promise.all(result.DocumentIdentifiers.map(x=>ssm.getDocument({Name:x.Name}).promise())).then(x=>{x.filter(y=>(console.log(y,param),0===_.xor(_.keys(JSON.parse(y.Content).parameters),param).length)).forEach(y=>out.push(_.omit(y,\"Content\"))),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}).catch(rej)}()}),roles=new Promise(function(res,rej){var out=[];!function next(token){iam.listRoles({Marker:token}).promise().then(result=>{result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}()}),keys=new Promise(function(res,rej){var out=[];!function next(token){kms.listKeys({Marker:token,Limit:1e3}).promise().then(result=>{result.Keys.forEach(x=>out.push(x)),result.Truncated?next(result.NextMarker):res(out)}).catch(rej)}()}),endpoints=new Promise(function(res,rej){var out=[];!function next(token){glue.getDevEndpoints({NextToken:token}).promise().then(result=>{result.DevEndpoints.forEach(x=>out.push(x.EndpointName)),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}()});Promise.all([keys,roles,endpoints,instances,documents,params]).then(result=>callback(null,{keys:result[0],roles:result[1],endpoints:result[2],instances:result[3],documents:result[4],params:result[5]})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var s3=new aws.S3,ssm=new aws.SSM,ec2=new aws.EC2,pricing=new aws.Pricing({region:\"us-east-1\"}),kms=new aws.KMS,iam=new aws.IAM,glue=new aws.Glue;function filterRoles(result){return JSON.parse(decodeURIComponent(result.AssumeRolePolicyDocument)).Statement.filter(x=>\"sagemaker.amazonaws.com\"===x.Principal.Service).length}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=s3.getObject({Bucket:process.env.ASSETBUCKET,Key:`${process.env.ASSETPREFIX}/instance.json`}).promise().then(result=>{var template=JSON.parse(result.Body.toString()),out=_.keys(template.Parameters);return out.push(\"StackName\"),out}),instances=new Promise((res,rej)=>{!function next(token,list){pricing.getProducts({ServiceCode:\"AmazonSageMaker\",Filters:[{Field:\"productFamily\",Type:\"TERM_MATCH\",Value:\"ML Instance\"},{Field:\"location\",Type:\"TERM_MATCH\",Value:process.env.REGIONNAME}],MaxResults:100,NextToken:token}).promise().then(x=>{x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/)).map(y=>(console.log(y),y)).map(y=>list.push({type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],cpus:y.product.attributes.vCpu,ram:y.product.attributes.memory,gpus:y.product.attributes.physicalGpu,gpu:y.product.attributes.gpu,price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD})),x.NextToken?next(x.NextToken,list):res(list)})}(null,[])}).then(x=>_.sortBy(x,y=>y.price).map(y=>({name:`${y.type}: $${parseFloat(y.price).toFixed(3)}`,value:y.type,description:\"None\"===y.gpus?`vCPUs:${y.cpus} Memory:${y.ram}`:`vCPUs:${y.cpus} Memory:${y.ram} GPUs:${y.gpu}`}))),documents=new Promise(function(res,rej){var out=[];!function next(token){Promise.all([ssm.listDocuments({DocumentFilterList:[{key:\"PlatformTypes\",value:\"Linux\"},{key:\"DocumentType\",value:\"Command\"}],NextToken:token}).promise(),params]).then(results=>{var result=results[0],param=results[1];Promise.all(result.DocumentIdentifiers.map(x=>ssm.getDocument({Name:x.Name}).promise())).then(x=>{x.filter(y=>(console.log(y,param),0===_.xor(_.keys(JSON.parse(y.Content).parameters),param).length)).forEach(y=>out.push(_.omit(y,\"Content\"))),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}).catch(rej)}()}),roles=new Promise(function(res,rej){var out=[];!function next(token){iam.listRoles({Marker:token}).promise().then(result=>{result.Roles.filter(filterRoles).map(x=>({RoleName:x.RoleName,Arn:x.Arn,Description:x.Description})).forEach(x=>out.push(x)),result.IsTruncated?next(result.Marker):res(out)}).catch(rej)}()}),keys=new Promise(function(res,rej){var out=[];!function next(token){kms.listKeys({Marker:token,Limit:1e3}).promise().then(result=>{result.Keys.forEach(x=>out.push(x)),result.Truncated?next(result.NextMarker):res(out)}).catch(rej)}()}),endpoints=new Promise(function(res,rej){var out=[];!function next(token){glue.getDevEndpoints({NextToken:token}).promise().then(result=>{result.DevEndpoints.forEach(x=>out.push({name:x.EndpointName,nodes:x.NumberOfNodes,vpc:x.VpcId})),result.NextToken?next(result.NextToken):res(out)}).catch(rej)}()});Promise.all([keys,roles,endpoints,instances,documents,params]).then(result=>callback(null,{keys:result[0],roles:result[1],endpoints:result[2],instances:result[3],documents:result[4],params:result[5]})).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "896",
@@ -6462,7 +6462,7 @@
             {
               "ResponseTemplates": {
                 "text/html": {
-                  "Fn::Sub": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width,height=device-height, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Nunito:400,600,700,800,900\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/icon?family=Material+Icons\">\n    <link href=\"https://unpkg.com/vuetify/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <link rel=\"API\" href=\"${URLs.API}\">\n    <link rel=\"webAPI\" href=\"${URLs.UserAPI}\">\n    <meta name=\"View\" content=\"$input.params('view')\">\n    <meta name=\"PoolId\" content=\"${IdPool}\">\n    <meta name=\"Endpoint\" content=\"${URLs.CognitoEndpoint}\">\n    <meta name=\"UserPool\" content=\"${QNA.Outputs.UserPool}\">\n    <meta name=\"Region\" content=\"${AWS::Region}\">\n    #if( $input.params('view') == 'admin' )\n        <meta name=\"ClientId\" content=\"${AdminClient}\">\n        <link rel=\"Login\" href=\"${AdminLogin.href}\">\n        <title>SageGuard Administration</title>\n    #else\n        <meta name=\"ClientId\" content=\"${UserClient}\">\n        <link rel=\"Login\" href=\"${UserLogin.href}\">\n        <title>SageGuard User</title>\n    #end\n  </head>\n  <body>\n    <div id=\"App\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue/dist/vue.js\"></script>\n    <script src=\"https://unpkg.com/vuex\"></script>\n    <script src=\"https://unpkg.com/vue-router/dist/vue-router.js\"></script>\n    <script src=\"https://unpkg.com/vuetify/dist/vuetify.js\"></script>\n    <script src=\"https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js\"></script>\n    <script src=\"website/assets/vendor.js\"></script>\n    <script src=\"website/assets/app.js\"></script>\n    #if( $input.params('view') == 'admin' )\n        <script src=\"${LexWebUi.Outputs.LoaderScriptUrl}\"></script>\n        <script>\n          var chatbotUiConfig = {\n            ui: {\n                toolbarTitle: 'SageGuard Helper',\n                showDialogStateIcon: false,\n                AllowSuperDangerousHTMLInMessage: true,\n                toolbarColor: \"grey lighten-4 black--text\"\n            },\n            recorder:{\n                enable:false\n            }\n          };\n          var loaderOpts = {\n            baseUrl:\"${LexWebUi.Outputs.LoaderScriptUrl}\".split('/').slice(0,3).join('/'),\n          };\n          var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);\n          loader.load(chatbotUiConfig)\n            .then(x=>new Promise(function(res,rej){\n                next()\n                function next(){\n                    var nav=document.querySelector(\"#lex-web-ui nav\")\n                    if(nav){\n                        console.log(nav)\n                        res(nav) \n                    }else{\n                        setTimeout(next,1000)   \n                    }\n                }\n            }))\n            .then(nav=>{\n                console.log(nav)\n                nav.classList.add(\"theme--light\")\n                nav.classList.remove(\"theme--dark\")\n            })\n            .catch(function (error) { console.error(error); });\n        </script>\n    #end\n  </body>\n</html>\n"
+                  "Fn::Sub": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width,height=device-height, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Nunito:400,600,700,800,900\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/icon?family=Material+Icons\">\n    <link href=\"https://unpkg.com/vuetify/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <link rel=\"API\" href=\"${URLs.API}\">\n    <link rel=\"webAPI\" href=\"${URLs.UserAPI}\">\n    <meta name=\"View\" content=\"$input.params('view')\">\n    <meta name=\"PoolId\" content=\"${IdPool}\">\n    <meta name=\"Endpoint\" content=\"${URLs.CognitoEndpoint}\">\n    <meta name=\"UserPool\" content=\"${QNA.Outputs.UserPool}\">\n    <meta name=\"Region\" content=\"${AWS::Region}\">\n    #if( $input.params('view') == 'admin' )\n        <meta name=\"ClientId\" content=\"${AdminClient}\">\n        <link rel=\"Login\" href=\"${LoginURLS.AdminLogin}\">\n        <link rel=\"Logout\" href=\"${LoginURLS.AdminLogout}\">\n        <title>SageGuard Administration</title>\n    #else\n        <meta name=\"ClientId\" content=\"${UserClient}\">\n        <link rel=\"Login\" href=\"${LoginURLS.UserLogin}\">\n        <link rel=\"Logout\" href=\"${LoginURLS.UserLogout}\">\n        <title>SageGuard User</title>\n    #end\n  </head>\n  <body>\n    <div id=\"App\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue/dist/vue.js\"></script>\n    <script src=\"https://unpkg.com/vuex\"></script>\n    <script src=\"https://unpkg.com/vue-router/dist/vue-router.js\"></script>\n    <script src=\"https://unpkg.com/vuetify/dist/vuetify.js\"></script>\n    <script src=\"https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js\"></script>\n    <script src=\"website/assets/vendor.js\"></script>\n    <script src=\"website/assets/app.js\"></script>\n    #if( $input.params('view') == 'admin' )\n        <script src=\"${LexWebUi.Outputs.LoaderScriptUrl}\"></script>\n        <script>\n          var chatbotUiConfig = {\n            ui: {\n                toolbarTitle: 'SageGuard Helper',\n                showDialogStateIcon: false,\n                AllowSuperDangerousHTMLInMessage: true,\n                toolbarColor: \"grey lighten-4 black--text\"\n            },\n            recorder:{\n                enable:false\n            }\n          };\n          var loaderOpts = {\n            baseUrl:\"${LexWebUi.Outputs.LoaderScriptUrl}\".split('/').slice(0,3).join('/'),\n          };\n          var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);\n          window.lex=loader.load(chatbotUiConfig).then(x=>loader)\n          lex.then(x=>x.api.ping())\n        </script>\n    #end\n  </body>\n</html>\n"
                 }
               },
               "ResponseParameters": {
@@ -6573,8 +6573,8 @@
                       "'",
                       {
                         "Fn::GetAtt": [
-                          "AdminLogin",
-                          "href"
+                          "LoginURLS",
+                          "AdminLogin"
                         ]
                       },
                       "'"
@@ -6591,6 +6591,73 @@
         },
         "ResourceId": {
           "Ref": "AdminWebsiteResource"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 302,
+            "ResponseParameters": {
+              "method.response.header.location": true
+            }
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "AdminWebsiteLogoutResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "AdminWebsiteResource"
+        },
+        "PathPart": "logout",
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "AdminWebsiteLogoutResourceGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "Type": "MOCK",
+          "Credentials": {
+            "Fn::GetAtt": [
+              "ApiGatewayRole",
+              "Arn"
+            ]
+          },
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.location": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "'",
+                      {
+                        "Fn::GetAtt": [
+                          "LoginURLS",
+                          "AdminLogout"
+                        ]
+                      },
+                      "'"
+                    ]
+                  ]
+                }
+              },
+              "StatusCode": "302"
+            }
+          ],
+          "RequestTemplates": {
+            "application/json": "{\"statusCode\": 302}"
+          }
+        },
+        "ResourceId": {
+          "Ref": "AdminWebsiteLogoutResource"
         },
         "MethodResponses": [
           {
@@ -6640,8 +6707,8 @@
                       "'",
                       {
                         "Fn::GetAtt": [
-                          "UserLogin",
-                          "href"
+                          "LoginURLS",
+                          "UserLogin"
                         ]
                       },
                       "'"
@@ -6658,6 +6725,73 @@
         },
         "ResourceId": {
           "Ref": "UserWebsiteResource"
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": 302,
+            "ResponseParameters": {
+              "method.response.header.location": true
+            }
+          }
+        ],
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "UserWebsiteLogoutResource": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "UserWebsiteResource"
+        },
+        "PathPart": "logout",
+        "RestApiId": {
+          "Ref": "API"
+        }
+      }
+    },
+    "UserWebsiteLogoutResourceGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "Type": "MOCK",
+          "Credentials": {
+            "Fn::GetAtt": [
+              "ApiGatewayRole",
+              "Arn"
+            ]
+          },
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.location": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "'",
+                      {
+                        "Fn::GetAtt": [
+                          "LoginURLS",
+                          "UserLogout"
+                        ]
+                      },
+                      "'"
+                    ]
+                  ]
+                }
+              },
+              "StatusCode": "302"
+            }
+          ],
+          "RequestTemplates": {
+            "application/json": "{\"statusCode\": 302}"
+          }
+        },
+        "ResourceId": {
+          "Ref": "UserWebsiteLogoutResource"
         },
         "MethodResponses": [
           {
@@ -6939,7 +7073,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2018-12-26T06:15:23.445Z",
+        "buildDate": "2018-12-27T07:16:12.512Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -6978,7 +7112,9 @@
         "WebsiteResourceGet",
         "WebsiteAPIResourceGet",
         "AdminWebsiteResourceGet",
+        "AdminWebsiteLogoutResourceGet",
         "UserWebsiteResourceGet",
+        "UserWebsiteLogoutResourceGet",
         "WebsiteAssetsAnyGet",
         "WebsiteAssetsAnyHead",
         "APIAuthLambda",
@@ -9508,7 +9644,7 @@
         "CSS": {
           "Fn::Sub": "${AssetPrefix}/assets/custom.css"
         },
-        "Date": "2018-12-26T06:15:23.684Z"
+        "Date": "2018-12-27T07:16:12.729Z"
       }
     },
     "DefaultNotebookRole": {
@@ -9616,7 +9752,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2018-12-26T06:15:23.685Z",
+        "BuildDate": "2018-12-27T07:16:12.730Z",
         "Version": "1.0.0"
       }
     },
@@ -9686,7 +9822,7 @@
         }
       }
     },
-    "AdminLogin": {
+    "LoginURLS": {
       "Type": "Custom::Variable",
       "Properties": {
         "ServiceToken": {
@@ -9695,22 +9831,17 @@
             "Arn"
           ]
         },
-        "href": {
+        "AdminLogin": {
           "Fn::Sub": "${URLs.CognitoEndpoint}/login?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"
-        }
-      }
-    },
-    "UserLogin": {
-      "Type": "Custom::Variable",
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CFNVariableLambda",
-            "Arn"
-          ]
         },
-        "href": {
+        "AdminLogout": {
+          "Fn::Sub": "${URLs.CognitoEndpoint}/logout?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"
+        },
+        "UserLogin": {
           "Fn::Sub": "${URLs.CognitoEndpoint}/login?redirect_uri=${UserLoginRouteEncoded.value}&response_type=code&client_id=${UserClient}"
+        },
+        "UserLogout": {
+          "Fn::Sub": "${URLs.CognitoEndpoint}/logout?redirect_uri=${UserLoginRouteEncoded.value}&response_type=code&client_id=${UserClient}"
         }
       }
     },
@@ -9793,7 +9924,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2018-12-26T06:15:23.686Z"
+        "buildDate": "2018-12-27T07:16:12.731Z"
       },
       "DependsOn": "WebsiteClear"
     },

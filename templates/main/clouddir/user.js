@@ -5,11 +5,13 @@ module.exports={
     properties:{
         "ID":{
             type:"string",
+            description:"The users name or unique ID",
             title:"ID",
             immutable:true
         },
         "email":{
             title:"User Email Address",
+            description:"Users email address. Used for password setting and reseting",
             type:"string"
         },
         "phone_number":{

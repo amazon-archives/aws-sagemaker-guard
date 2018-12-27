@@ -15,11 +15,13 @@
     <meta name="Region" content="${AWS::Region}">
     #if( $input.params('view') == 'admin' )
         <meta name="ClientId" content="${AdminClient}">
-        <link rel="Login" href="${AdminLogin.href}">
+        <link rel="Login" href="${LoginURLS.AdminLogin}">
+        <link rel="Logout" href="${LoginURLS.AdminLogout}">
         <title>SageGuard Administration</title>
     #else
         <meta name="ClientId" content="${UserClient}">
-        <link rel="Login" href="${UserLogin.href}">
+        <link rel="Login" href="${LoginURLS.UserLogin}">
+        <link rel="Logout" href="${LoginURLS.UserLogout}">
         <title>SageGuard User</title>
     #end
   </head>
@@ -52,25 +54,8 @@
             baseUrl:"${LexWebUi.Outputs.LoaderScriptUrl}".split('/').slice(0,3).join('/'),
           };
           var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);
-          loader.load(chatbotUiConfig)
-            .then(x=>new Promise(function(res,rej){
-                next()
-                function next(){
-                    var nav=document.querySelector("#lex-web-ui nav")
-                    if(nav){
-                        console.log(nav)
-                        res(nav) 
-                    }else{
-                        setTimeout(next,1000)   
-                    }
-                }
-            }))
-            .then(nav=>{
-                console.log(nav)
-                nav.classList.add("theme--light")
-                nav.classList.remove("theme--dark")
-            })
-            .catch(function (error) { console.error(error); });
+          window.lex=loader.load(chatbotUiConfig).then(x=>loader)
+          lex.then(x=>x.api.ping())
         </script>
     #end
   </body>

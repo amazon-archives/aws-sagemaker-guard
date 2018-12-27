@@ -72,7 +72,7 @@ module.exports={
     },
     logout:function(context){
         window.sessionStorage.clear()
-        var login=document.head.querySelector("link[rel=Login]").href
+        var login=document.head.querySelector("link[rel=Logout]").href
         window.window.location.href=login
     },
     login:async function(context){

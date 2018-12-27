@@ -26,6 +26,15 @@
         clearable=true
         v-model="local"
       )
+        template(slot="item" slot-scope="data")
+          template(v-if="typeof(data.item)==='object'")
+            v-list-tile-content
+              v-list-tile-title {{data.item.text}}
+              v-list-tile-sub-title(v-if="data.item.description") {{data.item.description}}
+              v-list-tile-sub-title(v-if="data.item.href") 
+                a( :href="data.item.href" target="_blank") view details
+          template(v-else)
+            v-list-tile-title {{data.item}}
     div(v-if="schema.type==='array'")
       .subheading {{schema.title}}
       span {{schema.description}}
@@ -220,6 +229,9 @@ module.exports={
     setValid:function(value){
       this.valid=!value 
       this.$emit('update:valid',this.valid)
+    },
+    ask:function(prompt){
+      console.log(prompt)
     }
   }
 }
@@ -239,5 +251,16 @@ module.exports={
   input[type=file] { 
     width: 1px; 
     visibility: hidden;
+  }
+   
+  .v-text-field__details {
+    margin-left:20px;
+  }
+  .theme--light.v-label {
+    font-weight:800px;
+    font-size:1.2em;
+  }
+  .v-autocomplete__content .v-list__tile__sub-title {
+    margin-left:20px;
   }
 </style>

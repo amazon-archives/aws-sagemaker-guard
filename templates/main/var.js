@@ -35,18 +35,14 @@ module.exports={
         "value":{"Fn::GetAtt":["URLs","UserPage"]}
     }
 },
-"AdminLogin":{
+"LoginURLS":{
     "Type": "Custom::Variable",
     "Properties": {
         "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${URLs.CognitoEndpoint}/login?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"}
-    }
-},
-"UserLogin":{
-    "Type": "Custom::Variable",
-    "Properties": {
-        "ServiceToken": { "Fn::GetAtt" : ["CFNVariableLambda", "Arn"] },
-        "href":{"Fn::Sub":"${URLs.CognitoEndpoint}/login?redirect_uri=${UserLoginRouteEncoded.value}&response_type=code&client_id=${UserClient}"}
+        "AdminLogin":{"Fn::Sub":"${URLs.CognitoEndpoint}/login?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"},
+        "AdminLogout":{"Fn::Sub":"${URLs.CognitoEndpoint}/logout?redirect_uri=${AdminLoginRouteEncoded.value}&response_type=code&client_id=${AdminClient}"},
+        "UserLogin":{"Fn::Sub":"${URLs.CognitoEndpoint}/login?redirect_uri=${UserLoginRouteEncoded.value}&response_type=code&client_id=${UserClient}"},
+        "UserLogout":{"Fn::Sub":"${URLs.CognitoEndpoint}/logout?redirect_uri=${UserLoginRouteEncoded.value}&response_type=code&client_id=${UserClient}"},
     }
 }
 }

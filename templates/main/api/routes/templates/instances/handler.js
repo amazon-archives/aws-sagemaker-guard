@@ -42,12 +42,13 @@ exports.handler=function(event,context,callback){
             }).promise()
             .then(x=>{
                 x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/))
+                .map(y=>{console.log(y);return y})
                 .map(y=>list.push({
                     type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],
                     cpus:y.product.attributes.vCpu,
                     ram:y.product.attributes.memory,
-                    gpus:y.product.attributes.memory.physicalGpu,
-                    gpu:y.product.attributes.memory.gpu,
+                    gpus:y.product.attributes.physicalGpu,
+                    gpu:y.product.attributes.gpu,
                     price:_.toPairs(_.toPairs(y.terms.OnDemand)[0][1].priceDimensions)[0][1].pricePerUnit.USD
                 }))
                 if(x.NextToken){
@@ -60,7 +61,10 @@ exports.handler=function(event,context,callback){
     })
     .then(x=>_.sortBy(x,y=>y.price).map(y=>{return {
         name:`${y.type}: \$${parseFloat(y.price).toFixed(3)}`,
-        value:y.type
+        value:y.type,
+        description:y.gpus==="None" ? 
+            `vCPUs:${y.cpus} Memory:${y.ram}` :
+            `vCPUs:${y.cpus} Memory:${y.ram} GPUs:${y.gpu}`
     }}))
     var documents=new Promise(function(res,rej){
         var out=[]
@@ -119,7 +123,8 @@ exports.handler=function(event,context,callback){
                     .filter(filterRoles)
                     .map(x=>{return{
                         RoleName:x.RoleName,
-                        Arn:x.Arn
+                        Arn:x.Arn,
+                        Description:x.Description
                     }})
                     .forEach(x=>out.push(x))
                 if(result.IsTruncated){
@@ -164,7 +169,11 @@ exports.handler=function(event,context,callback){
             }).promise()
             .then(result=>{
                 result.DevEndpoints
-                    .forEach(x=>out.push(x.EndpointName))
+                    .forEach(x=>out.push({
+                        name:x.EndpointName,
+                        nodes:x.NumberOfNodes,
+                        vpc:x.VpcId
+                    }))
 
                 if(result.NextToken){
                     next(result.NextToken)

@@ -18,7 +18,8 @@
                 "rel":"api",
                 "href":"$root/api"
             },
-            {"rel":"login","href":"$root/login"}
+            {"rel":"login","href":"$root/website/admin"},
+            {"rel":"logout","href":"$root/website/admin/logout"}
         ]
     }]
 }}

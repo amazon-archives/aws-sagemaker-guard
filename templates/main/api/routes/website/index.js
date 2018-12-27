@@ -45,14 +45,25 @@ module.exports={
         template:`${__dirname}/info.vm`
     }),
     "AdminWebsiteResource":util.resource('admin',{"Ref":"WebsiteResource"}),
+    "AdminWebsiteResource":util.resource('admin',{"Ref":"WebsiteResource"}),
     "AdminWebsiteResourceGet":util.redirect(
-        {"Fn::GetAtt":["AdminLogin","href"]},
+        {"Fn::GetAtt":["LoginURLS","AdminLogin"]},
         {"Ref":"AdminWebsiteResource"}
+    ),
+    "AdminWebsiteLogoutResource":util.resource('logout',{"Ref":"AdminWebsiteResource"}),
+    "AdminWebsiteLogoutResourceGet":util.redirect(
+        {"Fn::GetAtt":["LoginURLS","AdminLogout"]},
+        {"Ref":"AdminWebsiteLogoutResource"}
     ),
     "UserWebsiteResource":util.resource('user',{"Ref":"WebsiteResource"}),
     "UserWebsiteResourceGet":util.redirect(
-        {"Fn::GetAtt":["UserLogin","href"]},
+        {"Fn::GetAtt":["LoginURLS","UserLogin"]},
         {"Ref":"UserWebsiteResource"}
+    ),
+    "UserWebsiteLogoutResource":util.resource('logout',{"Ref":"UserWebsiteResource"}),
+    "UserWebsiteLogoutResourceGet":util.redirect(
+        {"Fn::GetAtt":["LoginURLS","UserLogout"]},
+        {"Ref":"UserWebsiteLogoutResource"}
     ),
     "WebsiteAssets":util.resource('assets',{"Ref":"WebsiteResource"}),
     "WebsiteAsset":util.resource('{proxy+}',{"Ref":"WebsiteAssets"}),
