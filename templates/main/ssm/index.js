@@ -9,7 +9,9 @@ module.exports={
             "Parameters" : {
                 StackName:{"Ref":"AWS::StackName"},
                 SSMLogGroup:{"Ref":"SSMLogGroup"},
-                LogsBucket:{"Ref":"LogsBucket"}
+                LogsBucket:{"Ref":"LogsBucket"},
+                AssetBucket:{"Ref":"AssetBucket"},
+                AssetPrefix:{"Ref":"AssetPrefix"},
             },
             "TemplateURL" :{"Fn::Sub":"https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/ssm.json"},
         }

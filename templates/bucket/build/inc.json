@@ -1,0 +1,7 @@
+{
+  "default": {
+    "bucket": {
+      "us-east-1": 2
+    }
+  }
+}

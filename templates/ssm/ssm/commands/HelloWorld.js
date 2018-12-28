@@ -2,7 +2,9 @@ var _=require('lodash')
 module.exports={
   "schemaVersion": "2.2",
   "description": "Command Document Example JSON Template",
-  "parameters": Object.assign(_.fromPairs(_.keys(require('../../instance/params'))
+  "parameters": Object.assign(_.fromPairs(_.keys(
+        _.omit(require('../../../instance/params'),["OnCreateDocument","OnTerminateDocument",   "OnStartDocument"])                             
+    )
     .map(x=>[x,{
         "type": "String",
         "description": x.Description || "Example",
@@ -10,6 +12,9 @@ module.exports={
     }])),
     {
         StackName:{
+            type:"String"
+        },
+        InstanceId:{
             type:"String"
         }
     }

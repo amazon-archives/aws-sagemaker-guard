@@ -2,7 +2,9 @@ var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var sagemaker=new aws.SageMaker()
 var lambda=new aws.Lambda()
+var _=require('lodash')
 var cf=new aws.CloudFormation()
+var ssm=new aws.SSM()
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
@@ -28,16 +30,25 @@ exports.handler=function(event,context,callback){
         }).promise()
         .then(result=>{
             console.log(JSON.stringify(result,null,2))
-            var NotebookInstanceName=result.Stacks[0].Outputs
-                .filter(x=>x.OutputKey==="NoteBookName")[0].OutputValue
+            var outputs=_.fromPairs(result.Stacks[0].Outputs.map(x=>[x.OutputKey,x.OutputValue]))
+            var cf_params=_.fromPairs(result.Stacks[0].Parameters
+                .map(x=>[x.ParameterKey,x.ResolvedValue || x.ParameterValue]))
+        
+            outputs.StackName=stackname
+            outputs.InstanceId=outputs.InstanceID
             var body=JSON.parse(event.body)    
             if(body.state==="on"){
                 return sagemaker.startNotebookInstance({
-                    NotebookInstanceName
+                    NotebookInstanceName:outputs.NotebookName
                 }).promise()
+                .then(x=>ssm.sendCommand({
+                    DocumentName:cf_params.OnStartDocument,
+                    InstanceIds:outputs.InstanceID,
+                    Parameters:_.mapValues(outputs,x=>[x])
+                }).promise())
             }else if(body.state==="off"){
                 return sagemaker.stopNotebookInstance({
-                    NotebookInstanceName
+                    NotebookInstanceName:outputs.NotebookName
                 }).promise()
             }
         })

@@ -8,7 +8,7 @@ module.exports={
             "action": "aws:runShellScript",
             "name": "runShellScript",
             "inputs": {
-                "runCommand":[fs.readFileSync(`${__dirname}/scripts/conda.sh`,'utf-8')]
+                "runCommand":[fs.readFileSync(`${__dirname}/commands/scripts/conda.sh`,'utf-8')]
             }
         },
         {

@@ -11,7 +11,8 @@
             {"name":"account","value":"${AWS::AccountId}"},
             {"name":"version","value":"${Constants.Version}"},
             {"name":"build-date","value":"${Constants.BuildDate}"},
-            {"name":"vpc","value":"${VPC.Outputs.VPC}"}
+            {"name":"vpc","value":"${VPC.Outputs.VPC}"},
+            {"name":"SSM Automation Role","value":"${SSM.Outputs.AutomationRole}"}
         ],
         "links":[
             {

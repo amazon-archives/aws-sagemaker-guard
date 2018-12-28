@@ -1,27 +1,53 @@
+var _=require('lodash')
+
+var params=_.fromPairs(_.keys(_.omit(require('../../../instance/params'),["OnCreateDocument","OnTerminateDocument","OnStartDocument"]))
+        .map(x=>[x,[{"Ref":x}]]))
+
+params.InstanceId=[{"Fn::GetAtt":["WaitConditionData","id"]}]
+params.StackName=[{"Ref":"AWS::StackName"}]
+params.RoleArn=[{"Fn::GetAtt":["Role","Arn"]}]
+
 module.exports={
-    "InitDocument":{
-        "Type" : "AWS::SSM::Document",
-        "Properties" : {
-            Content:require('./init'),
-            DocumentType:"Command"
+    "RunStartDocument":{
+        "Type": "Custom::RunDocument",
+        "Condition":"IfOnStartDocument", 
+        "DependsOn":["SageMakerNotebookInstance"],
+        "Properties":{
+            "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
+            "event":"Create",
+            "config":{
+                "DocumentName":{"Ref":"OnStartDocument"},
+                Parameters:params,
+                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+            }
         }
     },
     "RunTerminateDocument":{
         "Type": "Custom::RunDocument",
         "Condition":"IfOnTerminateDocument", 
-        "Properties":{
-            "ServiceToken": { "Fn::GetAtt" : ["SSMRunDeleteLambda", "Arn"] },
-            "DocumentName":{"Ref":"InitDocument"},
-            InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
-        }
-    },
-    "RunInitDocument":{
-        "Type": "Custom::RunDocument",
-        "DependsOn":["InstanceSSMTags","NoteBookPolicy"],
+        "DependsOn":["SageMakerNotebookInstance"],
         "Properties":{
             "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
-            "DocumentName":{"Ref":"InitDocument"},
-            InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+            "event":"Delete",
+            "config":{
+                "DocumentName":{"Ref":"OnTerminateDocument"},
+                Mode:"Auto",
+                Parameters:params
+            }
+        }
+    },
+    "RunCreateDocument":{
+        "Type": "Custom::RunDocument",
+        "Condition":"IfOnCreateDocument", 
+        "DependsOn":["SageMakerNotebookInstance"],
+        "Properties":{
+            "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
+            "event":"Create",
+            "config":{
+                "DocumentName":{"Ref":"OnCreateDocument"},
+                Mode:"Auto",
+                Parameters:params
+            }
         }
     },
     "InstanceSSMTags":{

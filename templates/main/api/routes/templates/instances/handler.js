@@ -18,8 +18,9 @@ exports.handler=function(event,context,callback){
     }).promise()
     .then(result=>{
         var template=JSON.parse(result.Body.toString())
-        var out=_.keys(template.Parameters)
+        var out=_.keys(_.omit(template.Parameters,["OnCreateDocument","OnTerminateDocument","OnStartDocument"]))
         out.push("StackName")
+        out.push("InstanceId")
         return out
     })
 
@@ -42,7 +43,6 @@ exports.handler=function(event,context,callback){
             }).promise()
             .then(x=>{
                 x.PriceList.filter(y=>y.product.attributes.instanceType.match(/.*-Notebook/))
-                .map(y=>{console.log(y);return y})
                 .map(y=>list.push({
                     type:y.product.attributes.instanceType.match(/(.*)-Notebook/)[1],
                     cpus:y.product.attributes.vCpu,
@@ -66,51 +66,7 @@ exports.handler=function(event,context,callback){
             `vCPUs:${y.cpus} Memory:${y.ram}` :
             `vCPUs:${y.cpus} Memory:${y.ram} GPUs:${y.gpu}`
     }}))
-    var documents=new Promise(function(res,rej){
-        var out=[]
-
-        function next(token){
-            Promise.all([ssm.listDocuments({
-                DocumentFilterList:[{
-                    key:"PlatformTypes",
-                    value:"Linux"
-                },
-                {
-                    key:"DocumentType",
-                    value:"Command"
-                }],
-                NextToken:token
-            }).promise(),params])
-            .then(results=>{
-                var result=results[0]
-                var param=results[1]
-                
-                Promise.all(result.DocumentIdentifiers
-                    .map(x=>ssm.getDocument({
-                        Name:x.Name
-                    }).promise())
-                ).then(x=>{
-                    x.filter(y=>{
-                        console.log(y,param)
-                        return _.xor(
-                            _.keys(JSON.parse(y.Content).parameters),
-                            param
-                        ).length===0
-                    })
-                    .forEach(y=>out.push(_.omit(y,'Content')))
-                    
-                    if(result.NextToken){
-                        next(result.NextToken)
-                    }else{
-                        res(out)
-                    }
-                })
-                .catch(rej)
-            })
-            .catch(rej)
-        }
-        next()
-    })
+    
     var roles=new Promise(function(res,rej){
         var out=[]
 
@@ -190,7 +146,19 @@ exports.handler=function(event,context,callback){
         roles,
         endpoints,
         instances,
-        documents,
+        documents([{
+                key:"PlatformTypes",
+                value:"Linux"
+            },
+            {
+                key:"DocumentType",
+                value:"Command"
+        }],params),
+        documents([
+            {
+                key:"DocumentType",
+                value:"Automation"
+        }],params),
         params
     ])
     .then(result=>callback(null,{
@@ -198,8 +166,9 @@ exports.handler=function(event,context,callback){
         roles:result[1],
         endpoints:result[2],
         instances:result[3],
-        documents:result[4],
-        params:result[5]
+        commands:result[4],
+        automation:result[5],
+        params:result[6]
     }))
     .catch(error=>{
         console.log(error)
@@ -219,4 +188,52 @@ function filterRoles(result){
     return doc.Statement
         .filter(x=>x.Principal.Service==="sagemaker.amazonaws.com")
         .length
+}
+
+function documents(filter,params){
+    return new Promise(function(res,rej){
+        var out=[]
+
+        function next(token){
+            Promise.all([ssm.listDocuments({
+                DocumentFilterList:filter,
+                NextToken:token
+            }).promise()
+            ,params])
+            .then(results=>{
+                console.log(JSON.stringify(results,null,2))
+                var result=results[0].DocumentIdentifiers
+                    .filter(x=>!x.Name.match(/^AWS-/))
+                var param=results[1]
+                
+                Promise.all(result.map(x=>ssm.describeDocument({
+                        Name:x.Name
+                    }).promise())
+                ).then(x=>{
+                    x.filter(y=>{
+                        console.log(
+                            y.Document.Parameters.map(z=>z.Name),
+                            param
+                        )
+                        return _.xor(
+                            y.Document.Parameters.map(z=>z.Name),
+                            param
+                        ).length===0
+                    })
+                    .forEach(y=>{
+                        out.push(_.omit(y.Document,'Parameters'))
+                    })
+                    
+                    if(results[0].NextToken){
+                        next(results[0].NextToken)
+                    }else{
+                        res(out)
+                    }
+                })
+                .catch(rej)
+            })
+            .catch(rej)
+        }
+        next()
+    })
 }

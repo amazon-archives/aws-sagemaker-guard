@@ -13,7 +13,7 @@ module.exports=Object.assign({
         "Properties": {
             InstanceType:{"Ref":"InstanceType"},
             NotebookInstanceName:{"Ref":"AWS::StackName"},
-            RoleArn:{"Ref":"RoleArn"},
+            RoleArn:{"Fn::GetAtt":["Role","Arn"]},
             LifecycleConfigName:{"Fn::GetAtt":["SageMakerNotebookLifecycle","NotebookInstanceLifecycleConfigName"]},
             SecurityGroupIds:[{"Ref":"SecurityGroupId"}],
             SubnetId:{"Ref":"SubnetId"},
@@ -96,28 +96,5 @@ module.exports=Object.assign({
           "Timeout" : JSON.stringify(60*15),
           "Count"   : "1"
        }
-    },
-    "NoteBookPolicy": {
-      "Type": "AWS::IAM::ManagedPolicy",
-      "Properties": {
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [   
-                "ssm:SendCommand"
-              ],
-              "Resource": [
-                /*{"Fn::Sub":"arn:aws:ssm:*:*:document/${OnStartDocument}"},
-                {"Fn::Sub":"arn:aws:ssm:*:*:document/${OnCreateDocument}"},
-                {"Fn::Sub":"arn:aws:ssm:*:*:managed-instance/${WaitConditionData.id}"},*/
-                "*"
-              ],
-            }
-          ]
-        },
-        "Roles":[{"Ref":"RoleName"},{"Ref":"SSMRole"}]
-      }
     }
 },require('./ssm'))

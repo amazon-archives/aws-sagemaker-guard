@@ -73,12 +73,3 @@ if [ "${GlueDevEndpoint}" != "EMPTY" ]; then
     python3 /home/ec2-user/glue/bootstrap.py --devendpointname $DEV_ENDPOINT_NAME --endpoint https://glue.${AWS::Region}.amazonaws.com --notebookname $ID
     sudo touch /home/ec2-user/glue_ready
 fi
-
-
-if [ "${OnStartDocument}" != "EMPTY" ]; then 
-    aws ssm send-command                                                \
-        --document-name "${OnStartDocument}"                            \
-        --targets "Key=instanceids,Values=$ID"                          \
-        --comment "OnStart script for instance ${AWS::StackName}:$ID"   \
-        --parameters "{{{params}}}"
-fi

@@ -11,7 +11,12 @@ var params={
     LogsBucket:{
         "Type":"String"
     },
-
+    "AssetBucket":{
+        "Type":"String",
+    },
+    "AssetPrefix":{
+        "Type":"String",
+    },
 }
 
 module.exports={
@@ -27,12 +32,15 @@ module.exports={
         )
   ),
   "Outputs":{
-    
+    "AutomationRole":{
+        "Value":{"Ref":"SSMAutomationRole"}    
+    }
   },
   "Resources":Object.assign({},
     require('./cfn'),
     require('./ssm'),
-    require('./glue')
+    require('./glue'),
+    require('./roles')
   ),
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description":"",

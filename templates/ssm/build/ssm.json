@@ -8,10 +8,22 @@
     },
     "LogsBucket": {
       "Type": "String"
+    },
+    "AssetBucket": {
+      "Type": "String"
+    },
+    "AssetPrefix": {
+      "Type": "String"
     }
   },
   "Conditions": {},
-  "Outputs": {},
+  "Outputs": {
+    "AutomationRole": {
+      "Value": {
+        "Ref": "SSMAutomationRole"
+      }
+    }
+  },
   "Resources": {
     "SSMAssociationLambda": {
       "Type": "AWS::Lambda::Function",
@@ -127,6 +139,503 @@
             }
           ]
         }
+      }
+    },
+    "BYODCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "install SageMaker BYOD project template",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! bin/bash\nset -x\ncd /home/ec2-user/SageMaker\n\ngit clone https://github.com/aws-samples/amazon-sagemaker-BYOD-template.git\ncd amazon-sagemaker-BYOD-template\nnpm install\nBUCKET=$(aws cloudformation describe-stacks --stack-name {{BucketStack}}-bucket --query \"Stacks[0].Outputs[0].OutputValue\")\n\ncat > ./config.js <<- EOM\n    var out={\n        assetBucket:$BUCKET,\n        assetPrefix:\"BYOD\",\n        namespace:\"dev\",\n        profile:\"default\",\n        region:\"{{global:REGION}}\",\n        parameters:{}\n    }\n    out.parameters.AssetBucket=out.assetBucket\n    out.parameters.AssetPrefix=out.assetPrefix\n\n    module.exports=out\nEOM\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "BucketStack": {
+              "type": "String"
+            }
+          }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "HelloWorldCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "Command Document Example JSON Template",
+          "parameters": {
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "example",
+              "inputs": {
+                "runCommand": [
+                  "echo 'hello'"
+                ]
+              }
+            }
+          ]
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "InstallCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "install conda requirements",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA install --yes --name JupyterSystemEnv --file $TMP\nrm $TMP\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "requirements": {
+              "type": "String",
+              "default": "Enabled",
+              "displayType": "textarea"
+            }
+          }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "UninstallCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "install conda requirements",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA uninstall --yes --name JupyterSystemEnv $( cat $TMP | tr -d '\\n' )\nrm $TMP\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "requirements": {
+              "type": "String",
+              "default": "Enabled",
+              "displayType": "textarea"
+            }
+          }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "BYODAutomationDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "0.3",
+          "description": "Command Document Example JSON Template",
+          "assumeRole": {
+            "Fn::GetAtt": [
+              "SSMAutomationRole",
+              "Arn"
+            ]
+          },
+          "parameters": {
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:createStack",
+              "name": "start",
+              "inputs": {
+                "StackName": "{{StackName}}-bucket",
+                "TemplateURL": {
+                  "Fn::Sub": "https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/bucket.json"
+                },
+                "Capabilities": [
+                  "CAPABILITY_IAM"
+                ],
+                "Parameters": [
+                  {
+                    "ParameterValue": "{{RoleArn}}",
+                    "ParameterKey": "RoleArn"
+                  },
+                  {
+                    "ParameterValue": "{{StackName}}",
+                    "ParameterKey": "NotebookInstance"
+                  }
+                ]
+              }
+            },
+            {
+              "action": "aws:runCommand",
+              "name": "install",
+              "inputs": {
+                "DocumentName": {
+                  "Ref": "BYODCommandDocument"
+                },
+                "InstanceIds": [
+                  "{{InstanceId}}"
+                ],
+                "Parameters": {
+                  "BucketStack": "{{StackName}}-bucket"
+                }
+              }
+            }
+          ]
+        },
+        "DocumentType": "Automation"
+      }
+    },
+    "CreateBucketAutomationDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "0.3",
+          "description": "Command Document Example JSON Template",
+          "assumeRole": {
+            "Fn::GetAtt": [
+              "SSMAutomationRole",
+              "Arn"
+            ]
+          },
+          "parameters": {
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:createStack",
+              "name": "start",
+              "inputs": {
+                "StackName": "{{StackName}}-bucket",
+                "TemplateURL": {
+                  "Fn::Sub": "https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/bucket.json"
+                },
+                "Capabilities": [
+                  "CAPABILITY_IAM"
+                ],
+                "Parameters": [
+                  {
+                    "ParameterValue": "{{RoleArn}}",
+                    "ParameterKey": "RoleArn"
+                  },
+                  {
+                    "ParameterValue": "{{StackName}}",
+                    "ParameterKey": "NotebookInstance"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "DocumentType": "Automation"
+      }
+    },
+    "DeleteBucketAutomationDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "0.3",
+          "description": "Command Document Example JSON Template",
+          "assumeRole": {
+            "Fn::GetAtt": [
+              "SSMAutomationRole",
+              "Arn"
+            ]
+          },
+          "parameters": {
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:deleteStack",
+              "name": "start",
+              "inputs": {
+                "StackName": "{{StackName}}-bucket"
+              }
+            }
+          ]
+        },
+        "DocumentType": "Automation"
       }
     },
     "InstanceInventory": {
@@ -253,182 +762,6 @@
         "DocumentType": "Command"
       }
     },
-    "InstallDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "2.2",
-          "description": "install conda requirements",
-          "mainSteps": [
-            {
-              "action": "aws:runShellScript",
-              "name": "runShellScript",
-              "inputs": {
-                "runCommand": [
-                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA install --yes --name JupyterSystemEnv --file $TMP\nrm $TMP\n"
-                ]
-              }
-            }
-          ],
-          "parameters": {
-            "requirements": {
-              "type": "String",
-              "default": "Enabled",
-              "displayType": "textarea"
-            }
-          }
-        },
-        "Tags": [
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        ],
-        "DocumentType": "Command"
-      }
-    },
-    "UninstallDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "2.2",
-          "description": "install conda requirements",
-          "mainSteps": [
-            {
-              "action": "aws:runShellScript",
-              "name": "runShellScript",
-              "inputs": {
-                "runCommand": [
-                  "#! /bin/bash\n\nset -ex\nCONDA=/home/ec2-user/anaconda3/bin/conda\nTMP=/home/ec2-user/tmp\n\ncat >> $TMP<<- EOM\n{{ requirements }}\nEOM\n\n$CONDA uninstall --yes --name JupyterSystemEnv $( cat $TMP | tr -d '\\n' )\nrm $TMP\n"
-                ]
-              }
-            }
-          ],
-          "parameters": {
-            "requirements": {
-              "type": "String",
-              "default": "Enabled",
-              "displayType": "textarea"
-            }
-          }
-        },
-        "Tags": [
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        ],
-        "DocumentType": "Command"
-      }
-    },
-    "ExampleDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "2.2",
-          "description": "Command Document Example JSON Template",
-          "parameters": {
-            "OnStartDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "OnCreateDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "ParentStack": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SSMLogGroup": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LogsBucket": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "EFS": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "InstanceType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "RoleArn": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "KmsKeyId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SecurityGroupId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SubnetId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "DirectInternetAccess": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "IdleShutdown": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "GlueDevEndpoint": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "StackName": {
-              "type": "String"
-            }
-          },
-          "mainSteps": [
-            {
-              "action": "aws:runShellScript",
-              "name": "example",
-              "inputs": {
-                "runCommand": [
-                  "echo 'hello'"
-                ]
-              }
-            }
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        ],
-        "DocumentType": "Command"
-      }
-    },
     "DataCatalog": {
       "Type": "AWS::Glue::Database",
       "Properties": {
@@ -499,6 +832,31 @@
             }
           ]
         }
+      }
+    },
+    "SSMAutomationRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com",
+                  "ssm.amazonaws.com"
+                ]
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
+          "arn:aws:iam::aws:policy/AdministratorAccess"
+        ]
       }
     }
   },

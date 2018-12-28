@@ -14,6 +14,9 @@ module.exports={
                 {"Fn::Not":[{"Fn::Equals":[{"Ref":x},"EMPTY"]}]}
             ]
         ).concat([[
+            "IfCreateRole",
+            {"Fn::Equals":[{"Ref":"RoleArn"},"CREATE"]}
+        ],[
             "IfSecurityGroupId",
             {"Fn::Not":[{"Fn::Equals":[{"Ref":"SecurityGroupId"},""]}]}
         ],[
@@ -27,6 +30,12 @@ module.exports={
     },
     "InstanceID":{
         "Value":{"Fn::GetAtt":["WaitConditionData","id"]}
+    },
+    "JupyterProxyCFNLambda":{
+        "Value":{ "Fn::GetAtt" : ["JupyterApiProxyLambda", "Arn"] }
+    },
+    "RoleArn":{
+        "Value":{"Fn::GetAtt":["Role","Arn"]}
     }
   },
   "Resources":Object.assign({},

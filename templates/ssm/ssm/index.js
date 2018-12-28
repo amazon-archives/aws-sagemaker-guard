@@ -1,9 +1,25 @@
+var fs=require('fs')
+var _=require('lodash')
+
+var commands=_.fromPairs(fs.readdirSync(`${__dirname}/commands`)
+    .map(x=>x.match(/(.*)\.js/))
+    .filter(x=>x)
+    .map(x=>x[1])
+    .map(x=>[`${x}CommandDocument`,command(x)]))
+
+var automations=_.fromPairs(fs.readdirSync(`${__dirname}/automation`)
+    .map(x=>x.match(/(.*)\.js/))
+    .filter(x=>x)
+    .map(x=>x[1])
+    .map(x=>[`${x}AutomationDocument`,automation(x)]))
+
 var Tags=[{
     Key:"StackName",
     Value:{"Ref":"AWS::StackName"}
 }]
 
-module.exports={
+
+module.exports=Object.assign(commands,automations,{
     "InstanceInventory":{
         "Type": "AWS::SSM::Association",
         "Properties":{
@@ -41,33 +57,31 @@ module.exports={
     "InventoryDocument":{
         "Type" : "AWS::SSM::Document",
         "Properties" : {
-            Content:require('./inventory-doc'),
+            Content:require('./inventory'),
             Tags,
             DocumentType:"Command"
         }
-    },
-    "InstallDocument":{
+    }
+})
+function automation(name){
+    return {
         "Type" : "AWS::SSM::Document",
         "Properties" : {
-            Content:require('./install-doc'),
+            Content:require(`./automation/${name}`),
             Tags,
-            DocumentType:"Command"
+            DocumentType:"Automation"
         }
-    },
-    "UninstallDocument":{
+    }
+}
+function command(name){
+    return {
         "Type" : "AWS::SSM::Document",
         "Properties" : {
-            Content:require('./uninstall-doc'),
-            Tags,
-            DocumentType:"Command"
-        }
-    },
-    "ExampleDocument":{
-        "Type" : "AWS::SSM::Document",
-        "Properties" : {
-            Content:require('./example-doc'),
+            Content:require(`./commands/${name}`),
             Tags,
             DocumentType:"Command"
         }
     }
 }
+
+

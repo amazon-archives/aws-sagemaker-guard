@@ -1,0 +1,210 @@
+{
+  "Resources": {
+    "JupyterApiProxyLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION || 'us-east-1'\nvar sagemaker=new aws.SageMaker()\nvar https=require('https')\nvar URL=require('url')\n\nexports.send=send\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties[event.RequestType.toLowerCase()]\n    \n    if(params){\n        console.log(params)\n        send(params).then(result=>{\n            console.log(result)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\nfunction send(args){\n    return sagemaker.createPresignedNotebookInstanceUrl({\n        NotebookInstanceName:args.InstanceName\n    }).promise()\n    .then(function(result){ \n        console.log(result)\n        var url=URL.parse(result.AuthorizedUrl)\n        console.log(url)\n        return new Promise(function(res,rej){ \n            var opts={\n                hostname:url.hostname,\n                protocol:url.protocol,\n                post:443,\n                path:`${url.pathname}${url.search}`,\n                method:'GET'\n            }\n            console.log(opts)\n            var req=https.request(opts,x=>{\n                opts.headers={\n                    Cookie:x.headers['set-cookie'].join('; ')\n                }\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=args.path\n                opts.method=args.method\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        var body=[]\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,response=>{\n                response.on('data',chunk=>{\n                    body.push(chunk)\n                })\n                response.on('end',()=>{\n                    res(Buffer.concat(body).toString())\n                })\n            })\n            if(args.body){\n                req.write(args.body)\n            }\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(x=>{\n        try{\n            return JSON.parse(x)\n        }catch(e){\n            return x\n        }\n    })\n}\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "RoleNameLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response = require('cfn-response')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    try{\n        var params=event.ResourceProperties\n        var name=params.Arn.match(/arn:.*:.*::.*:role\\/(.*)/)[1]\n\n        response.send(event, context, response.SUCCESS,params,name)\n    }catch(e){\n        console.log(e)\n        response.send(event, context, response.FAILED,params,name)\n    }\n}\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "S3ClearLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response = require('cfn-response')\nvar aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION\nvar s3=new aws.S3()\n\nexports.handler = function(event, context) {\n    console.log(JSON.stringify(event,null,2))\n\n    if(event.RequestType===\"Delete\"){\n        Delete(event.ResourceProperties)\n        .then(()=>response.send(event, context, response.SUCCESS))\n        .catch(x=>{\n            console.log(x)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\nfunction Delete(params){\n    return new Promise(function(res,rej){\n        function next(){\n            s3.listObjectVersions({\n                Bucket:params.Bucket\n            }).promise()\n            .then(x=>x.Versions.concat(x.DeleteMarkers))\n            .then(function(files){\n                return files.map(file=>{return {\n                    Key:file.Key,\n                    VersionId:file.VersionId\n                }  })\n            })\n            .then(function(keys){\n                console.log(\"going to delete\",keys)\n                if(keys.length>0){ \n                    return s3.deleteObjects({\n                        Bucket:params.Bucket,\n                        Delete:{\n                            Objects:keys\n                        }\n                    }).promise()\n                    .then(()=>next())\n                    .catch(rej)\n                }else{\n                    res()\n                }\n            })\n        }\n        next()\n    })\n}\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "CFNLambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess",
+          {
+            "Ref": "CFNLambdaPolicy"
+          }
+        ]
+      }
+    },
+    "CFNLambdaPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:*"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:aws:s3:::${Bucket}*"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Status": "Enabled",
+              "NoncurrentVersionExpirationInDays": 1
+            }
+          ]
+        }
+      }
+    },
+    "Clear": {
+      "Type": "Custom::S3Clear",
+      "DependsOn": [
+        "CFNLambdaPolicy"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "S3ClearLambda",
+            "Arn"
+          ]
+        },
+        "Bucket": {
+          "Ref": "Bucket"
+        }
+      }
+    },
+    "RoleName": {
+      "Type": "Custom::S3Clear",
+      "DependsOn": [
+        "CFNLambdaPolicy"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "RoleNameLambda",
+            "Arn"
+          ]
+        },
+        "Arn": {
+          "Ref": "RoleArn"
+        }
+      }
+    },
+    "AccessPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:*"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:aws:s3:::${Bucket}*"
+                }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cloudformation:DescribeStacks"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:aws:cloudformation:*:*:stack/${AWS::StackName}"
+                }
+              ]
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "RoleName"
+          }
+        ]
+      }
+    }
+  },
+  "Conditions": {},
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Bootstrap bucket for QnABot assets",
+  "Mappings": {},
+  "Outputs": {
+    "Bucket": {
+      "Value": {
+        "Ref": "Bucket"
+      }
+    }
+  },
+  "Parameters": {
+    "RoleArn": {
+      "Type": "String"
+    },
+    "NotebookInstance": {
+      "Type": "String"
+    }
+  }
+}
