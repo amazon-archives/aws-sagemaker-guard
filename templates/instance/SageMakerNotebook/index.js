@@ -9,14 +9,25 @@ params=params.join(',')
 
 module.exports=Object.assign({
     "SageMakerNotebookInstance":{
-        "Type": "AWS::SageMaker::NotebookInstance",
+        "Type": "Custom::NotebookInstance",
         "Properties": {
+            "ServiceToken": { "Fn::GetAtt" : ["NotebookLambda", "Arn"] },
             InstanceType:{"Ref":"InstanceType"},
             NotebookInstanceName:{"Ref":"AWS::StackName"},
             RoleArn:{"Fn::GetAtt":["Role","Arn"]},
             LifecycleConfigName:{"Fn::GetAtt":["SageMakerNotebookLifecycle","NotebookInstanceLifecycleConfigName"]},
             SecurityGroupIds:[{"Ref":"SecurityGroupId"}],
             SubnetId:{"Ref":"SubnetId"},
+            DefaultCodeRepository:{"Fn::If":[
+                "IfCodeRepository",
+                {"Ref":"CodeRepository"},
+                {"Ref":"AWS::NoValue"}
+            ]},
+            AcceleratorTypes:{"Fn::If":[
+                "IfAcceleratorType",
+                [{"Ref":"AcceleratorType"}],
+                {"Ref":"AWS::NoValue"}
+            ]},
             KmsKeyId:{"Fn::If":[
                 "IfKmsKeyId",
                 {"Ref":"KmsKeyId"},

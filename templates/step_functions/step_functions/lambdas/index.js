@@ -76,6 +76,7 @@ function lambda(name,type){
         "MemorySize": "1024",
         "Role": {"Fn::GetAtt": ["StepLambdaRole","Arn"]},
         "Runtime": "nodejs6.10",
+        Layers:[{"Ref":"LambdaUtilLayer"}],
         "Environment":{
             "Variables":{
                 DIRECTORY:{"Ref":"Directory"},
@@ -88,7 +89,8 @@ function lambda(name,type){
                 SECURITYGROUP:{"Ref":"SecurityGroup"},
                 EFS:{"Ref":"EFS"},
                 SSMLOGGROUP:{"Ref":"SSMLogGroup"},
-                LOGSBUCKET:{"Ref":"LogsBucket"}
+                LOGSBUCKET:{"Ref":"LogsBucket"},
+                LAMBDAUTILLAYER:{"Ref":"LambdaUtilLayer"}
             }
         },
         "TracingConfig":{

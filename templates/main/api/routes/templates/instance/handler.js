@@ -3,6 +3,7 @@ aws.config.region=process.env.AWS_REGION
 var send=require('request').send
 var _=require('lodash')
 var cd=new aws.CloudDirectory()
+var cf=new aws.CloudFormation()
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
@@ -24,21 +25,37 @@ exports.handler=function(event,context,callback){
     ])
     .then(results=>{
         console.log(JSON.stringify(results,null,2))
-        var objectAttributes=results[0].Attributes
-        var schema=results[1].collection.template.data.schema
-        delete schema.required
-        schema.properties=_.omit(
-            _.pickBy(schema.properties,(value,key)=>!value.immutable),
-            ["InstanceType"])
+        var attributes=_.fromPairs(results[0].Attributes.map(x=>[x.Key.name,x.Value.StringValue]))
 
-        objectAttributes.forEach(x=>{
-            if(schema.properties[x.Key.name]){
-                schema.properties[x.Key.name].default=x.Value.StringValue
+        cf.describeStacks({
+            StackName:attributes.StackName
+        }).promise()
+        .then(cf_results=>{
+            var status=cf_results.Stacks[0].StackStatus
+            var state=_.fromPairs(cf_results.Stacks[0]
+                .Outputs.map(x=>[x.OutputKey,x.OutputValue])).State
+
+            var updateable=["DisplayName","Description","IdleShutdown","OnTerminateDocument","OnStopDocument"]
+            if(status.match(/.*_COMPLETE/) && state==="OFF"){
+                updateable=updateable.concat([
+                    "OnStartDocument","GlueDevEndpoint","RoleArn","InstanceType","AcceleratorTypes","AdditionalCodeRepositories","DefaultCodeRepository"
+                ])
             }
+            var schema=results[1].collection.template.data.schema
+            schema.required=_.intersection(schema.required,updateable)
+            
+            schema.properties=_.pick(
+                _.pickBy(schema.properties,(value,key)=>!value.immutable),
+                updateable
+            )
+            _.each(attributes,(key,value)=>{
+                if(schema.properties[key]){
+                    schema.properties[key].default=value
+                }
+            })
+            console.log(JSON.stringify(schema,null,2))
+            callback(null,schema)
         })
-        
-        console.log(JSON.stringify(schema,null,2))
-        callback(null,schema)
     })
     .catch(error=>{
         console.log(error)

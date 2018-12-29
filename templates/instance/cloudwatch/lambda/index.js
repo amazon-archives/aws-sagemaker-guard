@@ -61,12 +61,14 @@ function lambda(name){
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
+        Layers:[{"Ref":"LambdaUtilLayer"}],
         "Role": {"Fn::GetAtt": ["CloudWatchLambdaRole","Arn"]},
         "Runtime": "nodejs6.10",
         "Environment":{
             "Variables":{
                 "INSTANCE":{"Fn::GetAtt":["SageMakerNotebookInstance","NotebookInstanceName"]},
-                "IDLETIME":{"Ref":"IdleShutdown"}
+                "IDLETIME":{"Ref":"IdleShutdown"},
+                "STACKNAME":{"Ref":"AWS::StackName"}
             }
         },
         "TracingConfig":{

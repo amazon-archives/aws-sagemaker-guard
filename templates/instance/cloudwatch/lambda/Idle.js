@@ -1,6 +1,7 @@
 var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION || 'us-east-1'
 var sagemaker=new aws.SageMaker()
+var cf=new aws.CloudFormation()
 var https=require('https')
 var URL=require('url')
 
@@ -24,9 +25,7 @@ exports.handler=(event,context,cb)=>{
                 return now-last < timeout 
             }).length
         }else{
-            return sagemaker.stopNotebookInstance({
-                NotebookInstanceName:process.env.INSTANCE,
-            }).promise()
+            return stop()
         }
         if(!busy){
             send({
@@ -43,15 +42,43 @@ exports.handler=(event,context,cb)=>{
                         path:`/api/contents/${path}/checkpoints`,
                         method:"POST"
                     })))
-                    .then(x=>sagemaker.stopNotebookInstance({
-                        NotebookInstanceName:process.env.INSTANCE,
-                    }).promise())    
+                    .then(stop)
                 }
             })
             .then(console.log)
         }
     })
     .catch(console.log)
+}
+
+function stop(){
+    return cf.describeStacks({
+        StackName:stackname
+    }).promise()
+    .then(x=>{
+        if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(x.Stacks[0].StackStatus)){
+            var Parameters=_.fromPairs(x.Stacks[0].Parameters
+                    .map(y=>[y.ParameterKey,y.ParameterValue]))
+            
+            Parameters.State="OFF"
+            return cf.updateStack({
+                StackName:result.attributes.StackName,
+                Capabilities:["CAPABILITY_NAMED_IAM"],
+                UsePreviousTemplate:true,
+                Parameters:_.toPairs(Parameters).map(y=>{return{
+                    ParameterKey:y[0],
+                    ParameterValue:y[1]
+                }})
+            }).promise()
+            .catch(error=>{
+                if(error.message!=="No updates are to be performed."){
+                    throw error
+                }
+            })
+        }else{
+            throw new Error(`Stack currently in state ${x.Stacks[0].StackStatus}`)
+        }
+    })
 }
 
 function send(args){

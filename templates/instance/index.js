@@ -20,11 +20,17 @@ module.exports={
             "IfSecurityGroupId",
             {"Fn::Not":[{"Fn::Equals":[{"Ref":"SecurityGroupId"},""]}]}
         ],[
+            "TurnOff",
+            {"Fn::Equals":[{"Ref":"State"},"OFF"]}
+        ],[
+            "TurnOn",
+            {"Fn::Equals":[{"Ref":"State"},"ON"]}
+        ],[
             "IfDisableDirectInternet",
             {"Fn::Not":[{"Fn::Equals":[{"Ref":"DirectInternetAccess"},"Enabled"]}]}
         ]])
   ),
-  "Outputs":{
+  "Outputs":Object.assign({
     "NoteBookName":{
         "Value":{"Fn::GetAtt":["SageMakerNotebookInstance","NotebookInstanceName"]}
     },
@@ -36,16 +42,22 @@ module.exports={
     },
     "RoleArn":{
         "Value":{"Fn::GetAtt":["Role","Arn"]}
-    }
-  },
+    },
+    "State":{
+        "Value":{"Ref":"State"}
+    },
+  },_.fromPairs(_.toPairs(require('./api'))
+    .filter(x=>x[1].Type==="AWS::Lambda::Function")
+    .map(x=>[x[0],{"Value":{"Ref":x[0]}}]))
+  ),
   "Resources":Object.assign({},
     require('./cfn'),
     require('./SageMakerNotebook'),
     require('./cloudwatch'),
-    require('./var')
+    require('./var'),
+    require('./api')
   ),
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description":"",
   
 }
-console.log(JSON.stringify(module.exports.Conditions))

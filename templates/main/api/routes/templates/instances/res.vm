@@ -27,6 +27,34 @@
                         "type":"string",
                         "maxLength":500
                     },
+                    #if( $inputRoot.repos.length() != 0)
+                    "CodeRepository":{
+                        "description":"A git repository to associate with the notebook instance as its default code repository. When you open a notebook instance, it opens in the directory that contains this repository.",
+                        "title":"Git Code Repository",
+                        "enum":[
+                            #foreach( $object in $inputRoot.repos)
+                            {
+                                "value":"$object.value",
+                                "text":"$object.value",
+                                "description":"$object.description"
+                            }#if( $foreach.hasNext ),#end
+                            #end
+                        ]
+                    },#end
+                    #if( $inputRoot.eia.length() != 0)
+                    "AcceleratorType":{
+                        "title":"Elastic Inference Accelerator",
+                        "description":"An Elastic Inference (EI) instance types to associate with this notebook instance",
+                        "enum":[
+                            #foreach( $object in $inputRoot.eia)
+                            {
+                                "value":"$object.value",
+                                "text":"$object.value",
+                                "description":"$object.description"
+                            }#if( $foreach.hasNext ),#end
+                            #end
+                        ]
+                    },#end
                     "InstanceType":{
                         "title":"Instance Compute Type",
                         "description":"The EC2 instance type for this notebook",
@@ -92,22 +120,7 @@
                         "enum":["Disabled","Enabled"],
                         "default":"Enabled"
                     },
-                    "IdleShutdown":{
-                        "title":"Idle Shutdown Wait Period in minutes",
-                        "description":"The number of minutes of inactivity before the instance is shutdown to save cost",
-                        "type":"string",
-                        "enum":[{
-                            "value":"30",
-                            "text":"30 minutes"
-                        },{
-                            "value":"45",
-                            "text":"45 minutes"
-                        },{
-                            "value":"60",
-                            "text":"1 hr"
-                        }],
-                        "default":"30"
-                    },
+                    
                     #if ($inputRoot.endpoints.length() != 0)
                     "GlueDevEndpoint":{
                         "title":"Glue development endpoints",
@@ -163,7 +176,23 @@
                                 "href":"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}"
                             }#if( $foreach.hasNext ),#end#end
                         ]
-                    }#end
+                    },#end
+                    "IdleShutdown":{
+                        "title":"Idle Shutdown Wait Period in minutes",
+                        "description":"The number of minutes of inactivity before the instance is shutdown to save cost",
+                        "type":"string",
+                        "enum":[{
+                            "value":"30",
+                            "text":"30 minutes"
+                        },{
+                            "value":"45",
+                            "text":"45 minutes"
+                        },{
+                            "value":"60",
+                            "text":"1 hr"
+                        }],
+                        "default":"30"
+                    }
                 },
                 "required":["ID","InstanceType","RoleArn"]
             }        

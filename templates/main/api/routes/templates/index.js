@@ -75,7 +75,7 @@ function template(name){
 
 function lambda(name,handler){
     var code=fs.readFileSync(__dirname+`/${name}/${handler}.js`,'utf-8')
-    var result = UglifyJS.minify(code,{mangle:false})
+    var result = UglifyJS.minify(code,{mangle:true})
     if(result.error) throw `${name} ${result.error}`
     if(result.code.length<4096){
         console.log(`API:${name}`, chalk.green(`${result.code.length}/4096`))

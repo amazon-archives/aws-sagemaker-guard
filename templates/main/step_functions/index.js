@@ -17,7 +17,8 @@ module.exports={
                 SecurityGroup:{"Fn::GetAtt":["VPC","Outputs.NoteBookSecurityGroup"]},
                 EFS:{"Fn::GetAtt":["VPC","Outputs.EFS"]},
                 SSMLogGroup:{"Ref":"SSMLogGroup"},
-                LogsBucket:{"Ref":"LogsBucket"}
+                LogsBucket:{"Ref":"LogsBucket"},
+                LambdaUtilLayer:{"Ref":"UtilLambdaLayer"}
             },
             "TemplateURL" :{"Fn::Sub":"https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/step_functions.json"},
         }

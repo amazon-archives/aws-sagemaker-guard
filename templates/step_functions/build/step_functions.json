@@ -31,6 +31,9 @@
     },
     "LogsBucket": {
       "Type": "String"
+    },
+    "LambdaUtilLayer": {
+      "Type": "String"
     }
   },
   "Outputs": {
@@ -174,6 +177,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -211,6 +219,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -241,6 +252,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -278,6 +294,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -308,6 +327,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -345,6 +369,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -375,6 +402,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -412,6 +444,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -442,6 +477,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -479,6 +519,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -509,6 +552,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -546,6 +594,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -576,6 +627,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -613,6 +669,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -632,7 +691,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cf=new aws.CloudFormation,cd=new aws.CloudDirectory,s3=new aws.S3;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),s3.getObject({Bucket:process.env.ASSETBUCKET,Key:`${process.env.ASSETPREFIX}/instance.json`}).promise().then(result=>{var template=JSON.parse(result.Body.toString()),Parameters={};return Object.keys(template.Parameters).map(x=>{event.Attributes[x]&&(Parameters[x]=event.Attributes[x])}),Parameters.SubnetId=process.env.SUBNET,Parameters.SecurityGroupId=process.env.SECURITYGROUP,Parameters.EFS=process.env.EFS,Parameters.SSMLogGroup=process.env.SSMLOGGROUP,Parameters.LogsBucket=process.env.LOGSBUCKET,Parameters.ParentStack=process.env.STACKNAME,cf.createStack({StackName:event.Attributes.StackName,Capabilities:[\"CAPABILITY_NAMED_IAM\"],EnableTerminationProtection:!0,OnFailure:\"DELETE\",RoleARN:process.env.STACKCREATEROLE,Parameters:Object.keys(Parameters).map(x=>({ParameterKey:x,ParameterValue:Parameters[x]})),TemplateURL:`https://s3.amazonaws.com/${process.env.ASSETBUCKET}/${process.env.ASSETPREFIX}/instance.json`,Tags:[{Key:\"ParentStack\",Value:process.env.STACKNAME}]}).promise()}).then(result=>{callback(null,result)})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cf=new aws.CloudFormation,cd=new aws.CloudDirectory,s3=new aws.S3;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),s3.getObject({Bucket:process.env.ASSETBUCKET,Key:`${process.env.ASSETPREFIX}/instance.json`}).promise().then(result=>{var template=JSON.parse(result.Body.toString()),Parameters={};return Object.keys(template.Parameters).map(x=>{event.Attributes[x]&&(Parameters[x]=event.Attributes[x])}),Parameters.SubnetId=process.env.SUBNET,Parameters.SecurityGroupId=process.env.SECURITYGROUP,Parameters.EFS=process.env.EFS,Parameters.SSMLogGroup=process.env.SSMLOGGROUP,Parameters.LogsBucket=process.env.LOGSBUCKET,Parameters.ParentStack=process.env.STACKNAME,Parameters.LambdaUtilLayer=process.env.LAMBDAUTILLAYER,cf.createStack({StackName:event.Attributes.StackName,Capabilities:[\"CAPABILITY_NAMED_IAM\"],EnableTerminationProtection:!0,OnFailure:\"DELETE\",RoleARN:process.env.STACKCREATEROLE,Parameters:Object.keys(Parameters).map(x=>({ParameterKey:x,ParameterValue:Parameters[x]})),TemplateURL:`https://s3.amazonaws.com/${process.env.ASSETBUCKET}/${process.env.ASSETPREFIX}/instance.json`,Tags:[{Key:\"ParentStack\",Value:process.env.STACKNAME},{Key:\"Accessable\",Value:\"true\"}]}).promise()}).then(result=>{callback(null,result)})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -643,6 +702,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -680,6 +744,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -710,6 +777,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -747,6 +819,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -777,6 +852,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -814,6 +894,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -844,6 +927,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -881,6 +969,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -911,6 +1002,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -948,6 +1044,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -978,6 +1077,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1015,6 +1119,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -1045,6 +1152,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1082,6 +1194,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },
@@ -1112,6 +1227,11 @@
           ]
         },
         "Runtime": "nodejs6.10",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Environment": {
           "Variables": {
             "DIRECTORY": {
@@ -1149,6 +1269,9 @@
             },
             "LOGSBUCKET": {
               "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
             }
           }
         },

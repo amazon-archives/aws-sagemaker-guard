@@ -2,6 +2,7 @@ var aws=require('aws-sdk')
 var response = require('cfn-response')
 aws.config.region=process.env.AWS_REGION
 var ssm=new aws.SSM()
+var util=require('ssm')
 var lambda=new aws.Lambda()
 
 exports.handler=function(event,context,callback){
@@ -36,7 +37,8 @@ exports.handler=function(event,context,callback){
                 response.send(event, context, response.FAILED)
             })
         }else{
-            start(event)
+            util.start(event.ResourceProperties.config)
+            .then(x=>Object.assign(event,x))
             .then(id=>{
                 setTimeout(()=>lambda.invoke({
                         FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,
@@ -60,23 +62,6 @@ exports.handler=function(event,context,callback){
     }
 }
 
-function start(event){
-    return ssm.getDocument({
-        Name:event.ResourceProperties.config.DocumentName
-    }).promise()
-    .then(x=>{
-        event.DocumentType=x.DocumentType
-        if(x.DocumentType==="Command"){
-            return ssm.sendCommand(event.ResourceProperties.config).promise()
-            .then(y=>event.id=y.Command.CommandId)
-        }else if(x.DocumentType==="Automation"){
-            return ssm.startAutomationExecution(event.ResourceProperties.config).promise()
-            .then(y=>event.id=y.AutomationExecutionId)
-        }else{
-            throw "invalid document type"
-        }
-    })
-}
 
 function get(event){
     if(event.DocumentType==="Command"){

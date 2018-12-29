@@ -1,6 +1,7 @@
 var aws=require('aws-sdk')
 var _=require('lodash')
 aws.config.region=process.env.AWS_REGION
+var _=require('lodash')
 var sagemaker=new aws.SageMaker()
 var lambda=new aws.Lambda()
 var cf=new aws.CloudFormation()
@@ -65,27 +66,18 @@ exports.handler=function(event,context,callback){
         }).promise()
         .then(result=>{
             console.log(JSON.stringify(result,null,2))
-            if(result.Stacks[0].Outputs.length>0){
-                var NotebookInstanceName=result.Stacks[0].Outputs
-                    .filter(x=>x.OutputKey==="NoteBookName")[0].OutputValue
-
-                return sagemaker.describeNotebookInstance({
-                    NotebookInstanceName
-                }).promise()
-                .then(y=>{
-                    if(y.NotebookInstanceStatus==="InService"){
-                        return {
-                            attributes:data.attributes,
-                            url:`https://${event.requestContext.domainPrefix}.execute-api.${event.stageVariables.Region}.amazonaws.com${event.requestContext.path}/login?Auth=${event.headers.Authorization}`
-                        }
-                    }else{
-                        return {
-                            attributes:data.attributes
-                        }
-                    }
-                })
+            var status=result.Stacks[0].StackStatus
+            data.attributes.status=status
+            var outputs=_.fromPairs(result.Stacks[0].Outputs
+                    .map(y=>[y.OutputKey,y.OutputValue]))
+            var state=outputs.State
+            data.attributes.state=state 
+            if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(status) && state==="ON"){
+                return {
+                    attributes:data.attributes,
+                    url:`https://${event.requestContext.domainPrefix}.execute-api.${event.stageVariables.Region}.amazonaws.com${event.requestContext.path}/login?Auth=${event.headers.Authorization}`
+                }
             }else{
-                data.attributes.NotebookInstanceStatus="Creating"
                 return {
                     attributes:data.attributes
                 }
@@ -111,8 +103,7 @@ exports.handler=function(event,context,callback){
                 }]
             }
         }
-        
-        if(body.attributes.NotebookInstanceStatus==="InService"){
+        if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(body.attributes.status) && body.attributes.state==="ON"){
             out.collection.template={
                 data:{
                     schema:{
@@ -128,7 +119,7 @@ exports.handler=function(event,context,callback){
                     prompt:"Turn Instance Off"
                 }
             }
-        }else if(body.attributes.NotebookInstanceStatus==="Stopped"){
+        }else if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(body.attributes.status) && body.attributes.state==="OFF"){
             out.collection.template={
                 data:{
                     schema:{

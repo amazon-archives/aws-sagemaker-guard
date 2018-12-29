@@ -2,6 +2,25 @@ var fs=require('fs')
 var _=require('lodash')
 
 module.exports={    
+    CodeRepository:{
+        "Type":"String",
+        "Default":"EMPTY"
+    },
+    AcceleratorType:{
+        "Type":"String",
+        "Default":"EMPTY"
+    },
+    State:{
+        "Type":"String",
+        "Default":"ON"
+    },
+    LambdaUtilLayer:{
+        "Type":"String"
+    },
+    OnStopDocument:{
+        "Type":"String",
+        "Default":"EMPTY"
+    },
     OnStartDocument:{
         "Type":"String",
         "Default":"EMPTY"

@@ -1,5 +1,24 @@
 {
   "Parameters": {
+    "CodeRepository": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
+    "AcceleratorType": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
+    "State": {
+      "Type": "String",
+      "Default": "ON"
+    },
+    "LambdaUtilLayer": {
+      "Type": "String"
+    },
+    "OnStopDocument": {
+      "Type": "String",
+      "Default": "EMPTY"
+    },
     "OnStartDocument": {
       "Type": "String",
       "Default": "EMPTY"
@@ -54,6 +73,54 @@
     }
   },
   "Conditions": {
+    "IfCodeRepository": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "CodeRepository"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfAcceleratorType": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "AcceleratorType"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfState": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "State"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
+    "IfOnStopDocument": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "OnStopDocument"
+            },
+            "EMPTY"
+          ]
+        }
+      ]
+    },
     "IfOnStartDocument": {
       "Fn::Not": [
         {
@@ -158,6 +225,22 @@
         }
       ]
     },
+    "TurnOff": {
+      "Fn::Equals": [
+        {
+          "Ref": "State"
+        },
+        "OFF"
+      ]
+    },
+    "TurnOn": {
+      "Fn::Equals": [
+        {
+          "Ref": "State"
+        },
+        "ON"
+      ]
+    },
     "IfDisableDirectInternet": {
       "Fn::Not": [
         {
@@ -203,6 +286,21 @@
           "Arn"
         ]
       }
+    },
+    "State": {
+      "Value": {
+        "Ref": "State"
+      }
+    },
+    "APITurnOffLambda": {
+      "Value": {
+        "Ref": "APITurnOffLambda"
+      }
+    },
+    "APITurnOnLambda": {
+      "Value": {
+        "Ref": "APITurnOnLambda"
+      }
     }
   },
   "Resources": {
@@ -210,10 +308,112 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION || 'us-east-1'\nvar sagemaker=new aws.SageMaker()\nvar https=require('https')\nvar URL=require('url')\n\nexports.send=send\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties[event.RequestType.toLowerCase()]\n    \n    if(params){\n        console.log(params)\n        send(params).then(result=>{\n            console.log(result)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\nfunction send(args){\n    return sagemaker.createPresignedNotebookInstanceUrl({\n        NotebookInstanceName:args.InstanceName\n    }).promise()\n    .then(function(result){ \n        console.log(result)\n        var url=URL.parse(result.AuthorizedUrl)\n        console.log(url)\n        return new Promise(function(res,rej){ \n            var opts={\n                hostname:url.hostname,\n                protocol:url.protocol,\n                post:443,\n                path:`${url.pathname}${url.search}`,\n                method:'GET'\n            }\n            console.log(opts)\n            var req=https.request(opts,x=>{\n                opts.headers={\n                    Cookie:x.headers['set-cookie'].join('; ')\n                }\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=args.path\n                opts.method=args.method\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        var body=[]\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,response=>{\n                response.on('data',chunk=>{\n                    body.push(chunk)\n                })\n                response.on('end',()=>{\n                    res(Buffer.concat(body).toString())\n                })\n            })\n            if(args.body){\n                req.write(args.body)\n            }\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(x=>{\n        try{\n            return JSON.parse(x)\n        }catch(e){\n            return x\n        }\n    })\n}\n"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION||\"us-east-1\";var sagemaker=new aws.SageMaker,https=require(\"https\"),URL=require(\"url\");function send(args){return sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:args.InstanceName}).promise().then(function(result){console.log(result);var url=URL.parse(result.AuthorizedUrl);return console.log(url),new Promise(function(res,rej){var opts={hostname:url.hostname,protocol:url.protocol,post:443,path:`${url.pathname}${url.search}`,method:\"GET\"};console.log(opts);var req=https.request(opts,x=>{opts.headers={Cookie:x.headers[\"set-cookie\"].join(\"; \")},opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()})}).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=args.path,opts.method=args.method,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>{var body=[];return console.log(opts),new Promise(function(res,rej){var req=https.request(opts,response=>{response.on(\"data\",chunk=>{body.push(chunk)}),response.on(\"end\",()=>{res(Buffer.concat(body).toString())})});args.body&&req.write(args.body),req.on(\"error\",rej),req.end()})}).then(x=>{try{return JSON.parse(x)}catch(e){return x}})}exports.send=send,exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties[event.RequestType.toLowerCase()];params?(console.log(params),send(params).then(result=>{console.log(result),response.send(event,context,response.SUCCESS)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)})):response.send(event,context,response.SUCCESS)};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "LifecycleLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),ssm=new aws.SSM,util=require(\"ssm\"),lambda=new aws.Lambda,sagemaker=new aws.SageMaker;function recurse(event,callback){setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function commandStatus(event){return\"Command\"===event.DocumentType?ssm.getCommandInvocation({CommandId:event.id,InstanceId:event.ResourceProperties.config.InstanceIds[0]}).promise().then(x=>x.Status):ssm.describeAutomationExecutions({Filters:[{Key:\"ExecutionId\",Values:[event.id]}]}).promise().then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)}function startNotebook(event){return\"ON\"===event.ResourceProperties.state?sagemaker.describeNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise().then(x=>{if(console.log(JSON.stringify(x,null,2)),[\"Stopped\"].includes(x.NotebookInstanceStatus))return sagemaker.startNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise()}):Promise.resolve()}function stopNotebook(event){return\"OFF\"===event.ResourceProperties.state?sagemaker.describeNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise().then(x=>{if(console.log(JSON.stringify(x,null,2)),[\"InService\"].includes(x.NotebookInstanceStatus))return sagemaker.stopNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise()}):Promise.resolve()}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;if(delete params.ServiceToken,event.RequestType===params.event)if(event.id)commandStatus(event).then(status=>{if(\"Success\"===status)return delete event.id,stopNotebook(event).then(()=>recurse(event,callback)).catch(error=>{console.log(error),response.send(event,context,response.FAILED)});[\"Pending\",\"InProgress\",\"Delayed\"].includes(status)?recurse(event,callback):response.send(event,context,response.FAILED)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)});else{if(event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise().then(x=>{var state=event.ResourceProperties.state;\"OFF\"===state&&\"Stopped\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS):\"ON\"===state&&\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS):[\"Stopping\",\"Pending\"].includes(x.NotebookInstanceStatus)?recurse(event,callback):(x.NotebookInstanceStatus,response.send(event,context,response.FAILED))});startNotebook(event).then(()=>(event.wait=!0,\"EMPTY\"!==event.ResourceProperties.config.DocumentName?util.start(event.ResourceProperties.config).then(x=>Object.assign(event,x)):stopNotebook(event))).then(()=>recurse(event,callback)).catch(error=>{console.log(error),response.send(event,context,response.FAILED)})}else response.send(event,context,response.SUCCESS)};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "NOTEBOOK": {
+              "Fn::GetAtt": [
+                "SageMakerNotebookInstance",
+                "NotebookInstanceName"
+              ]
+            },
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "INSTANCEID": {
+              "Fn::GetAtt": [
+                "WaitConditionData",
+                "id"
+              ]
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "NotebookLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];function recurse(event,callback){setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function error(event){return function(error){console.log(error),response.send(event,context,response.FAILED)}}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;if(delete params.ServiceToken,event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn):\"Pending\"===x.NotebookInstanceStatus?recurse(event,callback):\"Failed\"===x.NotebookInstanceStatus?response.send(event,context,response.FAILED):\"Stopped\"===x.NotebookInstanceStatus?sagemaker.deleteNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>response.send(event,context,response.SUCCESS)).catch(error(event)):response.send(event,context,response.FAILED)});if(\"Create\"===event.RequestType)event.wait=!0,sagemaker.createNotebookInstance(params).promise().then(()=>recurse(event,callback)).catch(error(event));else if(\"Update\"===event.RequestType){var old=event.OldResourceProperties;delete old.ServiceToken,_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn)}).catch(error(event)):(event.wait=!0,sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>recurse(event,callback)).catch(error(event)))}else sagemaker.stopNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().catch(x=>{if(!x.message.match(\"Unable to transition\"))throw x}).then(()=>recurse(event)).catch(error(event))};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -228,10 +428,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var response = require('cfn-response')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    try{\n        var params=event.ResourceProperties\n        var name=params.Arn.match(/arn:.*:.*::.*:role\\/(.*)/)[1]\n\n        response.send(event, context, response.SUCCESS,params,name)\n    }catch(e){\n        console.log(e)\n        response.send(event, context, response.FAILED,params,name)\n    }\n}\n"
+          "ZipFile": "var response=require(\"cfn-response\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));try{var params=event.ResourceProperties,name=params.Arn.match(/arn:.*:.*::.*:role\\/(.*)/)[1];response.send(event,context,response.SUCCESS,params,name)}catch(e){console.log(e),response.send(event,context,response.FAILED,params,name)}};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -246,10 +464,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    if(event.RequestType===\"Create\"){\n        ssm.createActivation(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS,x,x.ActivationId)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else if(event.RequestType===\"Update\"){\n        response.send(event, context, response.SUCCESS,event.OldResourceProperties,event.PhysicalResourceId)\n    }else{\n        ssm.describeInstanceInformation({\n            Filters:[{\n                Key:\"ActivationIds\",\n                Values:[event.PhysicalResourceId]\n            }],\n        }).promise()\n        .then(x=>{\n            console.log(JSON.stringify(x,null,2))\n            return ssm.deregisterManagedInstance({\n                InstanceId:x.InstanceInformationList[0].InstanceId\n            }).promise()\n        })\n        .then(x=>{\n            console.log(JSON.stringify(x,null,2))\n            return ssm.deleteActivation({\n                ActivationId:event.PhysicalResourceId\n            }).promise()\n        })\n        .then(x=>response.send(event, context, response.SUCCESS))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.SUCCESS)\n        })\n    }\n}\n\n"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,\"Create\"===event.RequestType?ssm.createActivation(params).promise().then(x=>{console.log(x),response.send(event,context,response.SUCCESS,x,x.ActivationId)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):\"Update\"===event.RequestType?response.send(event,context,response.SUCCESS,event.OldResourceProperties,event.PhysicalResourceId):ssm.describeInstanceInformation({Filters:[{Key:\"ActivationIds\",Values:[event.PhysicalResourceId]}]}).promise().then(x=>(console.log(JSON.stringify(x,null,2)),ssm.deregisterManagedInstance({InstanceId:x.InstanceInformationList[0].InstanceId}).promise())).then(x=>(console.log(JSON.stringify(x,null,2)),ssm.deleteActivation({ActivationId:event.PhysicalResourceId}).promise())).then(x=>response.send(event,context,response.SUCCESS)).catch(error=>{console.log(error),response.send(event,context,response.SUCCESS)})};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -264,10 +500,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    params.AssociationName=event.LogicalResourceId\n    delete params.ServiceToken\n\n    if(event.RequestType!==\"Delete\"){\n        ssm.createAssociation(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS,x.AssociationDescription,x.AssociationDescription.AssociationId)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else {\n        ssm.deleteAssociation({\n            AssociationId:event.PhysicalResourceId,\n            InstanceId:params.InstanceId,\n            Name:params.Name\n        }).promise()\n        .then(()=>response.send(event, context, response.SUCCESS))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.SUCCESS)\n        })\n    }\n}\n\n"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;params.AssociationName=event.LogicalResourceId,delete params.ServiceToken,\"Delete\"!==event.RequestType?ssm.createAssociation(params).promise().then(x=>{console.log(x),response.send(event,context,response.SUCCESS,x.AssociationDescription,x.AssociationDescription.AssociationId)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):ssm.deleteAssociation({AssociationId:event.PhysicalResourceId,InstanceId:params.InstanceId,Name:params.Name}).promise().then(()=>response.send(event,context,response.SUCCESS)).catch(error=>{console.log(error),response.send(event,context,response.SUCCESS)})};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -282,10 +536,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\nvar lambda=new aws.Lambda()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    if(event.RequestType===params.event){\n        if(event.id){\n            get(event)\n            .then(status=>{\n                if(status===\"Success\"){\n                    response.send(event, context, response.SUCCESS)\n                }else if([\"Pending\",\"InProgress\",\"Delayed\"].includes(status)){\n                    setTimeout(()=>lambda.invoke({\n                            FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,\n                            InvocationType:\"Event\",\n                            Payload:JSON.stringify(event)\n                        }).promise()\n                        .catch(error=>{\n                            console.log(error)\n                            response.send(event, context, response.FAILED)\n                        })\n                        .then(()=>callback(null))\n                    ,5000)\n                }else{\n                    response.send(event, context, response.FAILED)\n                }\n            })\n            .catch(error=>{\n                console.log(error)\n                response.send(event, context, response.FAILED)\n            })\n        }else{\n            start(event)\n            .then(id=>{\n                setTimeout(()=>lambda.invoke({\n                        FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,\n                        InvocationType:\"Event\",\n                        Payload:JSON.stringify(event)\n                    }).promise()\n                    .catch(error=>{\n                        console.log(error)\n                        response.send(event, context, response.FAILED)\n                    })\n                    .then(()=>callback(null))\n                ,5000)\n            })\n            .catch(error=>{\n                console.log(error)\n                response.send(event, context, response.FAILED)\n            })\n        }\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\nfunction start(event){\n    return ssm.getDocument({\n        Name:event.ResourceProperties.config.DocumentName\n    }).promise()\n    .then(x=>{\n        event.DocumentType=x.DocumentType\n        if(x.DocumentType===\"Command\"){\n            return ssm.sendCommand(event.ResourceProperties.config).promise()\n            .then(y=>event.id=y.Command.CommandId)\n        }else if(x.DocumentType===\"Automation\"){\n            return ssm.startAutomationExecution(event.ResourceProperties.config).promise()\n            .then(y=>event.id=y.AutomationExecutionId)\n        }else{\n            throw \"invalid document type\"\n        }\n    })\n}\n\nfunction get(event){\n    if(event.DocumentType===\"Command\"){\n        return ssm.getCommandInvocation({\n            CommandId:event.id,\n            InstanceId:event.ResourceProperties.config.InstanceIds[0]\n        }).promise()\n        .then(x=>x.Status)\n    }else{\n        return ssm.describeAutomationExecutions({\n            Filters:[{\n                Key:\"ExecutionId\",\n                Values:[event.id]\n            }]\n        }).promise()\n        .then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)\n    }\n}\n\n"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM,util=require(\"ssm\"),lambda=new aws.Lambda;function get(event){return\"Command\"===event.DocumentType?ssm.getCommandInvocation({CommandId:event.id,InstanceId:event.ResourceProperties.config.InstanceIds[0]}).promise().then(x=>x.Status):ssm.describeAutomationExecutions({Filters:[{Key:\"ExecutionId\",Values:[event.id]}]}).promise().then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,event.RequestType===params.event?event.id?get(event).then(status=>{\"Success\"===status?response.send(event,context,response.SUCCESS):[\"Pending\",\"InProgress\",\"Delayed\"].includes(status)?setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3):response.send(event,context,response.FAILED)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):util.start(event.ResourceProperties.config).then(x=>Object.assign(event,x)).then(id=>{setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):response.send(event,context,response.SUCCESS)};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -300,10 +572,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar ssm=new aws.SSM()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    if(event.RequestType!==\"Delete\"){\n        ssm.addTagsToResource(params).promise()\n        .then(x=>{\n            console.log(x)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else {\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\n"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,\"Delete\"!==event.RequestType?ssm.addTagsToResource(params).promise().then(x=>{console.log(x),response.send(event,context,response.SUCCESS)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):response.send(event,context,response.SUCCESS)};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -318,10 +608,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var response = require('cfn-response')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    Object.keys(params).forEach(function(key){\n        var value=params[key]\n        if(typeof value===\"object\"){\n            if(value.op===\"toLowerCase\"){\n                params[key]=value.value.toLowerCase()\n            }else{\n                params[key]=value.value\n            }\n        }\n    })\n\n    response.send(event, context, response.SUCCESS,params)\n}\n\n"
+          "ZipFile": "var response=require(\"cfn-response\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,Object.keys(params).forEach(function(key){var value=params[key];\"object\"==typeof value&&(\"toLowerCase\"===value.op?params[key]=value.value.toLowerCase():params[key]=value.value)}),response.send(event,context,response.SUCCESS,params)};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -336,10 +644,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var response = require('cfn-response')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    delete params.ServiceToken\n\n    try{\n        response.send(event, context, response.SUCCESS,JSON.parse(params.Data))\n    }catch(e){\n        console.log(e)\n        response.send(event, context, response.FAILED)\n    }\n}\n\n"
+          "ZipFile": "var response=require(\"cfn-response\");exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken;try{response.send(event,context,response.SUCCESS,JSON.parse(params.Data))}catch(e){console.log(e),response.send(event,context,response.FAILED)}};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -354,10 +680,28 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION || 'us-east-1'\nvar sagemaker=new aws.SageMaker()\nvar https=require('https')\nvar URL=require('url')\n\nsend({\n    InstanceName:\"SageMakerNotebookInstance-nSPgAasgJ6yt\",\n    path:\"/api/status\",\n    method:\"GET\"\n}).then(x=>console.log(JSON.stringify(x,null,2)))\n\nasync function send(args){\n    return sagemaker.createPresignedNotebookInstanceUrl({\n        NotebookInstanceName:args.InstanceName\n    }).promise()\n    .then(function(result){ \n        console.log(result)\n        var url=URL.parse(result.AuthorizedUrl)\n        console.log(url)\n        return new Promise(function(res,rej){ \n            var opts={\n                hostname:url.hostname,\n                protocol:url.protocol,\n                post:443,\n                path:`${url.pathname}${url.search}`,\n                method:'GET'\n            }\n            console.log(opts)\n            var req=https.request(opts,x=>{\n                opts.headers={\n                    Cookie:x.headers['set-cookie'].join('; ')\n                }\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=x.headers.location\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,x=>{\n                opts.path=args.path\n                opts.method=args.method\n                res(opts)\n            })\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(opts=>{\n        var body=[]\n        console.log(opts)\n        return new Promise(function(res,rej){\n            var req=https.request(opts,response=>{\n                response.on('data',chunk=>{\n                    body.push(chunk)\n                })\n                response.on('end',()=>{\n                    res(Buffer.concat(body).toString())\n                })\n            })\n            if(args.body){\n                req.write(args.body)\n            }\n            req.on('error',rej)\n            req.end()\n        })\n    })\n    .then(x=>{\n        try{\n            return JSON.parse(x)\n        }catch(e){\n            return x\n        }\n    })\n}\n"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION||\"us-east-1\";var sagemaker=new aws.SageMaker,https=require(\"https\"),URL=require(\"url\");async function send(args){return sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:args.InstanceName}).promise().then(function(result){console.log(result);var url=URL.parse(result.AuthorizedUrl);return console.log(url),new Promise(function(res,rej){var opts={hostname:url.hostname,protocol:url.protocol,post:443,path:`${url.pathname}${url.search}`,method:\"GET\"};console.log(opts);var req=https.request(opts,x=>{opts.headers={Cookie:x.headers[\"set-cookie\"].join(\"; \")},opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()})}).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=args.path,opts.method=args.method,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>{var body=[];return console.log(opts),new Promise(function(res,rej){var req=https.request(opts,response=>{response.on(\"data\",chunk=>{body.push(chunk)}),response.on(\"end\",()=>{res(Buffer.concat(body).toString())})});args.body&&req.write(args.body),req.on(\"error\",rej),req.end()})}).then(x=>{try{return JSON.parse(x)}catch(e){return x}})}send({InstanceName:\"SageMakerNotebookInstance-nSPgAasgJ6yt\",path:\"/api/status\",method:\"GET\"}).then(x=>console.log(JSON.stringify(x,null,2)));"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
         "Role": {
           "Fn::GetAtt": [
             "CFNLambdaRole",
@@ -366,31 +710,6 @@
         },
         "Runtime": "nodejs6.10",
         "Timeout": 60
-      }
-    },
-    "SSMAutomationRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "ec2.amazonaws.com",
-                  "ssm.amazonaws.com"
-                ]
-              },
-              "Action": "sts:AssumeRole"
-            }
-          ]
-        },
-        "Path": "/",
-        "ManagedPolicyArns": [
-          "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
-          "arn:aws:iam::aws:policy/AdministratorAccess"
-        ]
       }
     },
     "CFNLambdaRole": {
@@ -412,6 +731,7 @@
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
           "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
+          "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess",
           {
             "Ref": "CFNPolicy"
           }
@@ -428,7 +748,8 @@
               "Effect": "Allow",
               "Action": [
                 "iam:PassRole",
-                "lambda:InvokeFunction"
+                "lambda:InvokeFunction",
+                "cloudformation:*"
               ],
               "Resource": [
                 "*"
@@ -439,8 +760,14 @@
       }
     },
     "SageMakerNotebookInstance": {
-      "Type": "AWS::SageMaker::NotebookInstance",
+      "Type": "Custom::NotebookInstance",
       "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "NotebookLambda",
+            "Arn"
+          ]
+        },
         "InstanceType": {
           "Ref": "InstanceType"
         },
@@ -466,6 +793,30 @@
         ],
         "SubnetId": {
           "Ref": "SubnetId"
+        },
+        "DefaultCodeRepository": {
+          "Fn::If": [
+            "IfCodeRepository",
+            {
+              "Ref": "CodeRepository"
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "AcceleratorTypes": {
+          "Fn::If": [
+            "IfAcceleratorType",
+            [
+              {
+                "Ref": "AcceleratorType"
+              }
+            ],
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
         },
         "KmsKeyId": {
           "Fn::If": [
@@ -603,6 +954,173 @@
             "Ref": "OnStartDocument"
           },
           "Parameters": {
+            "CodeRepository": [
+              {
+                "Ref": "CodeRepository"
+              }
+            ],
+            "AcceleratorType": [
+              {
+                "Ref": "AcceleratorType"
+              }
+            ],
+            "State": [
+              {
+                "Ref": "State"
+              }
+            ],
+            "LambdaUtilLayer": [
+              {
+                "Ref": "LambdaUtilLayer"
+              }
+            ],
+            "OnStopDocument": [
+              {
+                "Ref": "OnStopDocument"
+              }
+            ],
+            "ParentStack": [
+              {
+                "Ref": "ParentStack"
+              }
+            ],
+            "SSMLogGroup": [
+              {
+                "Ref": "SSMLogGroup"
+              }
+            ],
+            "LogsBucket": [
+              {
+                "Ref": "LogsBucket"
+              }
+            ],
+            "EFS": [
+              {
+                "Ref": "EFS"
+              }
+            ],
+            "InstanceType": [
+              {
+                "Ref": "InstanceType"
+              }
+            ],
+            "RoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "Role",
+                  "Arn"
+                ]
+              }
+            ],
+            "KmsKeyId": [
+              {
+                "Ref": "KmsKeyId"
+              }
+            ],
+            "SecurityGroupId": [
+              {
+                "Ref": "SecurityGroupId"
+              }
+            ],
+            "SubnetId": [
+              {
+                "Ref": "SubnetId"
+              }
+            ],
+            "DirectInternetAccess": [
+              {
+                "Ref": "DirectInternetAccess"
+              }
+            ],
+            "IdleShutdown": [
+              {
+                "Ref": "IdleShutdown"
+              }
+            ],
+            "GlueDevEndpoint": [
+              {
+                "Ref": "GlueDevEndpoint"
+              }
+            ],
+            "InstanceId": [
+              {
+                "Fn::GetAtt": [
+                  "WaitConditionData",
+                  "id"
+                ]
+              }
+            ],
+            "StackName": [
+              {
+                "Ref": "AWS::StackName"
+              }
+            ]
+          },
+          "InstanceIds": [
+            {
+              "Fn::GetAtt": [
+                "WaitConditionData",
+                "id"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "RunLifeCycleDocument": {
+      "Type": "Custom::Lifecycle",
+      "DependsOn": [
+        "SageMakerNotebookInstance"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LifecycleLambda",
+            "Arn"
+          ]
+        },
+        "event": "Update",
+        "state": {
+          "Ref": "State"
+        },
+        "config": {
+          "DocumentName": {
+            "Fn::If": [
+              "TurnOn",
+              {
+                "Ref": "OnStartDocument"
+              },
+              {
+                "Ref": "OnStopDocument"
+              }
+            ]
+          },
+          "Parameters": {
+            "CodeRepository": [
+              {
+                "Ref": "CodeRepository"
+              }
+            ],
+            "AcceleratorType": [
+              {
+                "Ref": "AcceleratorType"
+              }
+            ],
+            "State": [
+              {
+                "Ref": "State"
+              }
+            ],
+            "LambdaUtilLayer": [
+              {
+                "Ref": "LambdaUtilLayer"
+              }
+            ],
+            "OnStopDocument": [
+              {
+                "Ref": "OnStopDocument"
+              }
+            ],
             "ParentStack": [
               {
                 "Ref": "ParentStack"
@@ -711,6 +1229,31 @@
           },
           "Mode": "Auto",
           "Parameters": {
+            "CodeRepository": [
+              {
+                "Ref": "CodeRepository"
+              }
+            ],
+            "AcceleratorType": [
+              {
+                "Ref": "AcceleratorType"
+              }
+            ],
+            "State": [
+              {
+                "Ref": "State"
+              }
+            ],
+            "LambdaUtilLayer": [
+              {
+                "Ref": "LambdaUtilLayer"
+              }
+            ],
+            "OnStopDocument": [
+              {
+                "Ref": "OnStopDocument"
+              }
+            ],
             "ParentStack": [
               {
                 "Ref": "ParentStack"
@@ -811,6 +1354,31 @@
           },
           "Mode": "Auto",
           "Parameters": {
+            "CodeRepository": [
+              {
+                "Ref": "CodeRepository"
+              }
+            ],
+            "AcceleratorType": [
+              {
+                "Ref": "AcceleratorType"
+              }
+            ],
+            "State": [
+              {
+                "Ref": "State"
+              }
+            ],
+            "LambdaUtilLayer": [
+              {
+                "Ref": "LambdaUtilLayer"
+              }
+            ],
+            "OnStopDocument": [
+              {
+                "Ref": "OnStopDocument"
+              }
+            ],
             "ParentStack": [
               {
                 "Ref": "ParentStack"
@@ -948,10 +1516,15 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION||\"us-east-1\";var sagemaker=new aws.SageMaker,https=require(\"https\"),URL=require(\"url\");function send(args){return sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:args.InstanceName}).promise().then(function(result){console.log(result);var url=URL.parse(result.AuthorizedUrl);return console.log(url),new Promise(function(res,rej){var opts={hostname:url.hostname,protocol:url.protocol,post:443,path:`${url.pathname}${url.search}`,method:\"GET\"};console.log(opts);var req=https.request(opts,x=>{opts.headers={Cookie:x.headers[\"set-cookie\"].join(\"; \")},opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()})}).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=args.path,opts.method=args.method,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>{var body=[];return console.log(opts),new Promise(function(res,rej){var req=https.request(opts,response=>{response.on(\"data\",chunk=>{body.push(chunk)}),response.on(\"end\",()=>{res(Buffer.concat(body).toString())})});args.body&&req.write(args.body),req.on(\"error\",rej),req.end()})}).then(x=>{try{return JSON.parse(x)}catch(e){return x}})}exports.handler=((event,context,cb)=>{console.log(\"EVENT:\",JSON.stringify(event,null,2));var timeout=6e4*process.env.IDLETIME,now=new Date;send({InstanceName:process.env.INSTANCE,path:\"/api/kernels/\",method:\"GET\"}).then(result=>{if(console.log(JSON.stringify(result,null,2)),!result)return sagemaker.stopNotebookInstance({NotebookInstanceName:process.env.INSTANCE}).promise();result.filter(x=>x.kernel.connections>0).filter(x=>\"idle\"!==x.kernel.execution_state).filter(x=>{var last=new Date(x.kernel.last_activity);return now-last<timeout}).length||send({InstanceName:process.env.INSTANCE,path:\"/api/status\",method:\"GET\"}).then(x=>{var last=new Date(x.last_activity);if(now-last>timeout)return Promise.all(result.map(x=>x.path).then(path=>send({InstanceName:process.env.INSTANCE,path:`/api/contents/${path}/checkpoints`,method:\"POST\"}))).then(x=>sagemaker.stopNotebookInstance({NotebookInstanceName:process.env.INSTANCE}).promise())}).then(console.log)}).catch(console.log)});"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION||\"us-east-1\";var sagemaker=new aws.SageMaker,cf=new aws.CloudFormation,https=require(\"https\"),URL=require(\"url\");function stop(){return cf.describeStacks({StackName:stackname}).promise().then(x=>{if([\"CREATE_COMPLETE\",\"ROLLBACK_COMPLETE\",\"UPDATE_COMPLETE\",\"UPDATE_ROLLBACK_COMPLETE\"].includes(x.Stacks[0].StackStatus)){var Parameters=_.fromPairs(x.Stacks[0].Parameters.map(y=>[y.ParameterKey,y.ParameterValue]));return Parameters.State=\"OFF\",cf.updateStack({StackName:result.attributes.StackName,Capabilities:[\"CAPABILITY_NAMED_IAM\"],UsePreviousTemplate:!0,Parameters:_.toPairs(Parameters).map(y=>({ParameterKey:y[0],ParameterValue:y[1]}))}).promise().catch(error=>{if(\"No updates are to be performed.\"!==error.message)throw error})}throw new Error(`Stack currently in state ${x.Stacks[0].StackStatus}`)})}function send(args){return sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:args.InstanceName}).promise().then(function(result){console.log(result);var url=URL.parse(result.AuthorizedUrl);return console.log(url),new Promise(function(res,rej){var opts={hostname:url.hostname,protocol:url.protocol,post:443,path:`${url.pathname}${url.search}`,method:\"GET\"};console.log(opts);var req=https.request(opts,x=>{opts.headers={Cookie:x.headers[\"set-cookie\"].join(\"; \")},opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()})}).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=args.path,opts.method=args.method,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>{var body=[];return console.log(opts),new Promise(function(res,rej){var req=https.request(opts,response=>{response.on(\"data\",chunk=>{body.push(chunk)}),response.on(\"end\",()=>{res(Buffer.concat(body).toString())})});args.body&&req.write(args.body),req.on(\"error\",rej),req.end()})}).then(x=>{try{return JSON.parse(x)}catch(e){return x}})}exports.handler=((event,context,cb)=>{console.log(\"EVENT:\",JSON.stringify(event,null,2));var timeout=6e4*process.env.IDLETIME,now=new Date;send({InstanceName:process.env.INSTANCE,path:\"/api/kernels/\",method:\"GET\"}).then(result=>{if(console.log(JSON.stringify(result,null,2)),!result)return stop();result.filter(x=>x.kernel.connections>0).filter(x=>\"idle\"!==x.kernel.execution_state).filter(x=>{var last=new Date(x.kernel.last_activity);return now-last<timeout}).length||send({InstanceName:process.env.INSTANCE,path:\"/api/status\",method:\"GET\"}).then(x=>{var last=new Date(x.last_activity);if(now-last>timeout)return Promise.all(result.map(x=>x.path).then(path=>send({InstanceName:process.env.INSTANCE,path:`/api/contents/${path}/checkpoints`,method:\"POST\"}))).then(stop)}).then(console.log)}).catch(console.log)});"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
         "Role": {
           "Fn::GetAtt": [
             "CloudWatchLambdaRole",
@@ -969,6 +1542,9 @@
             },
             "IDLETIME": {
               "Ref": "IdleShutdown"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -1072,6 +1648,140 @@
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
         ]
+      }
+    },
+    "APITurnOffLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION\nvar _=require('lodash')\nvar cf=new aws.CloudFormation()\nvar sagemaker=new aws.SageMaker()\n\nvar doc=process.env.ONSTOP\nvar accessable=\"false\"\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    \n    cf.describeStacks({\n        StackName:process.env.STACKNAME\n    }).promise()\n    .then(result=>{\n        var params=_.fromPairs(result.Stacks[0].Parameters\n            .map(x=>[x.ParameterKey,x.ResolvedValue || x.ParameterValue]))\n        var tags=_.fromPairs(result.Stacks[0].Tags.map(x=>[x.Key,x.Value]))\n\n        tags.Accessable=accessable\n        outputs.StackName=stackname\n        outputs.InstanceId=outputs.InstanceID\n\n        cf.updateStack({\n            StackName:process.env.STACKNAME\n            Tags:_.toPairs(tags).map(x=>{return {\n                Key:x[0],\n                Value:[1]\n            }})\n        }).promise()\n        .then(()=>sagemaker.stopNotebookInstance({\n            NotebookInstanceName:process.env.NOTEBOOK\n        }).promise())\n        .then(x=>{\n            if(doc!==\"EMPTY\"){\n                return ssm.sendCommand({\n                    DocumentName:doc,\n                    InstanceIds:process.env.INSTANCEID,\n                    Parameters:_.mapValues(outputs,x=>[x])\n                }).promise()\n            }\n        })\n    })\n    .then(()=>callback(null))\n    .catch(e=>{\n        console.log(e)\n        callback(e)\n    })\n}\n        \n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Role": {
+          "Fn::GetAtt": [
+            "APILambdaRole",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "NOTEBOOK": {
+              "Ref": "SageMakerNotebookInstance"
+            },
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "INSTANCEID": {
+              "Fn::GetAtt": [
+                "WaitConditionData",
+                "id"
+              ]
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "APITurnOnLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION\nvar _=require('lodash')\nvar cf=new aws.CloudFormation()\nvar sagemaker=new aws.SageMaker()\n\nvar doc=process.env.ONSTART\nvar accessable=\"true\"\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    \n    cf.describeStacks({\n        StackName:process.env.STACKNAME\n    }).promise()\n    .then(result=>{\n        var params=_.fromPairs(result.Stacks[0].Parameters\n            .map(x=>[x.ParameterKey,x.ResolvedValue || x.ParameterValue]))\n        var tags=_.fromPairs(result.Stacks[0].Tags.map(x=>[x.Key,x.Value]))\n\n        tags.Accessable=accessable\n        outputs.StackName=stackname\n        outputs.InstanceId=outputs.InstanceID\n\n        cf.updateStack({\n            StackName:process.env.STACKNAME\n            Tags:_.toPairs(tags).map(x=>{return {\n                Key:x[0],\n                Value:[1]\n            }})\n        }).promise()\n        .then(()=>sagemaker.startNotebookInstance({\n            NotebookInstanceName:process.env.NOTEBOOK\n        }).promise())\n        .then(x=>{\n            if(doc!==\"EMPTY\"){\n                return ssm.sendCommand({\n                    DocumentName:doc,\n                    InstanceIds:process.env.INSTANCEID,\n                    Parameters:_.mapValues(outputs,x=>[x])\n                }).promise()\n            }\n        })\n    })\n    .then(()=>callback(null))\n    .catch(e=>{\n        console.log(e)\n        callback(e)\n    })\n}\n        \n\n"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Role": {
+          "Fn::GetAtt": [
+            "APILambdaRole",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "NOTEBOOK": {
+              "Ref": "SageMakerNotebookInstance"
+            },
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "INSTANCEID": {
+              "Fn::GetAtt": [
+                "WaitConditionData",
+                "id"
+              ]
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "APILambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
+          {
+            "Ref": "APIPolicy"
+          }
+        ]
+      }
+    },
+    "APIPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "lambda:InvokeFunction"
+              ],
+              "Resource": [
+                "*"
+              ]
+            }
+          ]
+        }
       }
     }
   },

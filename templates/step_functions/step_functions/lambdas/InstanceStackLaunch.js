@@ -24,9 +24,10 @@ exports.handler=function(event,context,callback){
         Parameters["SubnetId"]=process.env.SUBNET        
         Parameters["SecurityGroupId"]=process.env.SECURITYGROUP
         Parameters["EFS"]=process.env.EFS
-        Parameters["SSMLogGroup"]=process.env.SSMLOGGROUP,
+        Parameters["SSMLogGroup"]=process.env.SSMLOGGROUP
         Parameters["LogsBucket"]=process.env.LOGSBUCKET
         Parameters["ParentStack"]=process.env.STACKNAME
+        Parameters["LambdaUtilLayer"]=process.env.LAMBDAUTILLAYER
 
         return cf.createStack({
             StackName:event.Attributes.StackName,
@@ -42,6 +43,9 @@ exports.handler=function(event,context,callback){
             Tags:[{
                 Key:"ParentStack",
                 Value:process.env.STACKNAME
+            },{
+                Key:"Accessable",
+                Value:"true"
             }]
         }).promise()
     })

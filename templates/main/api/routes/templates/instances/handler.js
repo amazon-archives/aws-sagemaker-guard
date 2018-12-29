@@ -7,6 +7,8 @@ var ec2=new aws.EC2()
 var pricing=new aws.Pricing({region:"us-east-1"})
 var kms=new aws.KMS()
 var iam=new aws.IAM()
+var list_eia=require('list_eia')
+var list_repos=require('list_repos')
 var glue=new aws.Glue()
 
 exports.handler=function(event,context,callback){
@@ -159,7 +161,9 @@ exports.handler=function(event,context,callback){
                 key:"DocumentType",
                 value:"Automation"
         }],params),
-        params
+        params,
+        list_eia(),
+        list_repos()
     ])
     .then(result=>callback(null,{
         keys:result[0],
@@ -168,7 +172,9 @@ exports.handler=function(event,context,callback){
         instances:result[3],
         commands:result[4],
         automation:result[5],
-        params:result[6]
+        params:result[6],
+        eia:result[7],
+        repos:result[8]
     }))
     .catch(error=>{
         console.log(error)

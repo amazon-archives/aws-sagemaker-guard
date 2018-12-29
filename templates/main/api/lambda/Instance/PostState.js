@@ -28,28 +28,29 @@ exports.handler=function(event,context,callback){
         return cf.describeStacks({
             StackName:stackname
         }).promise()
-        .then(result=>{
-            console.log(JSON.stringify(result,null,2))
-            var outputs=_.fromPairs(result.Stacks[0].Outputs.map(x=>[x.OutputKey,x.OutputValue]))
-            var cf_params=_.fromPairs(result.Stacks[0].Parameters
-                .map(x=>[x.ParameterKey,x.ResolvedValue || x.ParameterValue]))
-        
-            outputs.StackName=stackname
-            outputs.InstanceId=outputs.InstanceID
-            var body=JSON.parse(event.body)    
-            if(body.state==="on"){
-                return sagemaker.startNotebookInstance({
-                    NotebookInstanceName:outputs.NotebookName
+        .then(x=>{
+            if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(x.Stacks[0].StackStatus)){
+                var Parameters=_.fromPairs(x.Stacks[0].Parameters
+                        .map(y=>[y.ParameterKey,y.ParameterValue]))
+                
+                Parameters.State=body.state.toUpperCase()
+               
+                return cf.updateStack({
+                    StackName:result.attributes.StackName,
+                    Capabilities:["CAPABILITY_NAMED_IAM"],
+                    UsePreviousTemplate:true,
+                    Parameters:_.toPairs(Parameters).map(y=>{return{
+                        ParameterKey:y[0],
+                        ParameterValue:y[1]
+                    }})
                 }).promise()
-                .then(x=>ssm.sendCommand({
-                    DocumentName:cf_params.OnStartDocument,
-                    InstanceIds:outputs.InstanceID,
-                    Parameters:_.mapValues(outputs,x=>[x])
-                }).promise())
-            }else if(body.state==="off"){
-                return sagemaker.stopNotebookInstance({
-                    NotebookInstanceName:outputs.NotebookName
-                }).promise()
+                .catch(error=>{
+                    if(error.message!=="No updates are to be performed."){
+                        throw error
+                    }
+                })
+            }else{
+                throw new Error(`Stack currently in state ${x.Stacks[0].StackStatus}`)
             }
         })
     })

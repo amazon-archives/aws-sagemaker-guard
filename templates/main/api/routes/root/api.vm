@@ -67,6 +67,12 @@
             "render":"computer",
             "rel":"instances",
             "prompt":"login to the instances you have access to"
+        },
+        {
+            "href":"https://console.aws.amazon.com/sagemaker/home?region=${AWS::Region}#/landing",
+            "title":"Amazon SageMaker Console",
+            "name":"sagemaker",
+            "rel":"external"
         }
     ],
     "template":[{

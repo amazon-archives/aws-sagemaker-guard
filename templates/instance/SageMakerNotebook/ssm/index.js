@@ -22,6 +22,24 @@ module.exports={
             }
         }
     },
+    "RunLifeCycleDocument":{
+        "Type": "Custom::Lifecycle",
+        "DependsOn":["SageMakerNotebookInstance"],
+        "Properties":{
+            "ServiceToken": { "Fn::GetAtt" : ["LifecycleLambda", "Arn"] },
+            "event":"Update",
+            "state":{"Ref":"State"},
+            "config":{
+                "DocumentName":{"Fn::If":[
+                    "TurnOn",
+                    {"Ref":"OnStartDocument"},
+                    {"Ref":"OnStopDocument"}
+                ]},
+                Parameters:params,
+                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+            }
+        }
+    },
     "RunTerminateDocument":{
         "Type": "Custom::RunDocument",
         "Condition":"IfOnTerminateDocument", 
