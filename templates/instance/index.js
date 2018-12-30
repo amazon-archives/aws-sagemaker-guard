@@ -43,12 +43,9 @@ module.exports={
     "RoleArn":{
         "Value":{"Fn::GetAtt":["Role","Arn"]}
     },
-    "State":{
-        "Value":{"Ref":"State"}
-    },
-  },_.fromPairs(_.toPairs(require('./api'))
-    .filter(x=>x[1].Type==="AWS::Lambda::Function")
-    .map(x=>[x[0],{"Value":{"Ref":x[0]}}]))
+  },_.fromPairs(
+        _.keys(_.omit(params,["RoleArn"]))
+    .map(x=>[x,{"Value":{"Ref":x}}]))
   ),
   "Resources":Object.assign({},
     require('./cfn'),

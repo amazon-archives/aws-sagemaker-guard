@@ -70,6 +70,9 @@
     "GlueDevEndpoint": {
       "Type": "String",
       "Default": "EMPTY"
+    },
+    "VPC": {
+      "Type": "String"
     }
   },
   "Conditions": {
@@ -287,19 +290,104 @@
         ]
       }
     },
+    "CodeRepository": {
+      "Value": {
+        "Ref": "CodeRepository"
+      }
+    },
+    "AcceleratorType": {
+      "Value": {
+        "Ref": "AcceleratorType"
+      }
+    },
     "State": {
       "Value": {
         "Ref": "State"
       }
     },
-    "APITurnOffLambda": {
+    "LambdaUtilLayer": {
       "Value": {
-        "Ref": "APITurnOffLambda"
+        "Ref": "LambdaUtilLayer"
       }
     },
-    "APITurnOnLambda": {
+    "OnStopDocument": {
       "Value": {
-        "Ref": "APITurnOnLambda"
+        "Ref": "OnStopDocument"
+      }
+    },
+    "OnStartDocument": {
+      "Value": {
+        "Ref": "OnStartDocument"
+      }
+    },
+    "OnCreateDocument": {
+      "Value": {
+        "Ref": "OnCreateDocument"
+      }
+    },
+    "OnTerminateDocument": {
+      "Value": {
+        "Ref": "OnTerminateDocument"
+      }
+    },
+    "ParentStack": {
+      "Value": {
+        "Ref": "ParentStack"
+      }
+    },
+    "SSMLogGroup": {
+      "Value": {
+        "Ref": "SSMLogGroup"
+      }
+    },
+    "LogsBucket": {
+      "Value": {
+        "Ref": "LogsBucket"
+      }
+    },
+    "EFS": {
+      "Value": {
+        "Ref": "EFS"
+      }
+    },
+    "InstanceType": {
+      "Value": {
+        "Ref": "InstanceType"
+      }
+    },
+    "KmsKeyId": {
+      "Value": {
+        "Ref": "KmsKeyId"
+      }
+    },
+    "SecurityGroupId": {
+      "Value": {
+        "Ref": "SecurityGroupId"
+      }
+    },
+    "SubnetId": {
+      "Value": {
+        "Ref": "SubnetId"
+      }
+    },
+    "DirectInternetAccess": {
+      "Value": {
+        "Ref": "DirectInternetAccess"
+      }
+    },
+    "IdleShutdown": {
+      "Value": {
+        "Ref": "IdleShutdown"
+      }
+    },
+    "GlueDevEndpoint": {
+      "Value": {
+        "Ref": "GlueDevEndpoint"
+      }
+    },
+    "VPC": {
+      "Value": {
+        "Ref": "VPC"
       }
     }
   },
@@ -1042,6 +1130,11 @@
                 "Ref": "GlueDevEndpoint"
               }
             ],
+            "VPC": [
+              {
+                "Ref": "VPC"
+              }
+            ],
             "InstanceId": [
               {
                 "Fn::GetAtt": [
@@ -1184,6 +1277,149 @@
                 "Ref": "GlueDevEndpoint"
               }
             ],
+            "VPC": [
+              {
+                "Ref": "VPC"
+              }
+            ],
+            "InstanceId": [
+              {
+                "Fn::GetAtt": [
+                  "WaitConditionData",
+                  "id"
+                ]
+              }
+            ],
+            "StackName": [
+              {
+                "Ref": "AWS::StackName"
+              }
+            ]
+          },
+          "InstanceIds": [
+            {
+              "Fn::GetAtt": [
+                "WaitConditionData",
+                "id"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "RunLifeCycleDocumentCleanUp": {
+      "Type": "Custom::Lifecycle",
+      "Condition": "IfOnStopDocument",
+      "DependsOn": [
+        "SageMakerNotebookInstance"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LifecycleLambda",
+            "Arn"
+          ]
+        },
+        "event": "Delete",
+        "state": "OFF",
+        "config": {
+          "DocumentName": {
+            "Ref": "OnStopDocument"
+          },
+          "Parameters": {
+            "CodeRepository": [
+              {
+                "Ref": "CodeRepository"
+              }
+            ],
+            "AcceleratorType": [
+              {
+                "Ref": "AcceleratorType"
+              }
+            ],
+            "State": [
+              {
+                "Ref": "State"
+              }
+            ],
+            "LambdaUtilLayer": [
+              {
+                "Ref": "LambdaUtilLayer"
+              }
+            ],
+            "OnStopDocument": [
+              {
+                "Ref": "OnStopDocument"
+              }
+            ],
+            "ParentStack": [
+              {
+                "Ref": "ParentStack"
+              }
+            ],
+            "SSMLogGroup": [
+              {
+                "Ref": "SSMLogGroup"
+              }
+            ],
+            "LogsBucket": [
+              {
+                "Ref": "LogsBucket"
+              }
+            ],
+            "EFS": [
+              {
+                "Ref": "EFS"
+              }
+            ],
+            "InstanceType": [
+              {
+                "Ref": "InstanceType"
+              }
+            ],
+            "RoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "Role",
+                  "Arn"
+                ]
+              }
+            ],
+            "KmsKeyId": [
+              {
+                "Ref": "KmsKeyId"
+              }
+            ],
+            "SecurityGroupId": [
+              {
+                "Ref": "SecurityGroupId"
+              }
+            ],
+            "SubnetId": [
+              {
+                "Ref": "SubnetId"
+              }
+            ],
+            "DirectInternetAccess": [
+              {
+                "Ref": "DirectInternetAccess"
+              }
+            ],
+            "IdleShutdown": [
+              {
+                "Ref": "IdleShutdown"
+              }
+            ],
+            "GlueDevEndpoint": [
+              {
+                "Ref": "GlueDevEndpoint"
+              }
+            ],
+            "VPC": [
+              {
+                "Ref": "VPC"
+              }
+            ],
             "InstanceId": [
               {
                 "Fn::GetAtt": [
@@ -1317,6 +1553,11 @@
                 "Ref": "GlueDevEndpoint"
               }
             ],
+            "VPC": [
+              {
+                "Ref": "VPC"
+              }
+            ],
             "InstanceId": [
               {
                 "Fn::GetAtt": [
@@ -1440,6 +1681,11 @@
             "GlueDevEndpoint": [
               {
                 "Ref": "GlueDevEndpoint"
+              }
+            ],
+            "VPC": [
+              {
+                "Ref": "VPC"
               }
             ],
             "InstanceId": [

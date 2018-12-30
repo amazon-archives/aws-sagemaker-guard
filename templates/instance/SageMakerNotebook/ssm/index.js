@@ -40,6 +40,21 @@ module.exports={
             }
         }
     },
+    "RunLifeCycleDocumentCleanUp":{
+        "Type": "Custom::Lifecycle",
+        "Condition":"IfOnStopDocument",
+        "DependsOn":["SageMakerNotebookInstance"],
+        "Properties":{
+            "ServiceToken": { "Fn::GetAtt" : ["LifecycleLambda", "Arn"] },
+            "event":"Delete",
+            "state":"OFF",
+            "config":{
+                "DocumentName":{"Ref":"OnStopDocument"},
+                Parameters:params,
+                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+            }
+        }
+    },
     "RunTerminateDocument":{
         "Type": "Custom::RunDocument",
         "Condition":"IfOnTerminateDocument", 

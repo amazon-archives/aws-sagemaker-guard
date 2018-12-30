@@ -7,6 +7,7 @@ exports.handler=function(event,context,callback){
 
     var params={
         DirectoryArn:process.env.DIRECTORY,
+        ConsistencyLevel:"SERIALIZABLE",
         ObjectReference:{
             Selector:`\$${event.ID}`
         },

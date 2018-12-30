@@ -36,6 +36,7 @@ exports.handler=function(event,context,callback){
                 .Outputs.map(x=>[x.OutputKey,x.OutputValue])).State
 
             var updateable=["DisplayName","Description","IdleShutdown","OnTerminateDocument","OnStopDocument"]
+
             if(status.match(/.*_COMPLETE/) && state==="OFF"){
                 updateable=updateable.concat([
                     "OnStartDocument","GlueDevEndpoint","RoleArn","InstanceType","AcceleratorTypes","AdditionalCodeRepositories","DefaultCodeRepository"
@@ -48,6 +49,16 @@ exports.handler=function(event,context,callback){
                 _.pickBy(schema.properties,(value,key)=>!value.immutable),
                 updateable
             )
+
+
+            if(status.match(/.*_COMPLETE/)){
+                schema.properties.State={
+                    "title":"Instance state",
+                    "description":"turn instance ON or OFF. some properties of the instance are only updateable when the instance is off",
+                    "enum":["ON","OFF"],
+                    "default":state
+                }
+            }
             _.each(attributes,(key,value)=>{
                 if(schema.properties[key]){
                     schema.properties[key].default=value

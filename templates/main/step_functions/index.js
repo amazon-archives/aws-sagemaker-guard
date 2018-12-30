@@ -15,6 +15,7 @@ module.exports={
                 StackName:{"Ref":"AWS::StackName"},
                 Subnet:{"Fn::GetAtt":["VPC","Outputs.Subnet"]},
                 SecurityGroup:{"Fn::GetAtt":["VPC","Outputs.NoteBookSecurityGroup"]},
+                VPC:{"Fn::GetAtt":["VPC","Outputs.VPC"]},
                 EFS:{"Fn::GetAtt":["VPC","Outputs.EFS"]},
                 SSMLogGroup:{"Ref":"SSMLogGroup"},
                 LogsBucket:{"Ref":"LogsBucket"},

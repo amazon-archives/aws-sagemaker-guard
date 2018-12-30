@@ -6,6 +6,7 @@ exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
     cd.listObjectAttributes({
         DirectoryArn:process.env.DIRECTORY,
+        ConsistencyLevel:"SERIALIZABLE",
         ObjectReference:{
             Selector:`\$${event.ID}`
         },

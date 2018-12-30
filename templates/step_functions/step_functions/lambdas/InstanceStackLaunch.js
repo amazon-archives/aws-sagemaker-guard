@@ -28,7 +28,8 @@ exports.handler=function(event,context,callback){
         Parameters["LogsBucket"]=process.env.LOGSBUCKET
         Parameters["ParentStack"]=process.env.STACKNAME
         Parameters["LambdaUtilLayer"]=process.env.LAMBDAUTILLAYER
-
+        Parameters["VPC"]=process.env.VPC
+        
         return cf.createStack({
             StackName:event.Attributes.StackName,
             Capabilities:["CAPABILITY_NAMED_IAM"],

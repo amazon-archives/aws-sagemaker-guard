@@ -52,7 +52,6 @@ function send(opts){
         var endpoint = new aws.Endpoint(opts.host);
 
         var request = new aws.HttpRequest(endpoint, aws.config.region);
-        var credentials = aws.config.credentials
         
         request.method=opts.method || "GET"
         request.path=opts.path
@@ -62,25 +61,28 @@ function send(opts){
         }
         request.headers['Content-Type'] = 'application/json';
 
-        console.log(credentials)  
-        var signer = new aws.Signers.V4(request,"execute-api");
-        signer.addAuthorization(credentials, new Date());
-        console.log(request)
-        var client = new aws.HttpClient();
-        client.handleRequest(request, null, function(response) {
-            console.log(response.statusCode + ' ' + response.statusMessage);
-            var responseBody = '';
-            response.on('data', function (chunk) {
-                responseBody += chunk;
+        (new aws.CredentialProviderChain())
+        .resolvePromise()
+        .then(credentials=>{
+            var signer = new aws.Signers.V4(request,"execute-api");
+            signer.addAuthorization(credentials, new Date());
+            console.log(request)
+            var client = new aws.HttpClient();
+            client.handleRequest(request, null, function(response) {
+                console.log(response.statusCode + ' ' + response.statusMessage);
+                var responseBody = '';
+                response.on('data', function (chunk) {
+                    responseBody += chunk;
+                });
+                response.on('end', function (chunk) {
+                    console.log('Response body: ' + responseBody);
+                    resolve(JSON.parse(responseBody)) 
+                });
+              }, function(error) {
+                console.log('Error: ' + error);
+                reject(error)
             });
-            response.on('end', function (chunk) {
-                console.log('Response body: ' + responseBody);
-                resolve(JSON.parse(responseBody)) 
-            });
-          }, function(error) {
-            console.log('Error: ' + error);
-            reject(error)
-        });
+        })
     }catch(e){
         console.log(e)
         reject(e)

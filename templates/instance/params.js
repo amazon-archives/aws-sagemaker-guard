@@ -72,6 +72,9 @@ module.exports={
     "GlueDevEndpoint":{
         "Type":"String",
         "Default":"EMPTY"
+    },
+    "VPC":{
+        "Type":"String"
     }
 }
 

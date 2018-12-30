@@ -9,6 +9,8 @@ var lambdas=_.fromPairs(fs.readdirSync(__dirname)
     .map(x=>x.match(/(.*)\.js/)[1])
     .map(x=>[`StepFunction${x}`,lambda(x,'StepFunction')]))
 
+var params=_.fromPairs(Object.keys(require('../../../main/step_functions').StepFunctions.Properties.Parameters).map(x=>[x,{"Type":"String"}]))
+
 module.exports=Object.assign(lambdas,{
         "StepLambdaRole":{
           "Type": "AWS::IAM::Role",
@@ -78,20 +80,11 @@ function lambda(name,type){
         "Runtime": "nodejs6.10",
         Layers:[{"Ref":"LambdaUtilLayer"}],
         "Environment":{
-            "Variables":{
-                DIRECTORY:{"Ref":"Directory"},
-                SCHEMA:{"Ref":"AppliedSchemaArn"},
-                ASSETBUCKET:{"Ref":"AssetBucket"},
-                ASSETPREFIX:{"Ref":"AssetPrefix"},
-                STACKNAME:{"Ref":"StackName"},
+            "Variables":Object.assign(_.fromPairs(
+                _.keys(params).map(x=>[x.toUpperCase(),{"Ref":x}])
+            ),{
                 STACKCREATEROLE:{"Fn::GetAtt":["StackCreateRole","Arn"]},
-                SUBNET:{"Ref":"Subnet"},
-                SECURITYGROUP:{"Ref":"SecurityGroup"},
-                EFS:{"Ref":"EFS"},
-                SSMLOGGROUP:{"Ref":"SSMLogGroup"},
-                LOGSBUCKET:{"Ref":"LogsBucket"},
-                LAMBDAUTILLAYER:{"Ref":"LambdaUtilLayer"}
-            }
+            })
         },
         "TracingConfig":{
             "Mode":"Active"
