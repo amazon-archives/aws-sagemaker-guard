@@ -25,7 +25,8 @@ module.exports={
         "ManagedPolicyArns": [
             "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
             "arn:aws:iam::aws:policy/AdministratorAccess"
-        ]
+        ],
+        "Policies":[]
       }
     }
 }

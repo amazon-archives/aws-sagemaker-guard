@@ -49,7 +49,20 @@ module.exports=Object.assign(
               "Resource": [
                 "*"
               ]
-            }]
+            },{"Fn::If":["IfKmsKeyId",
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "kms:CreateGrant",
+                  ],
+                  "Resource": {"Fn::If":[
+                    "IfCreateKey",
+                    {"Fn::GetAtt":["KMSKey","Arn"]},
+                    {"Fn::Sub":"arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${KmsKeyId}"}
+                  ]}
+                },
+                {"Ref":"AWS::NoValue"}
+            ]}]
         }
       }
     }
@@ -74,17 +87,16 @@ function lambda(name){
         "MemorySize": "128",
         Layers:[{"Ref":"LambdaUtilLayer"}],
         "Environment":{
-            "Variables":name==="Lifecycle.js" ? {
+            "Variables":Object.assign({
+                ONSTART:{"Ref":"OnStartDocument"},
+                ONSTOP:{"Ref":"OnStopDocument"},
+                STACKNAME:{"Ref":"AWS::StackName"},
+                STACKNAME:{"Ref":"AWS::StackName"},
+            },name==="Lifecycle.js" ? {
                 NOTEBOOK:{"Fn::GetAtt":["SageMakerNotebookInstance","NotebookInstanceName"]},
-                ONSTART:{"Ref":"OnStartDocument"},
-                ONSTOP:{"Ref":"OnStopDocument"},
                 INSTANCEID:{"Fn::GetAtt":["WaitConditionData","id"]},
-                STACKNAME:{"Ref":"AWS::StackName"}
-            }: {
-                ONSTART:{"Ref":"OnStartDocument"},
-                ONSTOP:{"Ref":"OnStopDocument"},
-                STACKNAME:{"Ref":"AWS::StackName"}
-            }
+            }:{
+            })
         },
         "Role": {"Fn::GetAtt": ["CFNLambdaRole","Arn"]},
         "Runtime": "nodejs6.10",

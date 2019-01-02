@@ -167,7 +167,7 @@ module.exports={
         this.$emit("new",result)
       }catch(e){
         console.log(e)
-        this.error=e.response.collection.error
+        this.error=_.get(e,"response.collection.error",e)
       }finally{
         this.finished=true
         this.loading=false

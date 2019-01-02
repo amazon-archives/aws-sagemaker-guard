@@ -15,6 +15,9 @@ module.exports={
     "parameters": {
         "BucketStack": {
             "type": "String"
+        },
+        "Region":{
+            "type":"String"
         }
     }
 }

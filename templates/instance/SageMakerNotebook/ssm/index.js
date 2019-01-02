@@ -6,6 +6,7 @@ var params=_.fromPairs(_.keys(_.omit(require('../../../instance/params'),["OnCre
 params.InstanceId=[{"Fn::GetAtt":["WaitConditionData","id"]}]
 params.StackName=[{"Ref":"AWS::StackName"}]
 params.RoleArn=[{"Fn::GetAtt":["Role","Arn"]}]
+params.SSMRoleArn=[{"Fn::GetAtt":["SSMRole","Arn"]}]
 
 module.exports={
     "RunStartDocument":{
@@ -18,7 +19,10 @@ module.exports={
             "config":{
                 "DocumentName":{"Ref":"OnStartDocument"},
                 Parameters:params,
-                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}],
+                OutputS3BucketName:{"Ref":"LogsBucket"},
+                OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
+                OutputS3Region:{"Ref":"AWS::Region"}
             }
         }
     },
@@ -36,7 +40,11 @@ module.exports={
                     {"Ref":"OnStopDocument"}
                 ]},
                 Parameters:params,
-                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}],
+                OutputS3BucketName:{"Ref":"LogsBucket"},
+                OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
+                OutputS3Region:{"Ref":"AWS::Region"}
+
             }
         }
     },
@@ -51,7 +59,11 @@ module.exports={
             "config":{
                 "DocumentName":{"Ref":"OnStopDocument"},
                 Parameters:params,
-                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}]
+                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}],
+                OutputS3BucketName:{"Ref":"LogsBucket"},
+                OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
+                OutputS3Region:{"Ref":"AWS::Region"}
+
             }
         }
     },
@@ -65,7 +77,10 @@ module.exports={
             "config":{
                 "DocumentName":{"Ref":"OnTerminateDocument"},
                 Mode:"Auto",
-                Parameters:params
+                Parameters:params,
+                OutputS3BucketName:{"Ref":"LogsBucket"},
+                OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
+                OutputS3Region:{"Ref":"AWS::Region"}
             }
         }
     },

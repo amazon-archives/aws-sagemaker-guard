@@ -39,7 +39,25 @@ module.exports=Object.assign(
             "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess",
             "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
         ],
-        "Policies":[]
+        "Policies":[{
+            "PolicyName":"Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [{
+                    Effect:"Allow",
+                    Action:[
+                        "cloudformation:*",
+                    ],
+                    "Resource":{"Fn::Sub":"arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"}
+              },{
+                    Effect:"Allow",
+                    Action:[
+                        "cloudformation:DescribeStacks",
+                    ],
+                    "Resource":"*"
+              }]
+            }
+        }]
       }
     }
 })

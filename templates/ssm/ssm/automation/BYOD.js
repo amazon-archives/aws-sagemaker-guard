@@ -27,8 +27,11 @@ module.exports={
       "inputs": {
         DocumentName:{"Ref":"BYODCommandDocument"},
         InstanceIds:["{{InstanceId}}"],
+        OutputS3BucketName:"{{LogsBucket}}",
+        OutputS3KeyPrefix:"BYOD",
         Parameters:{
             BucketStack:"{{StackName}}-bucket",
+            Region:"{{global:REGION}}"
         }
       }
     }

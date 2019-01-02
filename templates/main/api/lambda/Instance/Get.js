@@ -57,12 +57,18 @@ exports.handler=function(event,context,callback){
             StackName:result.attributes.StackName
         }).promise()
         .then(stack=>{
-            var outputs={}
-            stack.Stacks[0].Outputs.forEach(out=>{
-                outputs[out.OutputKey]=out.OutputValue
-            })
+            console.log(_.omitBy(
+                _.fromPairs(stack.Stacks[0].Outputs.map(x=>[x.OutputKey,x.OutputValue])),
+                (value,key)=>value==="EMPTY"))
+            var outputs=_.omit(_.omitBy(
+                _.fromPairs(stack.Stacks[0].Outputs.map(x=>[x.OutputKey,x.OutputValue])),
+                (value,key)=>value==="EMPTY"),
+                ["JupyterProxyCFNLambda","LambdaUtilLayer","NotebookInstanceLifecycleConfigName"])
+
+            var status=stack.Stacks[0].StackStatus
             if(outputs.NoteBookName){
                 var NotebookInstanceName=outputs.NoteBookName
+                result.attributes.status= status.match(/UPDATE_/) ? "updating" : "ready"
                 return sagemaker.describeNotebookInstance({
                     NotebookInstanceName
                 }).promise()
@@ -75,7 +81,7 @@ exports.handler=function(event,context,callback){
                     ))
                 })
             }else{
-                result.attributes.status="creating"
+                result.attributes.status=status==="CREATE_IN_PROGRESS" ? "creating" : "failed"
 
                 if(logins) result.attributes["Last Logins"]=logins 
                 callback(null,Object.assign(
@@ -89,7 +95,7 @@ exports.handler=function(event,context,callback){
                 callback(null,Object.assign(
                     {attributes:Object.assign(
                         result.attributes,
-                        {status:"StackFailed"}
+                        {status:"failed"}
                     )},
                     event
                 ))

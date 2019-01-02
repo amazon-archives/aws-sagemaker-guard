@@ -14,6 +14,9 @@ module.exports={
                 {"Fn::Not":[{"Fn::Equals":[{"Ref":x},"EMPTY"]}]}
             ]
         ).concat([[
+            "IfCreateKey",
+            {"Fn::Equals":[{"Ref":"KmsKeyId"},"CREATE"]}
+        ],[
             "IfCreateRole",
             {"Fn::Equals":[{"Ref":"RoleArn"},"CREATE"]}
         ],[

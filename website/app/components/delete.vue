@@ -1,5 +1,11 @@
 <template lang='pug'>
   div
+    v-dialog(v-model="loading")
+      v-card
+        v-card-title
+          h3  Deleting
+        v-card-text
+          v-progress-linear(indeterminate) 
     v-dialog(v-model="open")
       v-card
         v-card-title
@@ -58,6 +64,7 @@ module.exports={
   methods:{
     click:function(index){
       this.$emit("click",index)
+      this.open=false
     }
   }
 }

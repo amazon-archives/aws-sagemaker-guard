@@ -1,5 +1,6 @@
 var aws=require('aws-sdk')
 var _=require('lodash')
+aws.config.region=process.env.AWS_REGION
 var sagemaker=new aws.SageMaker()
    
 module.exports=function(){
@@ -11,7 +12,7 @@ module.exports=function(){
             }).promise()
             .then(x=>{
                 x.CodeRepositorySummaryList
-                .may(y=>{return {
+                .map(y=>{return {
                     value:y.CodeRepositoryName,
                     description:`${y.GitConfig.RepositoryUrl}:${x.GitConfig.Branch}`
                 }})

@@ -89,7 +89,9 @@ function lambda(name,handler){
             "ZipFile":result.code
         },
         "Handler": "index.handler",
-        "MemorySize": "896",
+        "MemorySize":_.get({
+            "instances":"3008"
+        },name,"896"),
         "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
         "Runtime": "nodejs6.10",
         Layers:[{"Ref":"UtilLambdaLayer"}],

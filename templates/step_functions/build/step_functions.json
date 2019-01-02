@@ -187,6 +187,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -229,6 +265,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -271,6 +343,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -313,6 +421,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -355,6 +499,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -379,7 +559,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.SCHEMA,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};start=cd.listIncomingTypedLinks(params).promise(),start.then(response=>{event.links||(event.links=[]),event.links=event.links.concat(response.LinkSpecifiers),event.next=!!response.NextToken&&response.NextToken,callback(null,event)})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.APPLIEDSCHEMAARN,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};start=cd.listIncomingTypedLinks(params).promise(),start.then(response=>{event.links||(event.links=[]),event.links=event.links.concat(response.LinkSpecifiers),event.next=!!response.NextToken&&response.NextToken,callback(null,event)})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -397,6 +577,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -421,7 +637,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),Promise.all([cd.listFacetAttributes({Name:event.Type,SchemaArn:process.env.SCHEMA}).promise(),cd.getFacet({Name:event.Type,SchemaArn:process.env.SCHEMA}).promise()]).then(function(result){event.Attributes.StackName=`${process.env.STACKNAME}-${event.Attributes.ID}`,console.log(result);var attributes=result[0].Attributes.map(x=>x.Name),ObjectAttributeList=(result[1].Facet.ObjectType,Object.keys(event.Attributes).filter(x=>attributes.includes(x)).map(key=>({Key:{FacetName:event.Type,Name:key,SchemaArn:process.env.SCHEMA},Value:{StringValue:event.Attributes[key]}})));return ObjectAttributeList.push({Key:{FacetName:event.Type,Name:\"policy_document\",SchemaArn:process.env.SCHEMA},Value:{BinaryValue:new Buffer(\"Allow\")}}),ObjectAttributeList.push({Key:{FacetName:event.Type,Name:\"policy_type\",SchemaArn:process.env.SCHEMA},Value:{StringValue:\"SageMakerLogin\"}}),console.log(JSON.stringify(ObjectAttributeList,null,2)),cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:[{CreateObject:{BatchReferenceName:\"ref\",ObjectAttributeList:ObjectAttributeList,LinkName:event.Attributes.ID,ParentReference:{Selector:`/${event.Type}`},SchemaFacet:[{FacetName:event.Type,SchemaArn:process.env.SCHEMA}]}},{AttachToIndex:{IndexReference:{Selector:`/index/${event.Type}`},TargetReference:{Selector:\"#ref\"}}}]}).promise()}).then(result=>{console.log(result),event.object=result,callback(null,event)}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var crypto=require(\"crypto\"),cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2)),Promise.all([cd.listFacetAttributes({Name:event.Type,SchemaArn:process.env.APPLIEDSCHEMAARN}).promise(),cd.getFacet({Name:event.Type,SchemaArn:process.env.APPLIEDSCHEMAARN}).promise()]).then(function(result){event.Attributes.StackName=`${process.env.STACKNAME}-${event.Attributes.ID}`,console.log(result);var attributes=result[0].Attributes.map(x=>x.Name),ObjectAttributeList=(result[1].Facet.ObjectType,Object.keys(event.Attributes).filter(x=>attributes.includes(x)).map(key=>({Key:{FacetName:event.Type,Name:key,SchemaArn:process.env.APPLIEDSCHEMAARN},Value:{StringValue:event.Attributes[key]}})));return ObjectAttributeList.push({Key:{FacetName:event.Type,Name:\"policy_document\",SchemaArn:process.env.APPLIEDSCHEMAARN},Value:{BinaryValue:new Buffer(\"Allow\")}}),ObjectAttributeList.push({Key:{FacetName:event.Type,Name:\"policy_type\",SchemaArn:process.env.APPLIEDSCHEMAARN},Value:{StringValue:\"SageMakerLogin\"}}),console.log(JSON.stringify(ObjectAttributeList,null,2)),cd.batchWrite({DirectoryArn:process.env.DIRECTORY,Operations:[{CreateObject:{BatchReferenceName:\"ref\",ObjectAttributeList:ObjectAttributeList,LinkName:event.Attributes.ID,ParentReference:{Selector:`/${event.Type}`},SchemaFacet:[{FacetName:event.Type,SchemaArn:process.env.APPLIEDSCHEMAARN}]}},{AttachToIndex:{IndexReference:{Selector:`/index/${event.Type}`},TargetReference:{Selector:\"#ref\"}}}]}).promise()}).then(result=>{console.log(result),event.object=result,callback(null,event)}).catch(error=>{console.log(error),callback(JSON.stringify({type:404===error.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:error.statusCode,message:error.message,data:error}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -439,6 +655,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -481,6 +733,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -523,6 +811,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -565,6 +889,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -607,6 +967,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -649,6 +1045,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -673,7 +1105,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.SCHEMA,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};start=cd.listOutgoingTypedLinks(params).promise(),start.then(response=>{event.links||(event.links=[]),event.links=event.links.concat(response.TypedLinkSpecifiers),event.next=!!response.NextToken&&response.NextToken,callback(null,event)})};"
+          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var cd=new aws.CloudDirectory;exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params={DirectoryArn:process.env.DIRECTORY,ObjectReference:{Selector:`$${event.ID}`},FilterTypedLink:{SchemaArn:process.env.APPLIEDSCHEMAARN,TypedLinkName:\"Attachment\"},MaxResults:event.MaxResults||10};start=cd.listOutgoingTypedLinks(params).promise(),start.then(response=>{event.links||(event.links=[]),event.links=event.links.concat(response.TypedLinkSpecifiers),event.next=!!response.NextToken&&response.NextToken,callback(null,event)})};"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -691,6 +1123,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -733,6 +1201,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",
@@ -775,6 +1279,42 @@
         ],
         "Environment": {
           "Variables": {
+            "ASSETBUCKET": {
+              "Ref": "AssetBucket"
+            },
+            "ASSETPREFIX": {
+              "Ref": "AssetPrefix"
+            },
+            "DIRECTORY": {
+              "Ref": "Directory"
+            },
+            "APPLIEDSCHEMAARN": {
+              "Ref": "AppliedSchemaArn"
+            },
+            "STACKNAME": {
+              "Ref": "StackName"
+            },
+            "SUBNET": {
+              "Ref": "Subnet"
+            },
+            "SECURITYGROUP": {
+              "Ref": "SecurityGroup"
+            },
+            "VPC": {
+              "Ref": "VPC"
+            },
+            "EFS": {
+              "Ref": "EFS"
+            },
+            "SSMLOGGROUP": {
+              "Ref": "SSMLogGroup"
+            },
+            "LOGSBUCKET": {
+              "Ref": "LogsBucket"
+            },
+            "LAMBDAUTILLAYER": {
+              "Ref": "LambdaUtilLayer"
+            },
             "STACKCREATEROLE": {
               "Fn::GetAtt": [
                 "StackCreateRole",

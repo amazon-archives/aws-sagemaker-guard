@@ -1,0 +1,10 @@
+{
+  "default": {
+    "dev": {
+      "us-east-1": 1
+    },
+    "vpc": {
+      "us-east-1": 1
+    }
+  }
+}

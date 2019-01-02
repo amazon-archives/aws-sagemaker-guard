@@ -2,6 +2,7 @@ var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var cd=new aws.CloudDirectory()
 var lambda=new aws.Lambda()
+var wait=require('wait-delete')
 var step=new aws.StepFunctions()
 
 exports.handler=function(event,context,callback){
@@ -11,6 +12,7 @@ exports.handler=function(event,context,callback){
         stateMachineArn:process.env.STATEMACHINECLEAROBJECT,
         input:JSON.stringify(event)
     }).promise()
+    .then(()=>wait(process.env.API,event.Type,event.Delete))
     .then(response=>{
         callback(null,{
             ID:event.ID

@@ -113,7 +113,7 @@ function endpoint(name){
         "Properties": {
             VpcId:{"Ref":"VPC"},
             VpcEndpointType:"Interface",
-            PrivateDnsEnabled:true,
+            PrivateDnsEnabled:false,
             SubnetIds:[{"Ref":"subnet1"}],
             SecurityGroupIds:[{"Ref":"EndpointSecurityGroup"}],
             ServiceName:{"Fn::Sub":`com.amazonaws.\${AWS::Region}.${name}`},

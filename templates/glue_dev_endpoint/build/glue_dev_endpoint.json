@@ -11,6 +11,12 @@
     },
     "VPC": {
       "Type": "String"
+    },
+    "RoleArn": {
+      "Type": "String"
+    },
+    "SSMRoleArn": {
+      "Type": "String"
     }
   },
   "Conditions": {},
@@ -30,6 +36,32 @@
     }
   },
   "Resources": {
+    "DescribeENILambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var lambda=new aws.Lambda,ec2=new aws.EC2;function recurse(event,callback,context){event.wait=!0,setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;try{\"Delete\"===event.RequestType?ec2.describeNetworkInterfaces({Filters:[{Name:\"group-id\",Values:[params.SecurityGroup]}]}).promise().then(x=>{console.log(JSON.stringify(x,null,2)),0===x.NetworkInterfaces.length?response.send(event,context,response.SUCCESS,params):recurse(event,callback,context)}).catch(e=>{console.log(e),response.send(event,context,response.FAILED,params)}):response.send(event,context,response.SUCCESS,params)}catch(e){console.log(e),response.send(event,context,response.FAILED,params)}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {}
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
     "RoleNameLambda": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -99,12 +131,19 @@
         },
         "Path": "/",
         "ManagedPolicyArns": [
-          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+          "arn:aws:iam::aws:policy/AWSLambdaFullAccess"
         ]
       }
     },
     "GlueDevEndpoint": {
       "Type": "AWS::Glue::DevEndpoint",
+      "DependsOn": [
+        "EndpointSecurityGroupIngress",
+        "EndpointRole",
+        "ENIWait"
+      ],
       "Properties": {
         "EndpointName": {
           "Ref": "AWS::StackName"
@@ -116,12 +155,15 @@
             "Arn"
           ]
         },
-        "SecurityGroupIds": {
-          "Ref": "EndpointSecurityGroup"
-        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "EndpointSecurityGroup"
+          }
+        ],
         "SubnetId": {
           "Ref": "SubnetId"
-        }
+        },
+        "PublicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQChYeu0Uo5PWm/Wd+Sm3yxJFL3UpwHxEyBVnk09uYMfDYCrGgqYCHQHH+5bfyHDoarS6XcUTEl8EKYr4kMLN3QYK7sWJB6/8OhxuteVJ82nGLef7aElKlR50J73MJrcOClBvW0NYPmxdvli4BeYt5QKlkOL/APnqx1QME7nMqJ4eV//z1pIZ7KOoSGt/NYOEHJA+I1Tv0ffDXQPWnYJ8Jp9zSHNbiMy+G+FO6/WKx6yQdFdJV5HD+QDdoqxCXLtrIZ+6DoFf5DuDDa6fofPlFpgFSrrPiqig/K9BItPcXmWGGMVTSpd6+ZUYJ72es/+7BbMGca44XPf0FjKlPfALKnh your_email@example.com\n"
       }
     },
     "EndpointSecurityGroup": {
@@ -131,7 +173,51 @@
           "Ref": "VPC"
         },
         "GroupDescription": "Allow Access",
-        "SecurityGroupIngress": []
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "SecurityGroupId"
+            },
+            "FromPort": 0,
+            "ToPort": 65535
+          }
+        ]
+      }
+    },
+    "ENIWait": {
+      "Type": "Custom::Variable",
+      "DependsOn": [
+        "EndpointSecurityGroup",
+        "EndpointRole"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "DescribeENILambda",
+            "Arn"
+          ]
+        },
+        "SecurityGroup": {
+          "Ref": "EndpointSecurityGroup"
+        }
+      }
+    },
+    "EndpointSecurityGroupIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "DependsOn": [
+        "EndpointSecurityGroup"
+      ],
+      "Properties": {
+        "GroupId": {
+          "Ref": "EndpointSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Ref": "EndpointSecurityGroup"
+        },
+        "FromPort": 0,
+        "ToPort": 65535
       }
     },
     "EndpointRole": {
@@ -152,6 +238,45 @@
         "Path": "/",
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+        ]
+      }
+    },
+    "RoleName": {
+      "Type": "Custom::RoleName",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "RoleNameLambda",
+            "Arn"
+          ]
+        },
+        "Arn": {
+          "Ref": "SSMRoleArn"
+        }
+      }
+    },
+    "AccessPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "glue:GetDevEndpoint",
+                "glue:UpdateDevEndpoint"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:devEndpoint/${GlueDevEndpoint}"
+              }
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "RoleName"
+          }
         ]
       }
     }

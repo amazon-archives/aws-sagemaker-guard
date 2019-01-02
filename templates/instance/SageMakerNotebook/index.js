@@ -29,9 +29,13 @@ module.exports=Object.assign({
                 {"Ref":"AWS::NoValue"}
             ]},
             KmsKeyId:{"Fn::If":[
-                "IfKmsKeyId",
-                {"Ref":"KmsKeyId"},
-                {"Ref":"AWS::NoValue"}
+                "IfCreateKey",
+                {"Ref":"KMSKey"},
+                {"Fn::If":[
+                    "IfKmsKeyId",
+                    {"Ref":"KmsKeyId"},
+                    {"Ref":"AWS::NoValue"}
+                ]}
             ]},
             DirectInternetAccess:{"Fn::If":[
                 "IfDisableDirectInternet",
@@ -93,6 +97,35 @@ module.exports=Object.assign({
             "Path": "/",
             "ManagedPolicyArns":[
                 "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+            ],
+            "Policies":[{
+                "PolicyName":"Access2",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [{
+                        Effect:"Allow",
+                        Action:[
+                            "cloudformation:DescribeStacks"
+                        ],
+                        "Resource":"*"
+                  }]
+                }
+            },{"Fn::If":["IfGlueDevEndpoint",
+                {
+                    "PolicyName":"Access",
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [{
+                            Effect:"Allow",
+                            Action:[
+                                "glue:GetDevEndpoint",
+                                "glue:UpdateDevEndpoint"
+                            ],
+                            "Resource":{"Fn::Sub":"arn:aws:glue:${AWS::Region}:${AWS::AccountId}:devEndpoint/${GlueDevEndpoint}"}
+                      }]
+                    }
+                },
+                {"Ref":"AWS::NoValue"}]}
             ]
           }
     },
@@ -107,5 +140,30 @@ module.exports=Object.assign({
           "Timeout" : JSON.stringify(60*15),
           "Count"   : "1"
        }
+    },
+    "KMSKey":{
+        "Type" : "AWS::KMS::Key",
+        "Condition":"IfCreateKey", 
+        "Properties":{
+            Description:{"Fn::Sub":"Key created for notebook instance ${AWS::StackName}"},
+            Enabled:true,
+            PendingWindowInDays:7,
+            Tags:[{
+                Value:{"Ref":"AWS::StackName"},
+                Key:"SageGuard"
+            }],
+            KeyPolicy:{
+              "Version": "2012-10-17",
+              "Statement": [{
+                    "Sid": "Enable IAM User Permissions",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": {"Fn::Sub":"arn:aws:iam::${AWS::AccountId}:root"}
+                    },
+                    "Action": "kms:*",
+                    "Resource": "*"
+                }]
+            }
+        }
     }
 },require('./ssm'))

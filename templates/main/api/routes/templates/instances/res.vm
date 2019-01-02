@@ -1,5 +1,5 @@
 #set($inputRoot = $input.path('$'))
-#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $root="https://${!context.apiId}.execute-api.${!context.Region}.amazonaws.com/${!context.stage}")
 
 {"collection":{
     "version":"1.0",
@@ -27,9 +27,10 @@
                         "type":"string",
                         "maxLength":500
                     },
-                    #if( $inputRoot.repos.length() != 0)
+                    #if( $inputRoot.repos.size() != 0)
                     "CodeRepository":{
                         "description":"A git repository to associate with the notebook instance as its default code repository. When you open a notebook instance, it opens in the directory that contains this repository.",
+                        "href":"https://docs.aws.amazon.com/sagemaker/latest/dg/nbi-git-repo.html",
                         "title":"Git Code Repository",
                         "enum":[
                             #foreach( $object in $inputRoot.repos)
@@ -41,16 +42,17 @@
                             #end
                         ]
                     },#end
-                    #if( $inputRoot.eia.length() != 0)
+                    #if( $inputRoot.eia.size() != 0)
                     "AcceleratorType":{
                         "title":"Elastic Inference Accelerator",
+                        "type":"string",
                         "description":"An Elastic Inference (EI) instance types to associate with this notebook instance",
+                        "href":"https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html",
                         "enum":[
                             #foreach( $object in $inputRoot.eia)
                             {
                                 "value":"$object.value",
-                                "text":"$object.value",
-                                "description":"$object.description"
+                                "text":"$object.text"
                             }#if( $foreach.hasNext ),#end
                             #end
                         ]
@@ -97,11 +99,12 @@
                         ],
                         "default":"${DefaultNotebookRole.Arn}"
                     },
-                    #if( $inputRoot.keys.length() != 0)
+                    #if( $inputRoot.keys.size() != 0)
                     "KmsKeyId":{
                         "title":"KMS key Id",
-                        "description":"A AWS KMS key to use for encrypting the data volumnes of the instance",
+                        "description":"A AWS KMS key to use for encrypting the data volumnes of the instance. The Key's policy must enable IAM management. See details for more information",
                         "type":"string",
+                        "href":"https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam",
                         "immutable":true,
                         "enum":[
                             #foreach( $object in $inputRoot.keys){
@@ -121,12 +124,12 @@
                         "default":"Enabled"
                     },
                     
-                    #if ($inputRoot.endpoints.length() != 0)
+                    #if ($inputRoot.glue.size() != 0)
                     "GlueDevEndpoint":{
                         "title":"Glue development endpoints",
                         "type":"string",
                         "enum":[
-                            #foreach( $object in $inputRoot.endpoints){
+                            #foreach( $object in $inputRoot.glue){
                                 "text":"$object.name",
                                 "value":"$object.name",
                                 "description":"Nodes:$object.nodes VPC:$object.vpc",
@@ -135,30 +138,43 @@
                             #end
                         ]
                     },#end
-                    #if ($inputRoot.commands.length() != 0)
-                    "OnStartDocument":{
-                        "title":"SSM OnStart Document",
-                        "description":"An SSM document to run on each instance start up. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.",
-                        "type":"string",
-                        "enum":[
-                            #foreach( $object in $inputRoot.commands){
-                                "text":"$object.Name",
-                                "value":"$object.Name",
-                                "href":"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}"
-                            }#if( $foreach.hasNext ),#end#end
-                        ]
-                    },#end
-                    #if ($inputRoot.automation.length() != 0)
                     "OnCreateDocument":{
                         "title":"SSM OnCreate Document",
                         "immutable":true,
-                        "description":"An SSM document to run on instance creation. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.",
+                        "description":"An SSM document to run on instance creation.",
                         "ask":"Tell me about the OnCreate Document",
                         "type":"string",
                         "enum":[
-                            #foreach( $object in $inputRoot.automation){
+                            #foreach( $object in $inputRoot.ssm){
                                 "text":"$object.Name",
                                 "value":"$object.Name",
+                                "description":"$object.Description",
+                                "href":"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}"
+                            }#if( $foreach.hasNext ),#end#end
+                        ]
+                    },
+                    "OnStartDocument":{
+                        "title":"SSM OnStart Document",
+                        "description":"An SSM document to run on each instance start up.",
+                        "type":"string",
+                        "enum":[
+                            #foreach( $object in $inputRoot.ssm){
+                                "text":"$object.Name",
+                                "value":"$object.Name",
+                                "description":"$object.Description",
+                                "href":"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}"
+                            }#if( $foreach.hasNext ),#end#end
+                        ]
+                    },
+                    "OnStopDocument":{
+                        "title":"SSM OnStop Document",
+                        "description":"An SSM document to run on each instance shut down.",
+                        "type":"string",
+                        "enum":[
+                            #foreach( $object in $inputRoot.ssm){
+                                "text":"$object.Name",
+                                "value":"$object.Name",
+                                "description":"$object.Description",
                                 "href":"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}"
                             }#if( $foreach.hasNext ),#end#end
                         ]
@@ -166,17 +182,18 @@
                     "OnTerminateDocument":{
                         "title":"SSM OnTerminate Document",
                         "immutable":true,
-                        "description":"An SSM document to run on instance termination. The document must be of type 'Command' and have the following parameters: #foreach( $object in $inputRoot.params)$object#if( $foreach.hasNext ), #end#end.",
+                        "description":"An SSM document to run on instance termination.",
                         "ask":"Tell me about the OnTerminate Document",
                         "type":"string",
                         "enum":[
-                            #foreach( $object in $inputRoot.automation){
+                            #foreach( $object in $inputRoot.ssm){
                                 "text":"$object.Name",
                                 "value":"$object.Name",
+                                "description":"$object.Description",
                                 "href":"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}"
                             }#if( $foreach.hasNext ),#end#end
                         ]
-                    },#end
+                    },
                     "IdleShutdown":{
                         "title":"Idle Shutdown Wait Period in minutes",
                         "description":"The number of minutes of inactivity before the instance is shutdown to save cost",

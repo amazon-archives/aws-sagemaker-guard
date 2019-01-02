@@ -208,6 +208,14 @@
         }
       ]
     },
+    "IfCreateKey": {
+      "Fn::Equals": [
+        {
+          "Ref": "KmsKeyId"
+        },
+        "CREATE"
+      ]
+    },
     "IfCreateRole": {
       "Fn::Equals": [
         {
@@ -443,26 +451,26 @@
         ],
         "Environment": {
           "Variables": {
-            "NOTEBOOK": {
-              "Fn::GetAtt": [
-                "SageMakerNotebookInstance",
-                "NotebookInstanceName"
-              ]
-            },
             "ONSTART": {
               "Ref": "OnStartDocument"
             },
             "ONSTOP": {
               "Ref": "OnStopDocument"
             },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            },
+            "NOTEBOOK": {
+              "Fn::GetAtt": [
+                "SageMakerNotebookInstance",
+                "NotebookInstanceName"
+              ]
+            },
             "INSTANCEID": {
               "Fn::GetAtt": [
                 "WaitConditionData",
                 "id"
               ]
-            },
-            "STACKNAME": {
-              "Ref": "AWS::StackName"
             }
           }
         },
@@ -480,7 +488,43 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];function recurse(event,callback){setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function error(event){return function(error){console.log(error),response.send(event,context,response.FAILED)}}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;if(delete params.ServiceToken,event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn):\"Pending\"===x.NotebookInstanceStatus?recurse(event,callback):\"Failed\"===x.NotebookInstanceStatus?response.send(event,context,response.FAILED):\"Stopped\"===x.NotebookInstanceStatus?sagemaker.deleteNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>response.send(event,context,response.SUCCESS)).catch(error(event)):response.send(event,context,response.FAILED)});if(\"Create\"===event.RequestType)event.wait=!0,sagemaker.createNotebookInstance(params).promise().then(()=>recurse(event,callback)).catch(error(event));else if(\"Update\"===event.RequestType){var old=event.OldResourceProperties;delete old.ServiceToken,_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn)}).catch(error(event)):(event.wait=!0,sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>recurse(event,callback)).catch(error(event)))}else sagemaker.stopNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().catch(x=>{if(!x.message.match(\"Unable to transition\"))throw x}).then(()=>recurse(event)).catch(error(event))};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];function recurse(event,callback,context){event.wait=!0,setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function error(event,context){return function(error){console.log(error),response.send(event,context,response.FAILED)}}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken;try{if(event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn):\"Pending\"===x.NotebookInstanceStatus?recurse(event,callback):\"Stopping\"===x.NotebookInstanceStatus?recurse(event,callback):\"Failed\"===x.NotebookInstanceStatus?\"Delete\"===event.RequestType?sagemaker.deleteNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>response.send(event,context,response.SUCCESS)).catch(error(event)):response.send(event,context,response.FAILED):\"Stopped\"===x.NotebookInstanceStatus?sagemaker.deleteNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>response.send(event,context,response.SUCCESS)).catch(error(event)):(console.log(x),response.send(event,context,response.FAILED))});if(\"Create\"===event.RequestType)sagemaker.createNotebookInstance(params).promise().then(()=>recurse(event,callback,context)).catch(error(event,context));else if(\"Update\"===event.RequestType){var old=event.OldResourceProperties;delete old.ServiceToken,_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn)}).catch(error(event,context)):sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>recurse(event,callback,context)).catch(error(event,context))}else sagemaker.stopNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().catch(x=>{if(console.log(x),!x.message.match(\"Unable to transition\"))throw x}).then(()=>recurse(event,callback,context)).catch(error(event))}catch(e){console.log(e),callback(e)}};"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "ONSTART": {
+              "Ref": "OnStartDocument"
+            },
+            "ONSTOP": {
+              "Ref": "OnStopDocument"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "ParameterUpdateLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var response=require(\"cfn-response\"),aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM;function isObject(item){return item&&\"object\"==typeof item&&!Array.isArray(item)}function isShallow(item){return!Array.isArray(item)||!item.find(item=>\"object\"==typeof item)}function assign(target,...sources){if(!sources.length)return target;const source=sources.shift();if(isObject(target)&&isObject(source))for(const key in source)isObject(source[key])?(target[key]||Object.assign(target,{[key]:{}}),assign(target[key],source[key])):isShallow(source[key])?Object.assign(target,{[key]:source[key]}):(target[key]||Object.assign(target,{[key]:[]}),Object.assign(target,{[key]:source[key].map((item,index)=>assign(target[key][index]||{},item))}));return assign(target,...sources)}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,\"Delete\"!==event.RequestType?ssm.getParameter({Name:params.name}).promise().then(function(result){return console.log(JSON.stringify(result,null,2)),value=JSON.parse(result.Parameter.Value),value=assign(value,JSON.parse(params.value)),ssm.putParameter({Name:params.name,Type:result.Parameter.Type,Value:JSON.stringify(value),Overwrite:!0}).promise()}).then(()=>response.send(event,context,response.SUCCESS)).catch(e=>{console.log(e),response.send(event,context,response.FAILED)}):response.send(event,context,response.SUCCESS,params)};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -842,6 +886,34 @@
               "Resource": [
                 "*"
               ]
+            },
+            {
+              "Fn::If": [
+                "IfKmsKeyId",
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "kms:CreateGrant"
+                  ],
+                  "Resource": {
+                    "Fn::If": [
+                      "IfCreateKey",
+                      {
+                        "Fn::GetAtt": [
+                          "KMSKey",
+                          "Arn"
+                        ]
+                      },
+                      {
+                        "Fn::Sub": "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${KmsKeyId}"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Ref": "AWS::NoValue"
+                }
+              ]
             }
           ]
         }
@@ -908,12 +980,20 @@
         },
         "KmsKeyId": {
           "Fn::If": [
-            "IfKmsKeyId",
+            "IfCreateKey",
             {
-              "Ref": "KmsKeyId"
+              "Ref": "KMSKey"
             },
             {
-              "Ref": "AWS::NoValue"
+              "Fn::If": [
+                "IfKmsKeyId",
+                {
+                  "Ref": "KmsKeyId"
+                },
+                {
+                  "Ref": "AWS::NoValue"
+                }
+              ]
             }
           ]
         },
@@ -1006,6 +1086,49 @@
         "Path": "/",
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "Access2",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:DescribeStacks"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          },
+          {
+            "Fn::If": [
+              "IfGlueDevEndpoint",
+              {
+                "PolicyName": "Access",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "glue:GetDevEndpoint",
+                        "glue:UpdateDevEndpoint"
+                      ],
+                      "Resource": {
+                        "Fn::Sub": "arn:aws:glue:${AWS::Region}:${AWS::AccountId}:devEndpoint/${GlueDevEndpoint}"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          }
         ]
       }
     },
@@ -1021,6 +1144,41 @@
         },
         "Timeout": "900",
         "Count": "1"
+      }
+    },
+    "KMSKey": {
+      "Type": "AWS::KMS::Key",
+      "Condition": "IfCreateKey",
+      "Properties": {
+        "Description": {
+          "Fn::Sub": "Key created for notebook instance ${AWS::StackName}"
+        },
+        "Enabled": true,
+        "PendingWindowInDays": 7,
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "SageGuard"
+          }
+        ],
+        "KeyPolicy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "Enable IAM User Permissions",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:root"
+                }
+              },
+              "Action": "kms:*",
+              "Resource": "*"
+            }
+          ]
+        }
       }
     },
     "RunStartDocument": {
@@ -1147,6 +1305,14 @@
               {
                 "Ref": "AWS::StackName"
               }
+            ],
+            "SSMRoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "SSMRole",
+                  "Arn"
+                ]
+              }
             ]
           },
           "InstanceIds": [
@@ -1156,7 +1322,16 @@
                 "id"
               ]
             }
-          ]
+          ],
+          "OutputS3BucketName": {
+            "Ref": "LogsBucket"
+          },
+          "OutputS3KeyPrefix": {
+            "Fn::Sub": "${AWS::StackName}/Start/"
+          },
+          "OutputS3Region": {
+            "Ref": "AWS::Region"
+          }
         }
       }
     },
@@ -1294,6 +1469,14 @@
               {
                 "Ref": "AWS::StackName"
               }
+            ],
+            "SSMRoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "SSMRole",
+                  "Arn"
+                ]
+              }
             ]
           },
           "InstanceIds": [
@@ -1303,7 +1486,16 @@
                 "id"
               ]
             }
-          ]
+          ],
+          "OutputS3BucketName": {
+            "Ref": "LogsBucket"
+          },
+          "OutputS3KeyPrefix": {
+            "Fn::Sub": "${AWS::StackName}/Start/"
+          },
+          "OutputS3Region": {
+            "Ref": "AWS::Region"
+          }
         }
       }
     },
@@ -1432,6 +1624,14 @@
               {
                 "Ref": "AWS::StackName"
               }
+            ],
+            "SSMRoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "SSMRole",
+                  "Arn"
+                ]
+              }
             ]
           },
           "InstanceIds": [
@@ -1441,7 +1641,16 @@
                 "id"
               ]
             }
-          ]
+          ],
+          "OutputS3BucketName": {
+            "Ref": "LogsBucket"
+          },
+          "OutputS3KeyPrefix": {
+            "Fn::Sub": "${AWS::StackName}/Start/"
+          },
+          "OutputS3Region": {
+            "Ref": "AWS::Region"
+          }
         }
       }
     },
@@ -1570,7 +1779,24 @@
               {
                 "Ref": "AWS::StackName"
               }
+            ],
+            "SSMRoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "SSMRole",
+                  "Arn"
+                ]
+              }
             ]
+          },
+          "OutputS3BucketName": {
+            "Ref": "LogsBucket"
+          },
+          "OutputS3KeyPrefix": {
+            "Fn::Sub": "${AWS::StackName}/Start/"
+          },
+          "OutputS3Region": {
+            "Ref": "AWS::Region"
           }
         }
       }
@@ -1700,6 +1926,14 @@
               {
                 "Ref": "AWS::StackName"
               }
+            ],
+            "SSMRoleArn": [
+              {
+                "Fn::GetAtt": [
+                  "SSMRole",
+                  "Arn"
+                ]
+              }
             ]
           }
         }
@@ -1762,7 +1996,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\");aws.config.region=process.env.AWS_REGION||\"us-east-1\";var sagemaker=new aws.SageMaker,cf=new aws.CloudFormation,https=require(\"https\"),URL=require(\"url\");function stop(){return cf.describeStacks({StackName:stackname}).promise().then(x=>{if([\"CREATE_COMPLETE\",\"ROLLBACK_COMPLETE\",\"UPDATE_COMPLETE\",\"UPDATE_ROLLBACK_COMPLETE\"].includes(x.Stacks[0].StackStatus)){var Parameters=_.fromPairs(x.Stacks[0].Parameters.map(y=>[y.ParameterKey,y.ParameterValue]));return Parameters.State=\"OFF\",cf.updateStack({StackName:result.attributes.StackName,Capabilities:[\"CAPABILITY_NAMED_IAM\"],UsePreviousTemplate:!0,Parameters:_.toPairs(Parameters).map(y=>({ParameterKey:y[0],ParameterValue:y[1]}))}).promise().catch(error=>{if(\"No updates are to be performed.\"!==error.message)throw error})}throw new Error(`Stack currently in state ${x.Stacks[0].StackStatus}`)})}function send(args){return sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:args.InstanceName}).promise().then(function(result){console.log(result);var url=URL.parse(result.AuthorizedUrl);return console.log(url),new Promise(function(res,rej){var opts={hostname:url.hostname,protocol:url.protocol,post:443,path:`${url.pathname}${url.search}`,method:\"GET\"};console.log(opts);var req=https.request(opts,x=>{opts.headers={Cookie:x.headers[\"set-cookie\"].join(\"; \")},opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()})}).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=x.headers.location,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>(console.log(opts),new Promise(function(res,rej){var req=https.request(opts,x=>{opts.path=args.path,opts.method=args.method,res(opts)});req.on(\"error\",rej),req.end()}))).then(opts=>{var body=[];return console.log(opts),new Promise(function(res,rej){var req=https.request(opts,response=>{response.on(\"data\",chunk=>{body.push(chunk)}),response.on(\"end\",()=>{res(Buffer.concat(body).toString())})});args.body&&req.write(args.body),req.on(\"error\",rej),req.end()})}).then(x=>{try{return JSON.parse(x)}catch(e){return x}})}exports.handler=((event,context,cb)=>{console.log(\"EVENT:\",JSON.stringify(event,null,2));var timeout=6e4*process.env.IDLETIME,now=new Date;send({InstanceName:process.env.INSTANCE,path:\"/api/kernels/\",method:\"GET\"}).then(result=>{if(console.log(JSON.stringify(result,null,2)),!result)return stop();result.filter(x=>x.kernel.connections>0).filter(x=>\"idle\"!==x.kernel.execution_state).filter(x=>{var last=new Date(x.kernel.last_activity);return now-last<timeout}).length||send({InstanceName:process.env.INSTANCE,path:\"/api/status\",method:\"GET\"}).then(x=>{var last=new Date(x.last_activity);if(now-last>timeout)return Promise.all(result.map(x=>x.path).then(path=>send({InstanceName:process.env.INSTANCE,path:`/api/contents/${path}/checkpoints`,method:\"POST\"}))).then(stop)}).then(console.log)}).catch(console.log)});"
+          "ZipFile": "var aws=require(\"aws-sdk\"),axios=require(\"axios\");aws.config.region=process.env.AWS_REGION||\"us-east-1\";var sagemaker=new aws.SageMaker,cf=new aws.CloudFormation,https=require(\"https\"),_=require(\"lodash\"),URL=require(\"url\");function stop(){return cf.describeStacks({StackName:process.env.STACKNAME}).promise().then(x=>{if([\"CREATE_COMPLETE\",\"ROLLBACK_COMPLETE\",\"UPDATE_COMPLETE\",\"UPDATE_ROLLBACK_COMPLETE\"].includes(x.Stacks[0].StackStatus)){var Parameters=_.fromPairs(x.Stacks[0].Parameters.map(y=>[y.ParameterKey,y.ParameterValue]));return Parameters.State=\"OFF\",cf.updateStack({StackName:process.env.STACKNAME,Capabilities:[\"CAPABILITY_NAMED_IAM\"],UsePreviousTemplate:!0,Parameters:_.toPairs(Parameters).map(y=>({ParameterKey:y[0],ParameterValue:y[1]}))}).promise().catch(error=>{if(\"No updates are to be performed.\"!==error.message)throw error})}throw new Error(`Stack currently in state ${x.Stacks[0].StackStatus}`)})}function init(args){return sagemaker.createPresignedNotebookInstanceUrl({NotebookInstanceName:args.InstanceName}).promise().then(function(result){var url=URL.parse(result.AuthorizedUrl);return axios({url:result.AuthorizedUrl,method:\"GET\",maxRedirects:0}).catch(error=>{if(302===error.response.status)return console.log(\"authenticated\"),axios.create({baseURL:`https://${url.host}/api`,headers:{Cookie:error.response.headers[\"set-cookie\"].join(\"; \")}});throw Error})})}exports.handler=((event,context,cb)=>{console.log(JSON.stringify(event,null,2));var timeout=6e4*process.env.IDLETIME;new Date;init({InstanceName:process.env.INSTANCE}).then(client=>{client.get(\"status\").then(response=>{if(console.log(JSON.stringify(response.data,null,2)),0===response.data.connections){var now=new Date,last=new Date(response.data.last_activity);if(console.log(now-last,timeout),now-last>timeout)return console.log(\"instance has timed out. will shutdown\"),stop();console.log(\"instance has not timed out.\")}})}).catch(console.log)});"
         },
         "Handler": "index.handler",
         "MemorySize": "1024",
@@ -1846,7 +2080,32 @@
           "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess",
           "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
         ],
-        "Policies": []
+        "Policies": [
+          {
+            "PolicyName": "Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:*"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:DescribeStacks"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     "Role": {

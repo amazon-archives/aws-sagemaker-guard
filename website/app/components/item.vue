@@ -4,19 +4,25 @@
       v-card-title
         v-btn.primary--text(flat icon @click.native="show=!show")
           v-icon {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
-        h3(@click.native="show=!show") {{data.DisplayName || ID}}
+        v-icon.pr-3.error--text(v-if="data.status==='failed'") error
+        v-icon.pr-3.success--text(v-if="data.status==='ready'") check_circle
+        v-icon.pr-3(v-if="data.status==='creating'") hourglass_full
+        v-icon.pr-3(v-if="data.status==='updating'") hourglass_empty
+        v-layout(column)
+          h3(@click.native="show=!show") {{data.DisplayName || ID}}
+          v-subheader(v-if="data.Description") {{data. Description}}
         v-spacer
         rm(
-          @click="remove(index)" 
+          @click="remove()" 
           :loading="removing"
           v-if="allow.includes('DELETE')"
         ) 
       v-slide-y-transition
         v-card-text(v-if="show")
-          v-list(three-line dense)
+          v-list(two-line dense)
             v-container.pa-0
               v-layout(row  wrap)
-                v-flex.xs6(v-for="(value,key) in data" :key="key")
+                v-flex.xs6.pa-0(v-for="(value,key) in subdata" :key="key")
                   v-list-tile
                     v-list-tile-content
                       v-list-tile-title {{key}} 
@@ -43,8 +49,9 @@
               )
           v-container.pa-0
             v-layout(column)
-              attachment(v-for="attachment in children" :data="attachment" :key="attachment.href")
-              attachment(v-for="attachment in parents" :data="attachment" :key="attachment.href")
+              v-expansion-panel
+                attachment(v-for="attachment in children" :data="attachment" :key="attachment.href")
+                attachment(v-for="attachment in parents" :data="attachment" :key="attachment.href")
     v-card.ml-4.mr-4(v-if="loading")
       v-progress-linear(indeterminate)
 </template>
@@ -100,6 +107,9 @@ module.exports={
         _.get(this,'collection.items[0].data',{}),
         ["ID"]
       )
+    },
+    subdata:function(){
+      return _.omit(this.data,["DisplayName","Description"])
     }
   },
   created:async function(){

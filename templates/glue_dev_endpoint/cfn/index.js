@@ -28,6 +28,8 @@ module.exports=Object.assign(
         "Path": "/",
         "ManagedPolicyArns": [
             "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+            "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+            "arn:aws:iam::aws:policy/AWSLambdaFullAccess"
         ]
       }
     }

@@ -10,24 +10,23 @@ exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
     var params=event.ResourceProperties
     delete params.ServiceToken
-
+    
+    try{
     if(!event.wait){
         if(event.RequestType==="Create"){
-            event.wait=true
             sagemaker.createNotebookInstance(params).promise()
-            .then(()=>recurse(event,callback))
-            .catch(error(event))
+            .then(()=>recurse(event,callback,context))
+            .catch(error(event,context))
         }else if(event.RequestType==="Update"){
             var old=event.OldResourceProperties
             delete old.ServiceToken
             
             if(!_.isEqual(_.pick(params,updateable),_.pick(old,updateable))){
-                event.wait=true
                 sagemaker.updateNotebookInstance(
                     _.pick(params,updateable.concat(['NotebookInstanceName'])) 
                 ).promise()
-                .then(()=>recurse(event,callback))
-                .catch(error(event))
+                .then(()=>recurse(event,callback,context))
+                .catch(error(event,context))
             }else{
                 sagemaker.describeNotebookInstance({
                     NotebookInstanceName:params.NotebookInstanceName
@@ -35,18 +34,19 @@ exports.handler=function(event,context,callback){
                 .then(x=>{
                     response.send(event, context, response.SUCCESS,x,x.NotebookInstanceArn)
                 })
-                .catch(error(event))
+                .catch(error(event,context))
             }
         }else{
             sagemaker.stopNotebookInstance({
                 NotebookInstanceName:params.NotebookInstanceName
             }).promise()
             .catch(x=>{
+                console.log(x)
                 if(!x.message.match("Unable to transition")){
                     throw x
                 }
             })
-            .then(()=>recurse(event))
+            .then(()=>recurse(event,callback,context))
             .catch(error(event))
         }
     }else{
@@ -58,8 +58,18 @@ exports.handler=function(event,context,callback){
                 response.send(event, context, response.SUCCESS,x,x.NotebookInstanceArn)
             }else if(x.NotebookInstanceStatus==="Pending"){
                 recurse(event,callback)
+            }else if(x.NotebookInstanceStatus==="Stopping"){
+                recurse(event,callback)
             }else if(x.NotebookInstanceStatus==="Failed"){
-                response.send(event, context, response.FAILED)
+                if(event.RequestType==="Delete"){
+                    sagemaker.deleteNotebookInstance({
+                        NotebookInstanceName:params.NotebookInstanceName
+                    }).promise()
+                    .then(x=>response.send(event, context, response.SUCCESS))
+                    .catch(error(event))
+                }else{
+                    response.send(event, context, response.FAILED)
+                }
             }else if(x.NotebookInstanceStatus==="Stopped"){
                 sagemaker.deleteNotebookInstance({
                     NotebookInstanceName:params.NotebookInstanceName
@@ -67,12 +77,18 @@ exports.handler=function(event,context,callback){
                 .then(x=>response.send(event, context, response.SUCCESS))
                 .catch(error(event))
             }else{
+                console.log(x)
                 response.send(event, context, response.FAILED)
             }
         })
     }
+    }catch(e){
+        console.log(e)
+        callback(e)
+    }
 }
-function recurse(event,callback){
+function recurse(event,callback,context){
+    event.wait=true
     setTimeout(()=>lambda.invoke({
             FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,
             InvocationType:"Event",
@@ -86,7 +102,7 @@ function recurse(event,callback){
     ,5000)
 }
 
-function error(event){
+function error(event,context){
     return function(error){
         console.log(error)
         response.send(event, context, response.FAILED)

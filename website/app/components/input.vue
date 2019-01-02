@@ -2,7 +2,21 @@
   div.input
     div(v-if="schema.type==='string'")
       v-text-field(
-        v-if="!schema.enum"
+        v-if="!schema.enum && !textarea"
+        :label="schema.title"
+        :hint="schema.description"
+        persistent-hint
+        :required="required"
+        v-model="local"
+        :rules='[rules.required,rules.schema]'
+        :id='id' :data-vv-name='id'
+        :data-path="path"
+        @update:error="setValid"
+        auto-grow
+        :counter="schema.maxLength"
+      )
+      v-textarea(
+        v-if="!schema.enum && textarea"
         :label="schema.title"
         :hint="schema.description"
         persistent-hint
@@ -141,6 +155,17 @@ module.exports={
     }
   },
   computed:{
+    textarea:function(){
+      if(this.schema.type==="string" && !this.schema.enum){
+        if(this.schema.maxLength){
+          return this.schema.maxLength > 80
+        }else{
+          return false
+        }
+      }else{
+        return false
+      }
+    },
     csvTemplate:function(){
       if(this.schema.type==="array"){
         var header=Object.keys(this.schema.items.properties).join(',')

@@ -8,9 +8,13 @@ exports.start=function(config){
         Name:config.DocumentName
     }).promise()
     .then(x=>{
+        var documentParams=_.get(JSON.parse(x.Content),"parameters",{})
+
+        config.Parameters=_.pick(config.Parameters,documentParams)
         config.DocumentType=x.DocumentType
+        
         if(x.DocumentType==="Command"){
-            return ssm.sendCommand(_.omit(config,["DocumentType"])).promise()
+            return ssm.sendCommand(_.omit(config,["DocumentType","Mode"])).promise()
             .then(y=>{
                 return {
                     id:y.Command.CommandId,
@@ -18,7 +22,7 @@ exports.start=function(config){
                 }
             })
         }else if(x.DocumentType==="Automation"){
-            return ssm.startAutomationExecution(_.omit(config,["DocumentType"])).promise()
+            return ssm.startAutomationExecution(_.omit(config,["DocumentType","InstanceIds","OutputS3BucketName","OutputS3KeyPrefix","OutputS3Region"])).promise()
             .then(y=>{
                 return {
                     id:y.AutomationExecutionId,

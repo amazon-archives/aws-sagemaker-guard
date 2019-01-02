@@ -1,5 +1,6 @@
 var aws=require('aws-sdk')
 var _=require('lodash')
+aws.config.region=process.env.AWS_REGION
 var pricing=new aws.Pricing({region:"us-east-1"})
    
 module.exports=function(){
@@ -11,7 +12,7 @@ module.exports=function(){
                 Filters:[{
                     Field:"location",
                     Type:"TERM_MATCH",
-                    Value:"US East (N. Virginia)"
+                    Value:process.env.REGIONNAME
                 },],
                 MaxResults:100,
                 NextToken:token
@@ -20,9 +21,11 @@ module.exports=function(){
                 x.PriceList
                 .map(y=>{
                     var price=_.values(_.values(y.terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD
+                    var name=y.product.attributes.usagetype.match(/.*-(.*)/)[1]
+                    var price=parseFloat(price).toFixed(3)
                     return {
-                        description:`price: \$${parseFloat(price).toFixed(3)}`, 
-                        value:`ml.${y.product.attributes.usagetype.match(/.*-(.*)/)[1]}`
+                        text:`ml.${name} \$${price}`,
+                        value:`ml.${name}`
                     }
                 })
                 .map(y=>list.push(y))

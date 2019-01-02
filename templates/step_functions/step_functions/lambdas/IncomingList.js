@@ -11,7 +11,7 @@ exports.handler=function(event,context,callback){
             Selector:`\$${event.ID}`
         },
         FilterTypedLink:{
-            SchemaArn:process.env.SCHEMA,
+            SchemaArn:process.env.APPLIEDSCHEMAARN,
             TypedLinkName:"Attachment"
         },
         MaxResults:event.MaxResults || 10

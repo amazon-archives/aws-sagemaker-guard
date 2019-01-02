@@ -153,13 +153,16 @@
               "name": "runShellScript",
               "inputs": {
                 "runCommand": [
-                  "#! bin/bash\nset -x\ncd /home/ec2-user/SageMaker\n\ngit clone https://github.com/aws-samples/amazon-sagemaker-BYOD-template.git\ncd amazon-sagemaker-BYOD-template\nnpm install\nBUCKET=$(aws cloudformation describe-stacks --stack-name {{BucketStack}}-bucket --query \"Stacks[0].Outputs[0].OutputValue\")\n\ncat > ./config.js <<- EOM\n    var out={\n        assetBucket:$BUCKET,\n        assetPrefix:\"BYOD\",\n        namespace:\"dev\",\n        profile:\"default\",\n        region:\"{{global:REGION}}\",\n        parameters:{}\n    }\n    out.parameters.AssetBucket=out.assetBucket\n    out.parameters.AssetPrefix=out.assetPrefix\n\n    module.exports=out\nEOM\n"
+                  "#! bin/bash\nset -x\ncd /home/ec2-user/SageMaker\n\ngit clone https://github.com/aws-samples/amazon-sagemaker-BYOD-template.git\ncd amazon-sagemaker-BYOD-template\n/home/ec2-user/anaconda3/envs/JupyterSystemEnv/bin/npm install\nBUCKET=$(aws cloudformation describe-stacks --stack-name {{BucketStack}}-bucket --query \"Stacks[0].Outputs[0].OutputValue\")\n\ncat > ./config.js <<- EOM\n    var out={\n        assetBucket:$BUCKET,\n        assetPrefix:\"BYOD\",\n        namespace:\"dev\",\n        profile:\"default\",\n        region:\"{{Region}}\",\n        parameters:{}\n    }\n    out.parameters.AssetBucket=out.assetBucket\n    out.parameters.AssetPrefix=out.assetPrefix\n\n    module.exports=out\nEOM\n"
                 ]
               }
             }
           ],
           "parameters": {
             "BucketStack": {
+              "type": "String"
+            },
+            "Region": {
               "type": "String"
             }
           }
@@ -298,6 +301,9 @@
             },
             "InstanceId": {
               "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
             }
           },
           "mainSteps": [
@@ -339,6 +345,128 @@
               "displayType": "textarea"
             }
           }
+        },
+        "DocumentType": "Command"
+      }
+    },
+    "RemoveRootCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "Command Document Example JSON Template",
+          "parameters": {
+            "CodeRepository": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "AcceleratorType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "State": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LambdaUtilLayer": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "OnStopDocument": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "VPC": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "example",
+              "inputs": {
+                "runCommand": [
+                  "rm /etc/sudoers.d/cloud-init"
+                ]
+              }
+            }
+          ]
         },
         "DocumentType": "Command"
       }
@@ -479,6 +607,9 @@
             },
             "InstanceId": {
               "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
             }
           },
           "mainSteps": [
@@ -515,8 +646,11 @@
                 "InstanceIds": [
                   "{{InstanceId}}"
                 ],
+                "OutputS3BucketName": "{{LogsBucket}}",
+                "OutputS3KeyPrefix": "BYOD",
                 "Parameters": {
-                  "BucketStack": "{{StackName}}-bucket"
+                  "BucketStack": "{{StackName}}-bucket",
+                  "Region": "{{global:REGION}}"
                 }
               }
             }
@@ -632,6 +766,9 @@
               "type": "String"
             },
             "InstanceId": {
+              "type": "String"
+            },
+            "SSMRoleArn": {
               "type": "String"
             }
           },
@@ -772,6 +909,9 @@
             },
             "InstanceId": {
               "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
             }
           },
           "mainSteps": [
@@ -788,6 +928,14 @@
                 ],
                 "Parameters": [
                   {
+                    "ParameterValue": "{{SSMRoleArn}}",
+                    "ParameterKey": "SSMRoleArn"
+                  },
+                  {
+                    "ParameterValue": "{{RoleArn}}",
+                    "ParameterKey": "RoleArn"
+                  },
+                  {
                     "ParameterValue": "{{LambdaUtilLayer}}",
                     "ParameterKey": "LambdaUtilLayer"
                   },
@@ -796,7 +944,7 @@
                     "ParameterKey": "SecurityGroupId"
                   },
                   {
-                    "ParameterValue": "{{VPC}}",
+                    "ParameterValue": "{{SubnetId}}",
                     "ParameterKey": "SubnetId"
                   },
                   {
@@ -816,6 +964,8 @@
                 "InstanceIds": [
                   "{{InstanceId}}"
                 ],
+                "OutputS3BucketName": "{{LogsBucket}}",
+                "OutputS3KeyPrefix": "CreateGlue",
                 "Parameters": {
                   "Region": "{{global:REGION}}",
                   "GlueDevEndpoint": "{{StackName}}-glue-endpoint"
@@ -934,6 +1084,9 @@
               "type": "String"
             },
             "InstanceId": {
+              "type": "String"
+            },
+            "SSMRoleArn": {
               "type": "String"
             }
           },
@@ -1058,6 +1211,9 @@
             },
             "InstanceId": {
               "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
             }
           },
           "mainSteps": [
@@ -1066,160 +1222,6 @@
               "name": "start",
               "inputs": {
                 "StackName": "{{StackName}}-glue-endpoint"
-              }
-            }
-          ]
-        },
-        "DocumentType": "Automation"
-      }
-    },
-    "GlueAutomationDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "0.3",
-          "description": "Command Document Example JSON Template",
-          "assumeRole": {
-            "Fn::GetAtt": [
-              "SSMAutomationRole",
-              "Arn"
-            ]
-          },
-          "parameters": {
-            "CodeRepository": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "AcceleratorType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "State": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "OnStopDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "ParentStack": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SSMLogGroup": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LogsBucket": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "EFS": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "InstanceType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "RoleArn": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "KmsKeyId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SecurityGroupId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SubnetId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "DirectInternetAccess": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "IdleShutdown": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "GlueDevEndpoint": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "VPC": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "StackName": {
-              "type": "String"
-            },
-            "InstanceId": {
-              "type": "String"
-            }
-          },
-          "mainSteps": [
-            {
-              "action": "aws:createStack",
-              "name": "start",
-              "inputs": {
-                "StackName": "{{StackName}}-bucket",
-                "TemplateURL": {
-                  "Fn::Sub": "https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/bucket.json"
-                },
-                "Capabilities": [
-                  "CAPABILITY_IAM"
-                ],
-                "Parameters": [
-                  {
-                    "ParameterValue": "{{RoleArn}}",
-                    "ParameterKey": "RoleArn"
-                  },
-                  {
-                    "ParameterValue": "{{StackName}}",
-                    "ParameterKey": "NotebookInstance"
-                  }
-                ]
-              }
-            },
-            {
-              "action": "aws:runCommand",
-              "name": "install",
-              "inputs": {
-                "DocumentName": {
-                  "Ref": "BYODCommandDocument"
-                },
-                "InstanceIds": [
-                  "{{InstanceId}}"
-                ],
-                "Parameters": {
-                  "BucketStack": "{{StackName}}-bucket"
-                }
               }
             }
           ]
@@ -1445,7 +1447,8 @@
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
           "arn:aws:iam::aws:policy/AdministratorAccess"
-        ]
+        ],
+        "Policies": []
       }
     }
   },

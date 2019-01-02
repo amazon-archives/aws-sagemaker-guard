@@ -1,7 +1,9 @@
 var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var lambda=new aws.Lambda()
+var _=require('lodash')
 var cf=new aws.CloudFormation()
+var updateable=["DisplayName","Description","IdleShutdown","OnTerminateDocument","OnStopDocument"]
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
@@ -24,7 +26,9 @@ exports.handler=function(event,context,callback){
             StackName:result.attributes.StackName,
         }).promise()
         .then(x=>{
-            if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(x.Stacks[0].StackStatus)){
+            if(_.xor(_.keys(event.Attributes),updateable).length){
+                return 
+            }else if(x.Stacks[0].StackStatus.match(/_COMPLETE/)){
                 var Parameters=x.Stacks[0].Parameters.map(y=>{
                     if(result.attributes[y.ParameterKey]){
                         y.ParameterValue=result.attributes[y.ParameterKey]

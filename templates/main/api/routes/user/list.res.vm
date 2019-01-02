@@ -1,5 +1,5 @@
 #set($inputRoot = $input.path('$'))
-#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $root="https://${!context.apiId}.execute-api.${!stageVariables.Region}.amazonaws.com/${!context.stage}")
 #set ( $userRoot="$root/website/api")
 #set ( $instanceRoot="$userRoot/instances")
 
@@ -7,16 +7,16 @@
 
 {"collection":{
     "version":"1.0",
-    #if ( $inputRoot.PrevToken.length())
+    #if ( $inputRoot.PrevToken.size() == 0)
         "href":"$instanceRoot",
     #else
         "href":"$instanceRoot?NextToken=inputRoot.PrevToken",
     #end
     "links":[
-        #if ( $inputRoot.NextToken.length())
+        #if ( $inputRoot.NextToken.size() == 0)
             {"rel":"next","href":"$instanceRoot?NextToken=$inputRoot.NextToken"}
         #end
-        #if(  $inputRoot.NextToken.length() && $inputRoot.Links.length()),#end
+        #if(  $inputRoot.NextToken.size() == 0 && $inputRoot.Links.size() == 0),#end
         #foreach( $object in $inputRoot.Links)
         {
             "href":"$instanceRoot/$object.TargetObjectReference.Selector.substring(1)",
@@ -28,7 +28,7 @@
     "items":[{
         "data":{
             "title":"SageMaker Notebook Instances",
-            #if($inputRoot.Links() == 0)
+            #if($inputRoot.Links.size() == 0 )
                 "description":"You do not have access to any notebook instances"
             #else
                 "description":"You currently have access to the following instances"
@@ -37,7 +37,7 @@
     }],
     "queries":[
         {   
-            #if ( $inputRoot.NextToken.length())
+            #if ( $inputRoot.NextToken.size() == 0)
                 "href":"$instanceRoot?",
             #else
                 "href":"$instanceRoot?NextToken=inputRoot.NextToken",
@@ -45,10 +45,11 @@
             "rel":"search",
             "prompt":"Search for instances by ID",
             "data":[
-                #if ( $inputRoot.NextToken.length())
-                    {"name":"MaxResults","prompt":"Maximum results to return"},
+                #if ( $inputRoot.NextToken.size() == 0)
+                    {"name":"Query","prompt":"Prefix to search by"}
                 #else
-                {"name":"Query","prompt":"Prefix to search by"}
+                    {"name":"MaxResults","prompt":"Maximum results to return"}
+                #end
             ]
         }
     ]

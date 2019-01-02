@@ -14,6 +14,9 @@ module.exports= Object.assign(_.fromPairs(_.keys(
         },
         InstanceId:{
             type:"String"
+        },
+        SSMRoleArn:{
+            type:"String"
         }
     }
   )

@@ -13,13 +13,19 @@ module.exports={
         TemplateURL:{"Fn::Sub":"https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/glue_dev_endpoint.json"},
         Capabilities:["CAPABILITY_IAM"],
         Parameters:[{
+            ParameterValue:"{{SSMRoleArn}}",
+            ParameterKey:"SSMRoleArn",
+        },{
+            ParameterValue:"{{RoleArn}}",
+            ParameterKey:"RoleArn",
+        },{
             ParameterValue:"{{LambdaUtilLayer}}",
             ParameterKey:"LambdaUtilLayer",
         },{
             ParameterValue:"{{SecurityGroupId}}",
             ParameterKey:"SecurityGroupId",
         },{
-            ParameterValue:"{{VPC}}",
+            ParameterValue:"{{SubnetId}}",
             ParameterKey:"SubnetId",
         },{
             ParameterValue:"{{VPC}}",
@@ -33,6 +39,8 @@ module.exports={
       "inputs": {
         DocumentName:{"Ref":"GlueCommandDocument"},
         InstanceIds:["{{InstanceId}}"],
+        OutputS3BucketName:"{{LogsBucket}}",
+        OutputS3KeyPrefix:"CreateGlue",
         Parameters:{
             Region:"{{global:REGION}}",
             GlueDevEndpoint:"{{StackName}}-glue-endpoint"

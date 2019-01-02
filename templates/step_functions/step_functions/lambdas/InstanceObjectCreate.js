@@ -8,11 +8,11 @@ exports.handler=function(event,context,callback){
      
     Promise.all([cd.listFacetAttributes({
         Name:event.Type,
-        SchemaArn:process.env.SCHEMA
+        SchemaArn:process.env.APPLIEDSCHEMAARN,
     }).promise(),
     cd.getFacet({
         Name:event.Type,
-        SchemaArn:process.env.SCHEMA
+        SchemaArn:process.env.APPLIEDSCHEMAARN,
     }).promise()
     ])
     .then(function(result){
@@ -27,7 +27,7 @@ exports.handler=function(event,context,callback){
                 Key:{
                     FacetName:event.Type,
                     Name:key,
-                    SchemaArn:process.env.SCHEMA
+                    SchemaArn:process.env.APPLIEDSCHEMAARN,
                 },
                 Value:{
                     StringValue:event.Attributes[key]
@@ -38,7 +38,7 @@ exports.handler=function(event,context,callback){
             Key:{
                 FacetName:event.Type,
                 Name:"policy_document",
-                SchemaArn:process.env.SCHEMA
+                SchemaArn:process.env.APPLIEDSCHEMAARN,
             },
             Value:{
                 BinaryValue:new Buffer("Allow")
@@ -48,7 +48,7 @@ exports.handler=function(event,context,callback){
             Key:{
                 FacetName:event.Type,
                 Name:"policy_type",
-                SchemaArn:process.env.SCHEMA
+                SchemaArn:process.env.APPLIEDSCHEMAARN,
             },
             Value:{
                 StringValue:"SageMakerLogin"
@@ -68,7 +68,7 @@ exports.handler=function(event,context,callback){
                     },
                     SchemaFacet:[{
                         FacetName:event.Type,
-                        SchemaArn:process.env.SCHEMA
+                        SchemaArn:process.env.APPLIEDSCHEMAARN,
                     }]
                 }
             },{

@@ -28,7 +28,8 @@ module.exports={
             "Path": "/",
             "ManagedPolicyArns":[
                 "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
-            ]
+            ],
+            
           }
     }
 }

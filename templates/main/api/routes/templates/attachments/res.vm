@@ -1,5 +1,5 @@
 #set($inputRoot = $input.path('$'))
-#set ( $root="https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}")
+#set ( $root="https://${!context.apiId}.execute-api.${!context.Region}.amazonaws.com/${!context.stage}")
 
 {"collection":{
     "version":"1.0",

@@ -4,7 +4,7 @@ cd /home/ec2-user/SageMaker
 
 git clone https://github.com/aws-samples/amazon-sagemaker-BYOD-template.git
 cd amazon-sagemaker-BYOD-template
-npm install
+/home/ec2-user/anaconda3/envs/JupyterSystemEnv/bin/npm install
 BUCKET=$(aws cloudformation describe-stacks --stack-name {{BucketStack}}-bucket --query "Stacks[0].Outputs[0].OutputValue")
 
 cat > ./config.js <<- EOM
@@ -13,7 +13,7 @@ cat > ./config.js <<- EOM
         assetPrefix:"BYOD",
         namespace:"dev",
         profile:"default",
-        region:"{{global:REGION}}",
+        region:"{{Region}}",
         parameters:{}
     }
     out.parameters.AssetBucket=out.assetBucket

@@ -57,15 +57,11 @@
       ]
     },
     "IfEnableVPCEndpoints": {
-      "Fn::Not": [
+      "Fn::Equals": [
         {
-          "Fn::Equals": [
-            {
-              "Ref": "EnableVPCEndpoints"
-            },
-            "ENABLE"
-          ]
-        }
+          "Ref": "EnableVPCEndpoints"
+        },
+        "ENABLE"
       ]
     }
   },
@@ -281,7 +277,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -305,7 +301,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -329,7 +325,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -353,7 +349,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -377,7 +373,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -401,7 +397,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -425,7 +421,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": true,
+        "PrivateDnsEnabled": false,
         "SubnetIds": [
           {
             "Ref": "subnet1"

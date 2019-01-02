@@ -13,6 +13,13 @@ module.exports={
     },
     "VPC":{
         "Type":"String"
+    },
+    "RoleArn":{
+        "Type":"String"
+    },
+    "SSMRoleArn":{
+        "Type":"String"
     }
+
 }
 

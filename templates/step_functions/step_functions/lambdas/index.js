@@ -3,13 +3,13 @@ var _=require('lodash')
 var UglifyJS = require("uglify-es");
 var chalk=require('chalk')
 
+var params=_.fromPairs(Object.keys(require('../../../main/step_functions').StepFunctions.Properties.Parameters).map(x=>[x,{"Type":"String"}]))
+
 var lambdas=_.fromPairs(fs.readdirSync(__dirname)
     .filter(x=>x!=='index.js')
     .filter(x=>x!=='README.md')
     .map(x=>x.match(/(.*)\.js/)[1])
     .map(x=>[`StepFunction${x}`,lambda(x,'StepFunction')]))
-
-var params=_.fromPairs(Object.keys(require('../../../main/step_functions').StepFunctions.Properties.Parameters).map(x=>[x,{"Type":"String"}]))
 
 module.exports=Object.assign(lambdas,{
         "StepLambdaRole":{

@@ -14,7 +14,7 @@ module.exports={
         .filter(x=>x[1].Default)
         .map(x=>x[0])
         .map(x=>[`If${x}`, {"Fn::Not":[{"Fn::Equals":[{"Ref":x},"EMPTY"]}]}])
-        .concat([[`IfEnableVPCEndpoints`, {"Fn::Not":[{"Fn::Equals":[{"Ref":"EnableVPCEndpoints"},"ENABLE"]}]}]])
+        .concat([[`IfEnableVPCEndpoints`, {"Fn::Equals":[{"Ref":"EnableVPCEndpoints"},"ENABLE"]}]])
   ),
   "Outputs":{
     "Subnet":{"Value":{"Ref":"subnet1"}}, 

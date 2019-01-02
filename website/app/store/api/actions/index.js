@@ -39,7 +39,7 @@ module.exports={
             url:href,
             method:'get'
         },{root:true})
-        
+        console.log(data)        
         await Promise.all(data.collection.links
             .filter(x=>x.rel==="item")
             .map(async x=>{
