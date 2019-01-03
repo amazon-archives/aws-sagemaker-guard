@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "2.2",
-  "description": "Command Document Example JSON Template",
+  "description": "Removes sudo permissions from ec2-user on SageMaker notebook instances",
   "parameters": require('../params'),
   "mainSteps": [
     {
@@ -13,5 +13,11 @@ module.exports={
         ]
       }
     }
-  ]
+  ],
+  Tags:{
+    "OnCreate":"false",
+    "OnTerminate":"false",
+    "OnStart":"true",
+    "OnStop":"false"
+  }
 }

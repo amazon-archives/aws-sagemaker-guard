@@ -22,19 +22,30 @@ module.exports=function(){
                     .filter(x=>!x.Name.match(/^AWS/))
                     .filter(x=>!x.Name.match(/^Amazon/))
                 var param=results[1]
-                console.log(result)
                 Promise.all(result.map(x=>ssm.describeDocument({
                         Name:x.Name
                     }).promise())
                 ).then(x=>{
                     x.filter(y=>{
-                        console.log(y.Document)
                         return _.xor(
                             _.get(y,"Document.Parameters",[]).map(z=>z.Name),
                             param
                         ).length===0
                     })
+                    .filter(y=>{
+                        y.Document.tags=_.fromPairs(y.Document.Tags.map(z=>[z.Key,z.Value]))
+                        if(y.Document.tags.StackName){
+                            if(y.Document.tags.StackName===process.env.STACKNAME){
+                                return true
+                            }else{
+                                return false
+                            }
+                        }else{
+                            return true
+                        }
+                    })
                     .forEach(y=>{
+                        console.log(y.Document.tags)
                         out.push(_.omit(y.Document,'Parameters'))
                     })
                     

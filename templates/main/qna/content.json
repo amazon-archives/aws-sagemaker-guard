@@ -1,7 +1,7 @@
 {"qna":[{
     "qid":"hello",
     "q":["hello","hi","hey"],
-    "a":"Hi! welcome to the SageGuard Admin interface"
+    "a":"Hi! welcome to the SageGuard Admin interface. "
 },
 {
     "qid":"how.1",
@@ -37,6 +37,11 @@
 {
     "qid":"how.6",
     "q":["How do i reset a users password"],
+    "a":"go here"
+},
+{
+    "qid":"how.7",
+    "q":["How do i create an SSM document"],
     "a":"go here"
 }
 ]}

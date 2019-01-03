@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": "Command Document Example JSON Template",
+  "description": "Deletes Glue Development endpoint",
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters":require('../params'),
   "mainSteps": [
@@ -12,5 +12,11 @@ module.exports={
         StackName:"{{StackName}}-glue-endpoint",
       }
     }
-  ]
+  ],
+  "Tags":{
+    "OnCreate":"false",
+    "OnTerminate":"false",
+    "OnStart":"false",
+    "OnStop":"true"
+  }
 }

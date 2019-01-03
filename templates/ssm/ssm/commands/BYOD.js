@@ -2,7 +2,7 @@ var fs=require('fs')
 
 module.exports={
     "schemaVersion": "2.2",
-    "description": "install SageMaker BYOD project template",
+    "description": "installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance.",
     "mainSteps": [
         {
             "action": "aws:runShellScript",

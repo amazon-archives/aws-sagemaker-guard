@@ -40,7 +40,7 @@ module.exports=function(){
         }
     })
     .then(x=>_.sortBy(x,y=>parseFloat(y.price)).map(y=>{return {
-        name:`${y.type}: \$${parseFloat(y.price).toFixed(3)}`,
+        text:`${y.type}: \$${parseFloat(y.price).toFixed(3)}`,
         value:y.type,
         description:y.gpus==="None" ? 
             `vCPUs:${y.cpus} Memory:${y.ram}` :

@@ -16,9 +16,10 @@ module.exports=function(){
                 result.Roles
                     .filter(filterRoles)
                     .map(x=>{return{
-                        RoleName:x.RoleName,
-                        Arn:x.Arn,
-                        Description:x.Description
+                        text:x.RoleName,
+                        value:x.Arn,
+                        Description:x.Description,
+                        href:`https://console.aws.amazon.com/iam/home?region=${process.env.AWS_REGION}#/roles/$${x.RoleName}`
                     }})
                     .forEach(x=>out.push(x))
                 if(result.IsTruncated){

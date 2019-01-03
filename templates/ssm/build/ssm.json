@@ -146,7 +146,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "2.2",
-          "description": "install SageMaker BYOD project template",
+          "description": "installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance.",
           "mainSteps": [
             {
               "action": "aws:runShellScript",
@@ -167,6 +167,18 @@
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "BYOD"
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -196,6 +208,18 @@
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "Glue"
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -204,8 +228,13 @@
       "Properties": {
         "Content": {
           "schemaVersion": "2.2",
-          "description": "Command Document Example JSON Template",
+          "description": "Example Document to be used with SageGaurd",
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -318,6 +347,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "true"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "true"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "HelloWorld"
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -326,7 +383,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "2.2",
-          "description": "install conda requirements",
+          "description": "Install conda requirements.txt on a SageMaker notebook instance",
           "mainSteps": [
             {
               "action": "aws:runShellScript",
@@ -342,10 +399,64 @@
             "requirements": {
               "type": "String",
               "default": "Enabled",
-              "displayType": "textarea"
+              "displayType": "textarea",
+              "description": "The contents of a requirements.txt file to be installed on the SageMaker notebook instance"
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "Install"
+          }
+        ],
+        "DocumentType": "Command"
+      }
+    },
+    "InstallSSHKeyCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "Installs an SSH key on a SageMaker notebook instance. The key does not survive an instance reboot and must be reinstalled on each start up",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! /bin/bash\nset -ex \n\necho \"{{PublicKey}}\" >> /home/ec2-user/.ssh/authorized_keys\nchmod 640 /home/ec2-user/.ssh/authorized_keys\n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "PublicKey": {
+              "type": "String",
+              "default": "Enabled",
+              "displayType": "textarea",
+              "description": "The contents of the SSH public key to be installed on the instance"
+            }
+          }
+        },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "InstallSSHKey"
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -354,8 +465,13 @@
       "Properties": {
         "Content": {
           "schemaVersion": "2.2",
-          "description": "Command Document Example JSON Template",
+          "description": "Removes sudo permissions from ec2-user on SageMaker notebook instances",
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -468,6 +584,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "true"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "RemoveRoot"
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -476,7 +620,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "2.2",
-          "description": "install conda requirements",
+          "description": "Uninstall conda requirements.txt on a SageMaker notebook instance",
           "mainSteps": [
             {
               "action": "aws:runShellScript",
@@ -492,10 +636,23 @@
             "requirements": {
               "type": "String",
               "default": "Enabled",
-              "displayType": "textarea"
+              "displayType": "textarea",
+              "description": "The contents of a requirements.txt file to be uninstalled on the SageMaker notebook instance"
             }
           }
         },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "Uninstall"
+          }
+        ],
         "DocumentType": "Command"
       }
     },
@@ -504,7 +661,9 @@
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
-          "description": "Command Document Example JSON Template",
+          "description": {
+            "Fn::Sub": "OnCreate Document. Installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance. Set the OnTerminate document to 'DeleteBucket' to properly clean up."
+          },
           "assumeRole": {
             "Fn::GetAtt": [
               "SSMAutomationRole",
@@ -512,6 +671,11 @@
             ]
           },
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -656,6 +820,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "BYOD"
+          }
+        ],
         "DocumentType": "Automation"
       }
     },
@@ -664,7 +856,9 @@
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
-          "description": "Command Document Example JSON Template",
+          "description": {
+            "Fn::Sub": "Creates an S3 bucket and add permissions fo the notebook to access the document. Pair with DeleteBucket to properly clean up bucket when the instance is terminated"
+          },
           "assumeRole": {
             "Fn::GetAtt": [
               "SSMAutomationRole",
@@ -672,6 +866,11 @@
             ]
           },
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -798,6 +997,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "CreateBucket"
+          }
+        ],
         "DocumentType": "Automation"
       }
     },
@@ -806,7 +1033,9 @@
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
-          "description": "Command Document Example JSON Template",
+          "description": {
+            "Fn::Sub": "Creates a Glue Development Endpoint and configures the instance to be able to use it. Pair with DeleteGlue to delete on instance shutdown"
+          },
           "assumeRole": {
             "Fn::GetAtt": [
               "SSMAutomationRole",
@@ -814,6 +1043,11 @@
             ]
           },
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -974,6 +1208,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "true"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "CreateGlue"
+          }
+        ],
         "DocumentType": "Automation"
       }
     },
@@ -982,7 +1244,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
-          "description": "Command Document Example JSON Template",
+          "description": "Deletes S3 bucket.",
           "assumeRole": {
             "Fn::GetAtt": [
               "SSMAutomationRole",
@@ -990,6 +1252,11 @@
             ]
           },
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -1100,6 +1367,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "DeleteBucket"
+          }
+        ],
         "DocumentType": "Automation"
       }
     },
@@ -1108,7 +1403,7 @@
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
-          "description": "Command Document Example JSON Template",
+          "description": "Deletes Glue Development endpoint",
           "assumeRole": {
             "Fn::GetAtt": [
               "SSMAutomationRole",
@@ -1116,6 +1411,11 @@
             ]
           },
           "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "CodeRepository": {
               "type": "String",
               "description": "Example",
@@ -1226,6 +1526,34 @@
             }
           ]
         },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "true"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "DeleteGlue"
+          }
+        ],
         "DocumentType": "Automation"
       }
     },
@@ -1342,14 +1670,6 @@
             }
           }
         },
-        "Tags": [
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        ],
         "DocumentType": "Command"
       }
     },

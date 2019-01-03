@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": "Command Document Example JSON Template",
+  "description": "Deletes S3 bucket.",
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters":require('../params'),
   "mainSteps": [
@@ -12,5 +12,11 @@ module.exports={
         StackName:"{{StackName}}-bucket",
       }
     }
-  ]
+  ],
+  "Tags":{
+    "OnCreate":"false",
+    "OnTerminate":"true",
+    "OnStart":"false",
+    "OnStop":"false"
+  }
 }

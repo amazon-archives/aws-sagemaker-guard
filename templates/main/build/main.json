@@ -3295,7 +3295,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2019-01-02T22:50:42.321Z"
+        "BuildDate": "2019-01-03T22:48:47.084Z"
       }
     },
     "UtilLambdaLayer": {
@@ -4711,6 +4711,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -4902,6 +4905,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -4980,6 +4986,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -5272,6 +5281,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -5463,6 +5475,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -5541,6 +5556,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -5675,19 +5693,14 @@
         "AuthorizationType": "AWS_IAM",
         "HttpMethod": "GET",
         "Integration": {
-          "Type": "AWS",
+          "Type": "AWS_PROXY",
           "IntegrationHttpMethod": "POST",
           "Uri": {
             "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${APIinstancesTemplateLambda.Arn}/invocations"
           },
           "IntegrationResponses": [
             {
-              "StatusCode": 200,
-              "ResponseTemplates": {
-                "application/json": {
-                  "Fn::Sub": "#set($inputRoot = $input.path('$'))\n#set ( $root=\"https://${!context.apiId}.execute-api.${!context.Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api/template/instances\",\n    \"template\":{\n        \"data\":{\n            \"schema\":{\n                \"type\":\"object\",\n                \"properties\":{\n                    \"ID\":{\n                        \"title\":\"Instance ID\",\n                        \"description\":\"The unique identifier for this instance\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"default\":\"$context.requestId\"\n                    },\n                    \"DisplayName\":{\n                        \"title\":\"Instance DisplayName\",\n                        \"description\":\"A friendly name for this instance\",\n                        \"type\":\"string\"\n                    },\n                    \"Description\":{\n                        \"title\":\"Instance Description\",\n                        \"description\":\"A brief description of how this instance will be used\",\n                        \"type\":\"string\",\n                        \"maxLength\":500\n                    },\n                    #if( $inputRoot.repos.size() != 0)\n                    \"CodeRepository\":{\n                        \"description\":\"A git repository to associate with the notebook instance as its default code repository. When you open a notebook instance, it opens in the directory that contains this repository.\",\n                        \"href\":\"https://docs.aws.amazon.com/sagemaker/latest/dg/nbi-git-repo.html\",\n                        \"title\":\"Git Code Repository\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.repos)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.value\",\n                                \"description\":\"$object.description\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },#end\n                    #if( $inputRoot.eia.size() != 0)\n                    \"AcceleratorType\":{\n                        \"title\":\"Elastic Inference Accelerator\",\n                        \"type\":\"string\",\n                        \"description\":\"An Elastic Inference (EI) instance types to associate with this notebook instance\",\n                        \"href\":\"https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.eia)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.text\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },#end\n                    \"InstanceType\":{\n                        \"title\":\"Instance Compute Type\",\n                        \"description\":\"The EC2 instance type for this notebook\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.instances)\n                            {\n                                \"value\":\"$object.value\",\n                                \"text\":\"$object.name\",\n                                \"description\":\"$object.description\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ],\n                        \"default\":\"ml.t3.medium\"\n                    },\n                    \"RoleArn\":{\n                        \"title\":\"Instance IAM RoleArn\",\n                        \"description\":\"Choose the IAM role that will give users on the notebook instance to call AWS APIs\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            {\n                                \"text\":\"DefaultRole\",\n                                \"value\":\"${DefaultNotebookRole.Arn}\",\n                                \"href\":\"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/${DefaultNotebookRole}\",\n                                \"description\":\"Default Sagemaker Role\"\n                            },\n                            {\n                                \"text\":\"Create Role\",\n                                \"value\":\"CREATE\",\n                                \"description\":\"Create a new role for this instance with the default sagemaker policy applied\"\n                            }\n                            #foreach( $object in $inputRoot.roles)\n                            ,{\n                                \"value\":\"$object.Arn\",\n                                \"text\":\"$object.RoleName\",\n                                \"href\":\"https://console.aws.amazon.com/iam/home?region=${AWS::Region}#/roles/$object.RoleName\",\n                                \"description\":\"$object.Description\"\n                            }\n                            #end\n                        ],\n                        \"default\":\"${DefaultNotebookRole.Arn}\"\n                    },\n                    #if( $inputRoot.keys.size() != 0)\n                    \"KmsKeyId\":{\n                        \"title\":\"KMS key Id\",\n                        \"description\":\"A AWS KMS key to use for encrypting the data volumnes of the instance. The Key's policy must enable IAM management. See details for more information\",\n                        \"type\":\"string\",\n                        \"href\":\"https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam\",\n                        \"immutable\":true,\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.keys){\n                                \"text\":\"$object.KeyId\",\n                                \"value\":\"$object.KeyId\",\n                                \"href\":\"https://console.aws.amazon.com/kms/home?region=${AWS::Region}#/kms/keys/$object.KeyId/\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },\n                    #end\n                    \"DirectInternetAccess\":{\n                        \"title\":\"Enable/Disable Direct Internet Access\",\n                        \"type\":\"string\",\n                        \"immutable\":true,\n                        \"enum\":[\"Disabled\",\"Enabled\"],\n                        \"default\":\"Enabled\"\n                    },\n                    \n                    #if ($inputRoot.glue.size() != 0)\n                    \"GlueDevEndpoint\":{\n                        \"title\":\"Glue development endpoints\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.glue){\n                                \"text\":\"$object.name\",\n                                \"value\":\"$object.name\",\n                                \"description\":\"Nodes:$object.nodes VPC:$object.vpc\",\n                                \"href\":\"https://console.aws.amazon.com/glue/home?region=${AWS::Region}#devEndpoint:name=$object.name\"\n                            }#if( $foreach.hasNext ),#end\n                            #end\n                        ]\n                    },#end\n                    \"OnCreateDocument\":{\n                        \"title\":\"SSM OnCreate Document\",\n                        \"immutable\":true,\n                        \"description\":\"An SSM document to run on instance creation.\",\n                        \"ask\":\"Tell me about the OnCreate Document\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.ssm){\n                                \"text\":\"$object.Name\",\n                                \"value\":\"$object.Name\",\n                                \"description\":\"$object.Description\",\n                                \"href\":\"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}\"\n                            }#if( $foreach.hasNext ),#end#end\n                        ]\n                    },\n                    \"OnStartDocument\":{\n                        \"title\":\"SSM OnStart Document\",\n                        \"description\":\"An SSM document to run on each instance start up.\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.ssm){\n                                \"text\":\"$object.Name\",\n                                \"value\":\"$object.Name\",\n                                \"description\":\"$object.Description\",\n                                \"href\":\"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}\"\n                            }#if( $foreach.hasNext ),#end#end\n                        ]\n                    },\n                    \"OnStopDocument\":{\n                        \"title\":\"SSM OnStop Document\",\n                        \"description\":\"An SSM document to run on each instance shut down.\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.ssm){\n                                \"text\":\"$object.Name\",\n                                \"value\":\"$object.Name\",\n                                \"description\":\"$object.Description\",\n                                \"href\":\"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}\"\n                            }#if( $foreach.hasNext ),#end#end\n                        ]\n                    },\n                    \"OnTerminateDocument\":{\n                        \"title\":\"SSM OnTerminate Document\",\n                        \"immutable\":true,\n                        \"description\":\"An SSM document to run on instance termination.\",\n                        \"ask\":\"Tell me about the OnTerminate Document\",\n                        \"type\":\"string\",\n                        \"enum\":[\n                            #foreach( $object in $inputRoot.ssm){\n                                \"text\":\"$object.Name\",\n                                \"value\":\"$object.Name\",\n                                \"description\":\"$object.Description\",\n                                \"href\":\"https://console.aws.amazon.com/systems-manager/documents/$object.Name/description?region=${AWS::Region}\"\n                            }#if( $foreach.hasNext ),#end#end\n                        ]\n                    },\n                    \"IdleShutdown\":{\n                        \"title\":\"Idle Shutdown Wait Period in minutes\",\n                        \"description\":\"The number of minutes of inactivity before the instance is shutdown to save cost\",\n                        \"type\":\"string\",\n                        \"enum\":[{\n                            \"value\":\"30\",\n                            \"text\":\"30 minutes\"\n                        },{\n                            \"value\":\"45\",\n                            \"text\":\"45 minutes\"\n                        },{\n                            \"value\":\"60\",\n                            \"text\":\"1 hr\"\n                        }],\n                        \"default\":\"30\"\n                    }\n                },\n                \"required\":[\"ID\",\"InstanceType\",\"RoleArn\"]\n            }        \n        }\n    }\n}}\n    \n"
-                }
-              }
+              "StatusCode": 200
             },
             {
               "SelectionPattern": ".*[InternalServiceError].*",
@@ -5731,19 +5744,7 @@
               "ApiGatewayRole",
               "Arn"
             ]
-          },
-          "RequestTemplates": {
-            "application/json": {
-              "Fn::Sub": "{}\n"
-            }
           }
-        },
-        "RequestParameters": {
-          "method.request.querystring.SourceID": false,
-          "method.request.querystring.SourceType": false,
-          "method.request.querystring.DestType": false,
-          "method.request.querystring.Type": false,
-          "method.request.querystring.ID": false
         },
         "ResourceId": {
           "Ref": "instancesTemplate"
@@ -5774,7 +5775,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var list_apis=require(\"list_apis\");exports.handler=function(s,e,a){console.log(JSON.stringify(s,null,2)),list_apis().then(s=>a(null,s)).catch(s=>{console.log(s),a(JSON.stringify({type:404===s.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:s.statusCode,message:s.message,data:s}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var list_apis=require(\"list_apis\");function schema(e,t){return{collection:{version:\"1.0\",href:`${`https://${e.requestContext.apiId}.execute-api.${e.requestContext.Region}.amazonaws.com/${e.requestContext.stage}`}/api/template/instances`,template:{data:{schema:{type:\"object\",properties:{ID:{title:\"Instance ID\",description:\"The unique identifier for this instance\",type:\"string\",immutable:!0,default:`${e.requestContext.requestId}`},DisplayName:{title:\"Instance DisplayName\",description:\"A friendly name for this instance\",type:\"string\"},Description:{title:\"Instance Description\",description:\"A brief description of how this instance will be used\",type:\"string\",maxLength:500},CodeRepository:{description:\"A git repository to associate with the notebook instance as its default code repository. When you open a notebook instance, it opens in the directory that contains this repository.\",href:\"https://docs.aws.amazon.com/sagemaker/latest/dg/nbi-git-repo.html\",type:\"string\",title:\"Git Code Repository\",enum:t.repos},AcceleratorType:{title:\"Elastic Inference Accelerator\",type:\"string\",description:\"An Elastic Inference (EI) instance types to associate with this notebook instance\",href:\"https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html\",enum:t.eia},InstanceType:{title:\"Instance Compute Type\",description:\"The EC2 instance type for this notebook\",type:\"string\",enum:t.instances,default:\"ml.t3.medium\"},RoleArn:{title:\"Instance IAM RoleArn\",description:\"Choose the IAM role that will give users on the notebook instance to call AWS APIs\",type:\"string\",enum:t.roles.concat([{text:\"Create Role\",value:\"CREATE\",description:\"Create a new role for this instance with the default sagemaker policy applied\"}]),default:\"CREATE\"},KmsKeyId:{title:\"KMS key Id\",description:\"A AWS KMS key to use for encrypting the data volumnes of the instance. The Key's policy must enable IAM management. See details for more information\",type:\"string\",href:\"https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam\",immutable:!0,enum:t.keys},DirectInternetAccess:{title:\"Enable/Disable Direct Internet Access\",type:\"string\",immutable:!0,enum:[\"Disabled\",\"Enabled\"],default:\"Enabled\"},GlueDevEndpoint:{title:\"Glue development endpoints\",type:\"string\",enum:t.glue},VolumeSize:{title:\"EBS Volume size\",description:\"The size of the EBS volume attached to your instance\",type:\"string\",enum:t.volume},OnCreateDocument:{title:\"SSM OnCreate Document\",immutable:!0,description:\"An SSM document to run on instance creation.\",ask:\"Tell me about the OnCreate Document\",type:\"string\",enum:list_apis.doc(t,\"OnCreate\")},OnStartDocument:{title:\"SSM OnStart Document\",description:\"An SSM document to run on each instance start up.\",type:\"string\",enum:list_apis.doc(t,\"OnStart\")},OnStopDocument:{title:\"SSM OnStop Document\",description:\"An SSM document to run on each instance shut down.\",type:\"string\",enum:list_apis.doc(t,\"OnStop\")},OnTerminateDocument:{title:\"SSM OnTerminate Document\",immutable:!0,description:\"An SSM document to run on instance termination.\",ask:\"Tell me about the OnTerminate Document\",type:\"string\",enum:list_apis.doc(t,\"OnTerminate\")},IdleShutdown:{title:\"Idle Shutdown Wait Period in minutes\",description:\"The number of minutes of inactivity before the instance is shutdown to save cost\",type:\"string\",enum:[{value:\"30\",text:\"30 minutes\"},{value:\"45\",text:\"45 minutes\"},{value:\"60\",text:\"1 hr\"}],default:\"30\"}},required:[\"ID\",\"InstanceType\",\"RoleArn\"]}}}}}}exports.handler=function(e,t,n){console.log(JSON.stringify(e,null,2)),list_apis.run().then(t=>schema(e,t)).then(e=>{n(null,{statusCode:200,body:JSON.stringify(e)})}).catch(e=>{console.log(e),n(JSON.stringify({type:404===e.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:e.statusCode,message:e.message,data:e}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "3008",
@@ -5833,6 +5834,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -6024,6 +6028,9 @@
             },
             "ASSETPREFIX": {
               "Ref": "AssetPrefix"
+            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
             }
           }
         },
@@ -7073,7 +7080,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2019-01-02T22:50:42.323Z",
+        "buildDate": "2019-01-03T22:48:47.085Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -9555,7 +9562,7 @@
                 "hi",
                 "hey"
               ],
-              "a": "Hi! welcome to the SageGuard Admin interface"
+              "a": "Hi! welcome to the SageGuard Admin interface. "
             },
             {
               "qid": "how.1",
@@ -9606,6 +9613,13 @@
                 "How do i reset a users password"
               ],
               "a": "go here"
+            },
+            {
+              "qid": "how.7",
+              "q": [
+                "How do i create an SSM document"
+              ],
+              "a": "go here"
             }
           ]
         },
@@ -9644,7 +9658,7 @@
         "CSS": {
           "Fn::Sub": "${AssetPrefix}/assets/custom.css"
         },
-        "Date": "2019-01-02T22:50:42.595Z"
+        "Date": "2019-01-03T22:48:47.362Z"
       }
     },
     "DefaultNotebookRole": {
@@ -9767,7 +9781,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2019-01-02T22:50:42.595Z",
+        "BuildDate": "2019-01-03T22:48:47.363Z",
         "Version": "1.0.0"
       }
     },
@@ -9939,7 +9953,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2019-01-02T22:50:42.597Z"
+        "buildDate": "2019-01-03T22:48:47.364Z"
       },
       "DependsOn": "WebsiteClear"
     },

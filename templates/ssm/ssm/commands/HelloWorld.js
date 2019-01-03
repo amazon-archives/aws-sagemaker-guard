@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "2.2",
-  "description": "Command Document Example JSON Template",
+  "description": "Example Document to be used with SageGaurd",
   "parameters": require('../params'),
   "mainSteps": [
     {
@@ -13,5 +13,11 @@ module.exports={
         ]
       }
     }
-  ]
+  ],
+    Tags:{
+    "OnCreate":"true",
+    "OnTerminate":"true",
+    "OnStart":"true",
+    "OnStop":"true"
+  }
 }

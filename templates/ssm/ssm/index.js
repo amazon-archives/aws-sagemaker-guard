@@ -1,6 +1,9 @@
 var fs=require('fs')
 var _=require('lodash')
 
+var Tags={
+    "StackName":{"Ref":"StackName"}
+}
 var commands=_.fromPairs(fs.readdirSync(`${__dirname}/commands`)
     .map(x=>x.match(/(.*)\.js/))
     .filter(x=>x)
@@ -13,10 +16,6 @@ var automations=_.fromPairs(fs.readdirSync(`${__dirname}/automation`)
     .map(x=>x[1])
     .map(x=>[`${x}AutomationDocument`,automation(x)]))
 
-var Tags=[{
-    Key:"StackName",
-    Value:{"Ref":"AWS::StackName"}
-}]
 
 
 module.exports=Object.assign(commands,automations,{
@@ -58,27 +57,39 @@ module.exports=Object.assign(commands,automations,{
         "Type" : "AWS::SSM::Document",
         "Properties" : {
             Content:require('./inventory'),
-            Tags,
             DocumentType:"Command"
         }
     }
 })
 function automation(name){
+    var content=require(`./automation/${name}`)
     return {
         "Type" : "AWS::SSM::Document",
         "Properties" : {
-            Content:require(`./automation/${name}`),
-            Tags,
+            Content:_.omit(content,["Tags"]),
+            Tags:_.toPairs(Object.assign(_.get(content,"Tags",{}),Tags,{
+                DisplayName:name 
+            })).map(x=>{return{
+                Key:x[0],
+                Value:x[1]
+            }}),
             DocumentType:"Automation"
         }
     }
 }
 function command(name){
+    var content=require(`./commands/${name}`)
+    
     return {
         "Type" : "AWS::SSM::Document",
         "Properties" : {
-            Content:require(`./commands/${name}`),
-            Tags,
+            Content:_.omit(content,["Tags"]),
+            Tags:_.toPairs(Object.assign(_.get(content,"Tags",{}),Tags,{
+                DisplayName:name 
+            })).map(x=>{return{
+                Key:x[0],
+                Value:x[1]
+            }}),
             DocumentType:"Command"
         }
     }

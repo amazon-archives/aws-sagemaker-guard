@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": "Command Document Example JSON Template",
+  "description": {"Fn::Sub":"Creates a Glue Development Endpoint and configures the instance to be able to use it. Pair with DeleteGlue to delete on instance shutdown"},
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters": require('../params'),
   "mainSteps": [
@@ -47,5 +47,11 @@ module.exports={
         }
       }
     }
-  ]
+  ],
+  Tags:{
+    "OnCreate":"false",
+    "OnTerminate":"false",
+    "OnStart":"true",
+    "OnStop":"false"
+  }
 }

@@ -8,9 +8,10 @@ exports.start=function(config){
         Name:config.DocumentName
     }).promise()
     .then(x=>{
+        console.log(JSON.stringify(x,null,2))
         var documentParams=_.get(JSON.parse(x.Content),"parameters",{})
 
-        config.Parameters=_.pick(config.Parameters,documentParams)
+        config.Parameters=_.pick(config.Parameters,_.keys(documentParams))
         config.DocumentType=x.DocumentType
         
         if(x.DocumentType==="Command"){

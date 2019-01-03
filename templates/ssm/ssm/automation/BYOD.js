@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": "Command Document Example JSON Template",
+  "description": {"Fn::Sub":"OnCreate Document. Installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance. Set the OnTerminate document to 'DeleteBucket' to properly clean up."},
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters": require('../params'),
   "mainSteps": [
@@ -35,5 +35,11 @@ module.exports={
         }
       }
     }
-  ]
+  ],
+  Tags:{
+    "OnCreate":"true",
+    "OnTerminate":"false",
+    "OnStart":"false",
+    "OnStop":"false"
+  }
 }

@@ -21,11 +21,22 @@ var fncs=fs.readdirSync(__dirname)
 
 var obj=_.unzip(fncs)
 
-module.exports=function(){
+exports.run=function(){
     return Promise.all(
         obj[1].map((x,i)=>x().catch(e=>{
             console.log(obj[0][1][i],"a")
             throw e
         }))
     ).then(x=>_.fromPairs(_.zip(obj[0],x)))
+}
+
+exports.doc=function(input,filter){
+    return input.ssm
+        .filter(x=>x.tags[filter]=="true")
+        .map(x=>{return{
+            "text":x.tags.DisplayName || x.Name,
+            "value":x.Name,
+            "description":x.Description,
+            "href":`https://console.aws.amazon.com/systems-manager/documents/${x.Name}/description?region=${process.env.AWS_REGION}`
+        }})
 }

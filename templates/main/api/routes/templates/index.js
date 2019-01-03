@@ -23,21 +23,28 @@ function template(name){
         ],
         [
             `${name}TemplateGet`,
-            util.lambda({
+            fs.existsSync(`${__dirname}/${name}/req.vm`)?
+                util.lambda({
+                    resource:{"Ref":`${name}Template`},
+                    method:"GET",
+                    lambda:`API${name}TemplateLambda`,
+                    req:fs.readFileSync(`${__dirname}/${name}/req.vm`,'utf-8'),
+                    res:fs.readFileSync(`${__dirname}/${name}/res.vm`,'utf-8'),
+                    parameter:{
+                        locations:{
+                            "method.request.querystring.SourceID":false,
+                            "method.request.querystring.SourceType":false,
+                            "method.request.querystring.DestType":false,
+                            "method.request.querystring.Type":false,
+                            "method.request.querystring.ID":false,
+                        }
+                    }
+                })
+            : util.lambda({
                 resource:{"Ref":`${name}Template`},
                 method:"GET",
+                type:"AWS_PROXY",
                 lambda:`API${name}TemplateLambda`,
-                req:fs.readFileSync(`${__dirname}/${name}/req.vm`,'utf-8'),
-                res:fs.readFileSync(`${__dirname}/${name}/res.vm`,'utf-8'),
-                parameter:{
-                    locations:{
-                        "method.request.querystring.SourceID":false,
-                        "method.request.querystring.SourceType":false,
-                        "method.request.querystring.DestType":false,
-                        "method.request.querystring.Type":false,
-                        "method.request.querystring.ID":false,
-                    }
-                }
             })
         ],
         [
@@ -106,7 +113,8 @@ function lambda(name,handler){
                 API:{"Fn::GetAtt":["URLs","API"]},
                 REGIONNAME:{"Fn::FindInMap":["RegionMap",{"Ref":"AWS::Region"},"name"]},
                 ASSETBUCKET:{"Ref":"AssetBucket"},
-                ASSETPREFIX:{"Ref":"AssetPrefix"}
+                ASSETPREFIX:{"Ref":"AssetPrefix"},
+                STACKNAME:{"Ref":"AWS::StackName"}
             }
         },
         "TracingConfig":{

@@ -14,6 +14,7 @@ module.exports=function(){
                 x.CodeRepositorySummaryList
                 .map(y=>{return {
                     value:y.CodeRepositoryName,
+                    text:y.CodeRepositoryName,
                     description:`${y.GitConfig.RepositoryUrl}:${x.GitConfig.Branch}`
                 }})
                 .map(y=>list.push(y))

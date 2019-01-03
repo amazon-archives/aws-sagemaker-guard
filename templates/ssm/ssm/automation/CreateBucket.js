@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": "Command Document Example JSON Template",
+  "description": {"Fn::Sub":"Creates an S3 bucket and add permissions fo the notebook to access the document. Pair with DeleteBucket to properly clean up bucket when the instance is terminated"},
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters": require('../params'),
   "mainSteps": [
@@ -21,5 +21,11 @@ module.exports={
         }]
       }
     }
-  ]
+  ],
+  Tags:{
+    "OnCreate":"true",
+    "OnTerminate":"false",
+    "OnStart":"false",
+    "OnStop":"false"
+  }
 }

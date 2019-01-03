@@ -2,6 +2,10 @@ var fs=require('fs')
 var _=require('lodash')
 
 module.exports={    
+    VolumeSize:{
+        "Type":"String",
+        "Default":"5"
+    },
     CodeRepository:{
         "Type":"String",
         "Default":"EMPTY"

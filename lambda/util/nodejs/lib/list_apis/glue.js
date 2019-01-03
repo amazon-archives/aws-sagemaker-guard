@@ -14,9 +14,10 @@ module.exports=function(){
             .then(result=>{
                 result.DevEndpoints
                     .forEach(x=>out.push({
-                        name:x.EndpointName,
-                        nodes:x.NumberOfNodes,
-                        vpc:x.VpcId
+                        text:x.EndpointName,
+                        value:x.EndpointName,
+                        description:`Nodes:${x.NumberOfNodes}`,
+                        href:`https://console.aws.amazon.com/glue/home?region=${process.env.AWS_REGION}#devEndpoint:name=${x.EndpointName}`
                     }))
 
                 if(result.NextToken){

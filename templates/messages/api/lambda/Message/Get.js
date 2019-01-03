@@ -74,7 +74,7 @@ exports.handler=function(event,context,callback){
     }catch(e){
         console.log(e)
         callback(null,{
-            responseCode:500,
+            statusCode:500,
             body:e
         })
     }

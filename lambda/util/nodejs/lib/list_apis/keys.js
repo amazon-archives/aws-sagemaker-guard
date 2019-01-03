@@ -14,7 +14,11 @@ module.exports=function(){
             }).promise()
             .then(result=>{
                 result.Keys
-                    .forEach(x=>out.push(x))
+                    .forEach(x=>out.push({
+                        text:x.KeyId,
+                        value:x.KeyId,
+                        href:`https://console.aws.amazon.com/kms/home?region=${process.env.AWS_REGION}#/kms/keys/${x.KeyId}/`
+                    }))
 
                 if(result.Truncated){
                     next(result.NextMarker)

@@ -2,7 +2,7 @@ var fs=require('fs')
 
 module.exports={
     "schemaVersion": "2.2",
-    "description": "install conda requirements",
+    "description": "Uninstall conda requirements.txt on a SageMaker notebook instance",
     "mainSteps": [
         {
             "action": "aws:runShellScript",
@@ -16,7 +16,8 @@ module.exports={
         "requirements": {
             "type": "String",
             "default": "Enabled",
-            "displayType": "textarea"
+            "displayType": "textarea",
+            "description":"The contents of a requirements.txt file to be uninstalled on the SageMaker notebook instance"
         },
     }
 }

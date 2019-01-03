@@ -10,7 +10,7 @@ exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
     var params=event.ResourceProperties
     delete params.ServiceToken
-    
+    params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB)
     try{
     if(!event.wait){
         if(event.RequestType==="Create"){

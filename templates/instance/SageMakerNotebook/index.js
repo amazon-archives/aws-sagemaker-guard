@@ -12,6 +12,7 @@ module.exports=Object.assign({
         "Type": "Custom::NotebookInstance",
         "Properties": {
             "ServiceToken": { "Fn::GetAtt" : ["NotebookLambda", "Arn"] },
+            VolumeSizeInGB:{"Ref":"VolumeSize"},
             InstanceType:{"Ref":"InstanceType"},
             NotebookInstanceName:{"Ref":"AWS::StackName"},
             RoleArn:{"Fn::GetAtt":["Role","Arn"]},
