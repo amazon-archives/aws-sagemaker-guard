@@ -12,7 +12,7 @@ exports.handler=function(event,context,callback){
         stateMachineArn:process.env.STATEMACHINECLEAROBJECT,
         input:JSON.stringify(event)
     }).promise()
-    .then(()=>wait(process.env.API,event.Type,event.Delete))
+    .then(()=>wait(process.env.API,event.Type,event.ID))
     .then(response=>{
         callback(null,{
             ID:event.ID

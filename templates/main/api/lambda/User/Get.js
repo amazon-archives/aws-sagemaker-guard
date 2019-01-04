@@ -43,17 +43,11 @@ exports.handler=function(event,context,callback){
         .then(results=>{
             var es=results[0]
             var cog=results[1]
+            console.log(JSON.stringify(results,null,2))
             if(es.hits.total>0){
-                return Promise.all(es.hits.hits.map(x=>lambda.invoke({
-                    FunctionName:event.FunctionName,
-                    InvocationType:"RequestResponse",
-                    Payload:JSON.stringify({
-                        ID:x._source.InstanceName,
-                        Type:"instances"
-                    })
-                }).promise().then(validate)
-                .then(y=>`${Date(x._source.Date)}:${y.attributes.ID} `)))
-                .then(x=>result.attributes["Last Logins"]=x)
+                result.attributes["Last Logins"]=es.hits.hits.map(x=>{
+                    return `${Date(x._source.Date)}:${x._source.NoteBookName} `
+                })
             }
             if(cog.AuthEvents.length>0){
                 result.attributes["Login events"]=cog.AuthEvents

@@ -12,9 +12,10 @@ if(require.main===module){
 }
 
 async function run(){
+    console.log(process.argv)
     var template=await check()
     var result=await cf.updateStack({
-        StackName:await name.get(),
+        StackName:process.argv[2] || await name.get(),
         Capabilities:["CAPABILITY_NAMED_IAM"],
         TemplateURL:`http://s3.amazonaws.com/${bucket}/${prefix}/${config.name}.json`,
         Parameters:Object.keys(config.parameters)

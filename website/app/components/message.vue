@@ -4,6 +4,9 @@
     v-card-title(primary-title v-if="!loading")
       v-btn.primary--text(flat icon @click.native="show=!show")
         v-icon(color="primary") {{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}
+      v-icon.pr-3.error--text(v-if="data.Status.toLowerCase()==='deny'") error
+      v-icon.pr-3.success--text(v-if="data.Status.toLowerCase()==='approve'") check_circle
+      v-icon.pr-3(v-if="data.Status.toLowerCase()==='pending'") hourglass_empty
       h3(@click.native="show=!show") {{title}}
       v-spacer
       rm(
@@ -37,7 +40,9 @@
           temp( 
               v-if="schema"
               :template="template"
+              method="PUT"
               :href="template.href"
+              @new="refresh"
               auth="cognito"
           )
 </template>
@@ -75,8 +80,8 @@ module.exports={
   computed:{
     title:function(){
       return this.data.Requestor ? 
-        `${this.data.Requestor}: ${this.data.InstanceType}`:
-        `${this.data.InstanceType}: ${this.data.response}`
+        `${this.data.Requestor}: ${this.data.InstanceType || this.data.Status}`:
+        `${this.data.InstanceType}: ${this.data.Status}`
     },
     data:function(){
       return _.get(this,'collection.items[0]',{})
@@ -99,6 +104,9 @@ module.exports={
     .then(()=>this.loading=false)
   },
   methods:{
+    refresh:function(){
+      this.$emit("refresh")
+    },
     getOptions:function(){
       this.$store.dispatch("options",{
         auth:"cognito",

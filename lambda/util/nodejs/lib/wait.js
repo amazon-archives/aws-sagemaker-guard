@@ -5,6 +5,7 @@ var delay=require('./delay')
 var _=require('lodash')
 
 module.exports=function(api,type,id){
+    console.log(api,type,id)
     return new Promise(function(res,rej){
         next(1000)
         function next(count){
@@ -13,6 +14,7 @@ module.exports=function(api,type,id){
                 method:"GET",
             })
             .then(result=>{
+                console.log(JSON.stringify(result,null,2))
                 return Promise.all(result.collection.items.map(x=>send({
                         href:x.href,
                         method:"GET"

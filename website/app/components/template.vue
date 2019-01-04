@@ -198,7 +198,7 @@ function defaultFromSchema(obj){
     if(obj.type==="object"){
         return _.mapValues(obj.properties,defaultFromSchema)
     }else if(obj.type==="array"){
-        return defaultFromSchema(obj.items)
+        return [defaultFromSchema(obj.items)]
     }else if(obj.type==="string"){
         return obj.default || ""
     }else if(obj.type==="number"){

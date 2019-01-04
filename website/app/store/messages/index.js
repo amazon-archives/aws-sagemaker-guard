@@ -25,6 +25,9 @@ module.exports={
         collection:function(state,val){
             state.messages=val.collection
         },
+        clear:function(state){
+            state.messages={}
+        },
         init:function(state,payload){
             state.state=payload
         }

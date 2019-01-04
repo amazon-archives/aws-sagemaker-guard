@@ -5,7 +5,7 @@ module.exports={
     properties:{
         "ID":{
             type:"string",
-            title:"User ID",
+            title:"Group ID",
             immutable:true
         },
         "DisplayName":{

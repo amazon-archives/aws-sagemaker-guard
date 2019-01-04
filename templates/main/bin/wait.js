@@ -9,7 +9,7 @@ var name=require('./name')
 module.exports=wait
 
 async function wait(){
-    var StackName=name.get()
+    var StackName=process.argv[2] || await name.get()
     console.log(StackName)
     await new Promise(function(res,rej){
         console.log("Waiting on stack:"+StackName)

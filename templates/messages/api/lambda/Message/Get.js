@@ -38,12 +38,12 @@ exports.handler=function(event,context,callback){
                 "href":`${opts.href}?view=${opts.view}`,
                 "links":[],
                 "items":[item],
-                "template":item.Status!=="Approved" ? !opts.admin ? {
+                "template":item.Status!=="Approve" ? !opts.admin ? {
                     "data":{
                         "schema":schema,
                         "prompt":"Edit request"
                     },
-                    "href":opts.href
+                    "href":`${opts.href}?view=${opts.view}`
                 } : {
                     data:{
                         schema:{
@@ -51,10 +51,14 @@ exports.handler=function(event,context,callback){
                             properties:{
                                 Status:{
                                     type:"string",
+                                    title:"Status",
+                                    description:"Approve or deny the request",
                                     enum:["Approve","Pending","Deny"]
                                 },
                                 comment:{
                                     type:"string",
+                                    title:"Comment",
+                                    description:"provide a comment back to the request",
                                     maxLength:500
                                 }
                             },
@@ -62,7 +66,7 @@ exports.handler=function(event,context,callback){
                         },
                         prompt:"respond to request"
                     },
-                    "href":opts.href
+                    "href":`${opts.href}?view=${opts.view}`
                 }:{},
                 "queries":[]
             }}

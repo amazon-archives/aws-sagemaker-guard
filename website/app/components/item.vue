@@ -133,8 +133,8 @@ module.exports={
       this.removing=true
       try{
         await this.$store.dispatch('rm',Object.assign(this.item,{auth:"aws"}))
-        await new Promise(resolve => setTimeout(resolve, 2000))
         this.$emit("remove")
+        await new Promise(resolve => setTimeout(resolve, 2000))
       }catch(e){
         console.error(e)
         window.alert(JSON.stringify(JSON.parse(e.response.collection.error),null,2))

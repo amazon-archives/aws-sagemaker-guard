@@ -29,6 +29,7 @@
             :item="item" 
             :key="item.href"
             :index="index"
+            @refresh="refresh"
             v-on:remove="remove(index)"
           )
 </template>
@@ -96,7 +97,7 @@ module.exports={
   },
   methods:{
     add:function(x){
-      this.messages.items.unshift(x)
+      this.refresh()
     },
     refresh:function(){
       this.loading=true

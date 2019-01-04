@@ -25,6 +25,8 @@ var reason=function(r){
 var failed=false
 module.exports={
     list:async function(context,opts){
+        context.commit('clear')
+
         var result=await context.dispatch('_request_cognito',{
             url:opts.root,
             method:'get'

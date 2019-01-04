@@ -13,7 +13,7 @@ exports.handler=function(event,context,callback){
         
         opts.item.ID= event.requestContext.requestId
         opts.item.Requestor=opts.id
-        opts.item.Status="pending"
+        opts.item.Status="Pending"
         Promise.all([
             send({
                 href:`${opts.base}/templates/instances`,
