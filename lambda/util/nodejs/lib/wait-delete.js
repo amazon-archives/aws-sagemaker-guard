@@ -9,30 +9,21 @@ module.exports=function(api,type,id){
         next(1000)
         function next(count){
             send({
-                href:`${api}/api/${type}?Query=${id}`,
+                href:`${api}/api/${type}/${id}`,
                 method:"GET",
-            })
-            .then(result=>{
-                return Promise.all(result.collection.items.map(x=>send({
-                        href:x.href,
-                        method:"GET"
-                    })
-                ))
             })
             .then(results=>{
                 console.log(results)
-                var items=results.filter(x=>x.collection.items[0].data.ID===id)
-                if(items.length===0){
-                    res()
+                if(count===0){
+                    rej("timeout")
                 }else{
-                    if(count===0){
-                        rej("timeout")
-                    }else{
-                        setTimeout(()=>next(--count),100)
-                    }
+                    setTimeout(()=>next(--count),100)
                 }
             })
-            .catch(rej)
+            .catch(e=>{
+                console.log(e) 
+                res()
+            })
         }
     })
 }

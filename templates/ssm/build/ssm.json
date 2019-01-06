@@ -615,6 +615,53 @@
         "DocumentType": "Command"
       }
     },
+    "SageBuildCommandDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "2.2",
+          "description": "installs and configures the aws-sagemaker-build project to provide a CI/CD environment for SageMaker",
+          "mainSteps": [
+            {
+              "action": "aws:runShellScript",
+              "name": "runShellScript",
+              "inputs": {
+                "runCommand": [
+                  "#! bin/bash\nset -x\ncd /home/ec2-user/SageMaker\n\nmkdir -p SageBuild\ncd SageBuild\naws s3 cp s3://${BUCKET}/${PREFIX}/notebooks.zip .\nunzip notebooks.zip \nrm notebooks.zip\necho '{\"Region\":\"{{Region}}\",\"StackName\":\"{{StackName}}\"}' > config.json\n\nfor notebook in $(find . | grep .ipynb); do\n    jupyter trust $notebook\ndone\n\ncd ..\nchown \"ec2-user\" SageBuild --recursive \n"
+                ]
+              }
+            }
+          ],
+          "parameters": {
+            "Bucket": {
+              "type": "String"
+            },
+            "Region": {
+              "type": "String"
+            },
+            "Prefix": {
+              "type": "String"
+            },
+            "StackName": {
+              "type": "String"
+            }
+          }
+        },
+        "Tags": [
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "SageBuild"
+          }
+        ],
+        "DocumentType": "Command"
+      }
+    },
     "UninstallCommandDocument": {
       "Type": "AWS::SSM::Document",
       "Properties": {
@@ -1239,6 +1286,251 @@
         "DocumentType": "Automation"
       }
     },
+    "CreateSageBuildAutomationDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "0.3",
+          "description": {
+            "Fn::Sub": "OnCreate Document. Installs and configures the aws-sagemaker-build project on the instance. Set the OnTerminate document to 'DeleteSageBuild' to properly clean up."
+          },
+          "assumeRole": {
+            "Fn::GetAtt": [
+              "SSMAutomationRole",
+              "Arn"
+            ]
+          },
+          "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "CodeRepository": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "AcceleratorType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "State": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LambdaUtilLayer": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "OnStopDocument": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "VPC": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:createStack",
+              "name": "start",
+              "nextStep": "describeStack",
+              "inputs": {
+                "StackName": "{{StackName}}-bucket",
+                "TemplateURL": {
+                  "Fn::Sub": "https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/bucket.json"
+                },
+                "Capabilities": [
+                  "CAPABILITY_IAM"
+                ],
+                "Parameters": [
+                  {
+                    "ParameterValue": "{{RoleArn}}",
+                    "ParameterKey": "RoleArn"
+                  },
+                  {
+                    "ParameterValue": "{{StackName}}",
+                    "ParameterKey": "NotebookInstance"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "describeStack",
+              "action": "aws:executeAwsApi",
+              "nextStep": "install",
+              "inputs": {
+                "Service": "cloudformation",
+                "Api": "DescribeStacks",
+                "StackName": "{{StackName}}-bucket"
+              },
+              "outputs": [
+                {
+                  "Name": "Bucket",
+                  "Type": "String",
+                  "Selector": "$.Stacks[0].Outputs[0].OutputValue"
+                }
+              ]
+            },
+            {
+              "action": "aws:runCommand",
+              "name": "install",
+              "nextStep": "startSageBuild",
+              "inputs": {
+                "DocumentName": {
+                  "Ref": "SageBuildCommandDocument"
+                },
+                "InstanceIds": [
+                  "{{InstanceId}}"
+                ],
+                "OutputS3BucketName": "{{LogsBucket}}",
+                "OutputS3KeyPrefix": "SageBuild",
+                "Parameters": {
+                  "Bucket": "aws-machine-learning-blog",
+                  "Region": "{{global:REGION}}",
+                  "Prefix": "artifacts/sagebuild/v1",
+                  "StackName": "{{StackName}}-SageBuild"
+                }
+              }
+            },
+            {
+              "action": "aws:createStack",
+              "name": "startSageBuild",
+              "inputs": {
+                "StackName": "{{StackName}}-SageBuild",
+                "TemplateURL": "https://s3.amazonaws.com/aws-machine-learning-blog/artifacts/sagebuild/v1/template.json",
+                "Capabilities": [
+                  "CAPABILITY_IAM"
+                ],
+                "Parameters": [
+                  {
+                    "ParameterValue": "NONE",
+                    "ParameterKey": "NoteBookInstanceType"
+                  },
+                  {
+                    "ParameterValue": "{{describeStack.Bucket}}",
+                    "ParameterKey": "ExternalDataBucket"
+                  },
+                  {
+                    "ParameterValue": "{{describeStack.Bucket}}",
+                    "ParameterKey": "AssetBucket"
+                  },
+                  {
+                    "ParameterValue": "SageBuild",
+                    "ParameterKey": "AssetPrefix"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "CreateSageBuild"
+          }
+        ],
+        "DocumentType": "Automation"
+      }
+    },
     "DeleteBucketAutomationDocument": {
       "Type": "AWS::SSM::Document",
       "Properties": {
@@ -1552,6 +1844,173 @@
           {
             "Key": "DisplayName",
             "Value": "DeleteGlue"
+          }
+        ],
+        "DocumentType": "Automation"
+      }
+    },
+    "DeleteSageBuildAutomationDocument": {
+      "Type": "AWS::SSM::Document",
+      "Properties": {
+        "Content": {
+          "schemaVersion": "0.3",
+          "description": "Deletes S3 bucket.",
+          "assumeRole": {
+            "Fn::GetAtt": [
+              "SSMAutomationRole",
+              "Arn"
+            ]
+          },
+          "parameters": {
+            "VolumeSize": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "CodeRepository": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "AcceleratorType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "State": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LambdaUtilLayer": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "OnStopDocument": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "ParentStack": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SSMLogGroup": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "LogsBucket": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EFS": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "InstanceType": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "RoleArn": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "KmsKeyId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SecurityGroupId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "SubnetId": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "DirectInternetAccess": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "IdleShutdown": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "GlueDevEndpoint": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "VPC": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "StackName": {
+              "type": "String"
+            },
+            "InstanceId": {
+              "type": "String"
+            },
+            "SSMRoleArn": {
+              "type": "String"
+            }
+          },
+          "mainSteps": [
+            {
+              "action": "aws:deleteStack",
+              "name": "deleteBucket",
+              "nextStep": "deleteSageBuild",
+              "inputs": {
+                "StackName": "{{StackName}}-bucket"
+              }
+            },
+            {
+              "action": "aws:deleteStack",
+              "name": "deleteSageBuild",
+              "inputs": {
+                "StackName": "{{StackName}}-SageBuild"
+              }
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "OnCreate",
+            "Value": "false"
+          },
+          {
+            "Key": "OnTerminate",
+            "Value": "true"
+          },
+          {
+            "Key": "OnStart",
+            "Value": "false"
+          },
+          {
+            "Key": "OnStop",
+            "Value": "false"
+          },
+          {
+            "Key": "StackName",
+            "Value": {
+              "Ref": "StackName"
+            }
+          },
+          {
+            "Key": "DisplayName",
+            "Value": "DeleteSageBuild"
           }
         ],
         "DocumentType": "Automation"

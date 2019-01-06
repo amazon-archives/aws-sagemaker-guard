@@ -15,7 +15,8 @@ var automations=_.fromPairs(fs.readdirSync(`${__dirname}/automation`)
     .filter(x=>x)
     .map(x=>x[1])
     .map(x=>[`${x}AutomationDocument`,automation(x)]))
-
+console.log(commands)
+console.log(automations)
 
 
 module.exports=Object.assign(commands,automations,{

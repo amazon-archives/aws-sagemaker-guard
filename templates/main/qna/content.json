@@ -43,5 +43,10 @@
     "qid":"how.7",
     "q":["How do i create an SSM document"],
     "a":"go here"
+},
+{
+    "qid":"how.8",
+    "q":["How do i delete an instance"],
+    "a":"go here"
 }
 ]}

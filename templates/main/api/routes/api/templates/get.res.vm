@@ -69,7 +69,7 @@
         }],
         "queries":[],
         "template":{
-            #if ($input.path('$.attributes.status')!="StackFailed")
+            #if ($input.path('$.attributes.status')!="failed")
             "data":{
                 #if ($input.path('$.Type')=="instances")
                 "schema":{

@@ -109,6 +109,7 @@ function schema(event,input){
                             "title":"EBS Volume size",
                             "description":"The size of the EBS volume attached to your instance",
                             "type":"string",
+                            "default":"5",
                             "enum":input.volume
                         },
                         "OnCreateDocument":{

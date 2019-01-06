@@ -7,7 +7,7 @@ module.exports=function(){
             .map(x=>Math.min(Math.pow(2,x),16000)))
             .map(x=>{return {
                 text:prettyBytes(x*1000000000),
-                value:x
+                value:x.toString()
             }})
         res(out)
     })
