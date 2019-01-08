@@ -35,7 +35,7 @@ module.exports={
         "DependsOn":["CFNLambdaPolicy"],
         "Properties": {
             "ServiceToken": { "Fn::GetAtt" : ["CFNQnABotImportLambda", "Arn"] },
-            "content":require('./content'),
+            "content":{"Fn::Sub":JSON.stringify(require('./content'))},
             "QnABotUrl":{"Fn::GetAtt":["QNA","Outputs.ClientURL"]}
         }
     },

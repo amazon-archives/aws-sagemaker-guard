@@ -75,7 +75,8 @@ module.exports={
                     if(login && !failed){
                         failed=true
                         var result=window.confirm("You need to be logged in to use this page. click ok to be redirected to the login page") 
-                        if(result) window.window.location.href=login
+
+                        if(result) context.dispatch('user/logout',{},{root:true})
                     }else{
                         throw e
                     }
@@ -97,7 +98,6 @@ module.exports={
                     var result=window.confirm("Your credentials have expired. Click ok to be redirected to the login page.") 
                     if(result){
                         context.dispatch('user/logout',{},{root:true})
-                        window.window.location.href=login
                     }else{
                         throw e
                     }

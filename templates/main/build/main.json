@@ -3097,7 +3097,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2019-01-07T19:59:34.853Z"
+        "BuildDate": "2019-01-08T16:44:39.542Z"
       }
     },
     "UtilLambdaLayer": {
@@ -4298,7 +4298,7 @@
             {
               "ResponseTemplates": {
                 "application/json": {
-                  "Fn::Sub": "#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api\",\n    \"items\":[{\n        \"data\":{\n            \"title\":\"Welcome to SageGuard\",\n            \"description\":\"from here you can create, remove, and manager users,groups and notebook instances.\"\n        }\n    }],\n    \"links\":[\n        {\n            \"href\":\"$root/api/users\",\n            \"rel\":\"resources\",\n            \"name\":\"Users\",\n            \"render\":\"person\",\n            \"prompt\":\"Manage users who log into SageMaker Notebook Instances\"\n        },\n        {\n            \"href\":\"$root/api/instances\",\n            \"rel\":\"resources\",\n            \"name\":\"SageMaker Instances\",\n            \"render\":\"computer\",\n            \"prompt\":\"Manage SageMaker Notebook Instances\"\n        },\n        {   \n            \"href\":\"$root/api/groups\",\n            \"rel\":\"resources\",\n            \"name\":\"Groups\",\n            \"render\":\"people\",\n            \"prompt\":\"Manage Groups of users\"\n        },\n        {   \n            \"href\":\"$root/website/api/messages?view=Admins\",\n            \"rel\":\"messages\",\n            \"name\":\"Messages\",\n            \"render\":\"mail_outline\",\n            \"title\":\"Requests\",\n            \"prompt\":\"Approve/Deny requests from your users\"\n        },\n        {   \n            \"href\":\"https://${QNA.Outputs.ElasticsearchEndpoint}/_plugin/kibana/\",\n            \"rel\":\"external\",\n            \"name\":\"Kibana\",\n            \"render\":\"show_chart\",\n            \"prompt\":\"Analyze and Visualize logs\"\n        },\n        {   \n            \"href\":\"https://console.aws.amazon.com/cognito/users/?region=${AWS::Region}#/pool/${QNA.Outputs.UserPool}\",\n            \"rel\":\"external\",\n            \"name\":\"Cognito UserPool Console\",\n            \"prompt\":\"View/Edit your Cognito User Pool\",\n            \"render\":\"domain\"\n        },\n        {   \n            \"href\":\"https://github.com/aws-samples/aws-sagemaker-build/issues\",\n            \"rel\":\"external\",\n            \"name\":\"GitHub Issues\",\n            \"prompt\":\"Having Trouble? Want new features? submit a ticket in the github repo\",\n            \"render\":\"message\"\n        },\n        {\n            \"href\":\"$root/website/api/instances\",\n            \"title\":\"instances\",\n            \"name\":\"instances\",\n            \"render\":\"computer\",\n            \"rel\":\"instances\",\n            \"prompt\":\"login to the instances you have access to\"\n        },\n        {\n            \"href\":\"https://console.aws.amazon.com/sagemaker/home?region=${AWS::Region}#/landing\",\n            \"title\":\"Amazon SageMaker Console\",\n            \"name\":\"sagemaker\",\n            \"rel\":\"external\"\n        }\n    ],\n    \"template\":[{\n        \"data\":{\n            \"schema\":{\n                \"href\":\"$root/templates/instanceUser\"\n            },\n            \"prompt\":\"Create a user and their instance together\"\n        },\n        \"href\":\"$root/templates/instanceUser\"\n    },{\n        \"data\":{\n            \"schema\":{\n                \"href\":\"$root/templates/bulk\"\n            },\n            \"prompt\":\"Create Multiple Users and Instances\"\n        },\n        \"href\":\"$root/templates/bulk\"\n    }]\n}}\n\n\n"
+                  "Fn::Sub": "#set ( $root=\"https://${!context.apiId}.execute-api.${AWS::Region}.amazonaws.com/${!context.stage}\")\n\n{\"collection\":{\n    \"version\":\"1.0\",\n    \"href\":\"$root/api\",\n    \"items\":[{\n        \"data\":{\n            \"title\":\"Welcome to SageGuard\",\n            \"description\":\"from here you can create, remove, and manager users,groups and notebook instances.\"\n        }\n    }],\n    \"links\":[\n        {\n            \"href\":\"$root/api/users\",\n            \"rel\":\"resources\",\n            \"name\":\"Users\",\n            \"render\":\"person\",\n            \"prompt\":\"Manage users who log into SageMaker Notebook Instances\"\n        },\n        {\n            \"href\":\"$root/api/instances\",\n            \"rel\":\"resources\",\n            \"name\":\"SageMaker Instances\",\n            \"render\":\"computer\",\n            \"prompt\":\"Manage SageMaker Notebook Instances\"\n        },\n        {   \n            \"href\":\"$root/api/groups\",\n            \"rel\":\"resources\",\n            \"name\":\"Groups\",\n            \"render\":\"people\",\n            \"prompt\":\"Manage Groups of users\"\n        },\n        {   \n            \"href\":\"$root/website/api/messages?view=Admins\",\n            \"rel\":\"messages\",\n            \"name\":\"Messages\",\n            \"render\":\"mail_outline\",\n            \"title\":\"Requests\",\n            \"prompt\":\"Approve/Deny requests from your users\"\n        },\n        {   \n            \"href\":\"https://${QNA.Outputs.ElasticsearchEndpoint}/_plugin/kibana/\",\n            \"rel\":\"external\",\n            \"name\":\"Kibana\",\n            \"render\":\"show_chart\",\n            \"prompt\":\"Analyze and Visualize logs\"\n        },\n        {   \n            \"href\":\"https://console.aws.amazon.com/cognito/users/?region=${AWS::Region}#/pool/${QNA.Outputs.UserPool}\",\n            \"rel\":\"external\",\n            \"name\":\"Cognito UserPool Console\",\n            \"prompt\":\"View/Edit your Cognito User Pool\",\n            \"render\":\"domain\"\n        },\n        {   \n            \"href\":\"https://github.com/aws-samples/aws-sagemaker-guard/issues\",\n            \"rel\":\"external\",\n            \"name\":\"GitHub Issues\",\n            \"prompt\":\"Having Trouble? Want new features? submit a ticket in the github repo\",\n            \"render\":\"message\"\n        },\n        {\n            \"href\":\"$root/website/api/instances\",\n            \"title\":\"instances\",\n            \"name\":\"instances\",\n            \"render\":\"computer\",\n            \"rel\":\"instances\",\n            \"prompt\":\"login to the instances you have access to\"\n        },\n        {\n            \"href\":\"https://console.aws.amazon.com/sagemaker/home?region=${AWS::Region}#/landing\",\n            \"title\":\"Amazon SageMaker Console\",\n            \"name\":\"sagemaker\",\n            \"rel\":\"external\"\n        }\n    ],\n    \"template\":[{\n        \"data\":{\n            \"schema\":{\n                \"href\":\"$root/templates/instanceUser\"\n            },\n            \"prompt\":\"Create a user and their instance together\"\n        },\n        \"href\":\"$root/templates/instanceUser\"\n    },{\n        \"data\":{\n            \"schema\":{\n                \"href\":\"$root/templates/bulk\"\n            },\n            \"prompt\":\"Create Multiple Users and Instances\"\n        },\n        \"href\":\"$root/templates/bulk\"\n    }]\n}}\n\n\n"
                 }
               },
               "StatusCode": "200"
@@ -6882,7 +6882,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2019-01-07T19:59:34.857Z",
+        "buildDate": "2019-01-08T16:44:39.544Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -7651,7 +7651,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\nvar URL=require('url')\naws.config.region=process.env.AWS_REGION\nvar s3=new aws.S3()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    var url=URL.parse(params.QnABotUrl)\n    var host=url.host\n    var api=url.path.split('/')[1]\n\n    if(event.RequestType!==\"Delete\"){\n        var Body=params.content.qna\n            .map(x=>JSON.stringify(x))\n            .join('\\n')\n        send({\n            host,\n            path:`/${api}/`,\n        })\n        .then(result=>{\n            var path=URL.parse(result._links.jobs.href).path\n            return send({host,path})\n        })\n        .then(result=>{\n            var bucket=result._links.imports.bucket\n            var key=`${result._links.imports.uploadPrefix}/${event.RequestId}`\n            return s3.putObject({\n                Bucket:bucket,\n                Key:key,\n                Body:Body\n            }).promise()\n        })\n        .then(result=>{\n            console.log(result)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(e=>{\n            console.log(e)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\nfunction send(opts){\n    console.log(opts)\n    return new Promise(function(resolve,reject){\n    try{\n        var endpoint = new aws.Endpoint(opts.host);\n\n        var request = new aws.HttpRequest(endpoint, aws.config.region);\n        \n        request.method=opts.method || \"GET\"\n        request.path=opts.path\n        request.headers['Host'] = opts.host;\n        if(opts.body){\n            request.body=JSON.stringify(opts.body)\n        }\n        request.headers['Content-Type'] = 'application/json';\n\n        (new aws.CredentialProviderChain())\n        .resolvePromise()\n        .then(credentials=>{\n            var signer = new aws.Signers.V4(request,\"execute-api\");\n            signer.addAuthorization(credentials, new Date());\n            console.log(request)\n            var client = new aws.HttpClient();\n            client.handleRequest(request, null, function(response) {\n                console.log(response.statusCode + ' ' + response.statusMessage);\n                var responseBody = '';\n                response.on('data', function (chunk) {\n                    responseBody += chunk;\n                });\n                response.on('end', function (chunk) {\n                    console.log('Response body: ' + responseBody);\n                    resolve(JSON.parse(responseBody)) \n                });\n              }, function(error) {\n                console.log('Error: ' + error);\n                reject(error)\n            });\n        })\n    }catch(e){\n        console.log(e)\n        reject(e)\n    }})\n}\n"
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\nvar URL=require('url')\naws.config.region=process.env.AWS_REGION\nvar s3=new aws.S3()\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    var url=URL.parse(params.QnABotUrl)\n    var host=url.host\n    var api=url.path.split('/')[1]\n\n    if(event.RequestType!==\"Delete\"){\n        var Body=JSON.parse(params.content).qna\n            .map(x=>JSON.stringify(x))\n            .join('\\n')\n        send({\n            host,\n            path:`/${api}/`,\n        })\n        .then(result=>{\n            var path=URL.parse(result._links.jobs.href).path\n            return send({host,path})\n        })\n        .then(result=>{\n            var bucket=result._links.imports.bucket\n            var key=`${result._links.imports.uploadPrefix}/${event.RequestId}`\n            return s3.putObject({\n                Bucket:bucket,\n                Key:key,\n                Body:Body\n            }).promise()\n        })\n        .then(result=>{\n            console.log(result)\n            response.send(event, context, response.SUCCESS)\n        })\n        .catch(e=>{\n            console.log(e)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\nfunction send(opts){\n    console.log(opts)\n    return new Promise(function(resolve,reject){\n    try{\n        var endpoint = new aws.Endpoint(opts.host);\n\n        var request = new aws.HttpRequest(endpoint, aws.config.region);\n        \n        request.method=opts.method || \"GET\"\n        request.path=opts.path\n        request.headers['Host'] = opts.host;\n        if(opts.body){\n            request.body=JSON.stringify(opts.body)\n        }\n        request.headers['Content-Type'] = 'application/json';\n\n        (new aws.CredentialProviderChain())\n        .resolvePromise()\n        .then(credentials=>{\n            var signer = new aws.Signers.V4(request,\"execute-api\");\n            signer.addAuthorization(credentials, new Date());\n            console.log(request)\n            var client = new aws.HttpClient();\n            client.handleRequest(request, null, function(response) {\n                console.log(response.statusCode + ' ' + response.statusMessage);\n                var responseBody = '';\n                response.on('data', function (chunk) {\n                    responseBody += chunk;\n                });\n                response.on('end', function (chunk) {\n                    console.log('Response body: ' + responseBody);\n                    resolve(JSON.parse(responseBody)) \n                });\n              }, function(error) {\n                console.log('Error: ' + error);\n                reject(error)\n            });\n        })\n    }catch(e){\n        console.log(e)\n        reject(e)\n    }})\n}\n"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -9342,81 +9342,7 @@
           ]
         },
         "content": {
-          "qna": [
-            {
-              "qid": "hello",
-              "q": [
-                "hello",
-                "hi",
-                "hey"
-              ],
-              "a": "Hi! welcome to the SageGuard Admin interface. "
-            },
-            {
-              "qid": "how.1",
-              "q": [
-                "how do I create an instance"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.2",
-              "q": [
-                "how do I create a group"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.3",
-              "q": [
-                "how do I create a user"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.4",
-              "q": [
-                "how do I create a IAM role for a sagemaker instance",
-                "how do I create a role"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.5",
-              "q": [
-                "How to I create a glue development endpoint"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.6",
-              "q": [
-                "How do users log in"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.6",
-              "q": [
-                "How do i reset a users password"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.7",
-              "q": [
-                "How do i create an SSM document"
-              ],
-              "a": "go here"
-            },
-            {
-              "qid": "how.8",
-              "q": [
-                "How do i delete an instance"
-              ],
-              "a": "go here"
-            }
-          ]
+          "Fn::Sub": "{\"qna\":[{\"qid\":\"hello\",\"q\":[\"hello\",\"hi\",\"hey\"],\"a\":\"Hi! welcome to the SageGuard Admin interface.\",\"alt\":{\"markdown\":\"__Hi__! Welcome to the SageGuard Admin UI. I am here to help answer your questions. You can ask me things like:\\n- How do I create an instance?\\n- How do I reset a user's password?\\n- What do I do if an instance has failed to launch?\\n\\nIf I cannot answer your question, create an issue in the github repo for the project [here](https://github.com/aws-samples/aws-sagemaker-guard/issues) to add the question.\\n\"}},{\"qid\":\"how.1\",\"q\":[\"how do I create an instance\",\"how do I create a sagemaker notebook instance\"],\"a\":\"like this\",\"alt\":{\"markdown\":\"There are a couple of ways to create instances. follow these instructions.\\n        \\n1. go to the home page\\n1. do one of the following things\\n    - Select \\\"Create A User and their instance together\\\"\\n    - Select \\\"Create Multiple Users and Instances\\\"\\n    - Select \\\"Go To\\\" in the SageMaker Instances card. In the next page Select \\\"Create a new SageMaker notebook instance\\\"\\n\"}},{\"qid\":\"how.4\",\"q\":[\"how do I create a IAM role for a sagemaker instance\",\"how do I create a role\"],\"a\":\"go here\",\"alt\":{\"markdown\":\"1. go to the [IAM console](https://console.aws.amazon.com/iam/home#/home)\\n1. On the left hand menu select __roles__\\n1. At the top select __create role__\\n1. Select __AWS Service__ then under \\\"Choose the service that will use this role\\\" select __sagemaker__ then select __next: permissions__ at the bottom\\n1. Select __next: tags__. You can edit the permissions of your role later\\n1. Select __next: review__\\n1. give your role a name and select __create role__\\n1. Search for your role using the search bar at the top and select your role\\n1. From here you can edit your permissions. \\n\"}},{\"qid\":\"how.5\",\"q\":[\"How to I create a glue development endpoint\"],\"a\":\"here\",\"alt\":{\"markdown\":\"follow the instructions [here](https://docs.aws.amazon.com/glue/latest/dg/console-development-endpoint.html)\"}},{\"qid\":\"how.6\",\"q\":[\"How do i reset a users password\"],\"a\":\"go here\",\"alt\":{\"markdown\":\"1. Open up the menu in the top left\\n1. scroll down and select __Cognito UserPool Console__\\n1. In the left hand menu select __Users and Groups__\\n1. Search for the user and select there name\\n1. at the top select __reset password__\\n\"}},{\"qid\":\"how.8\",\"q\":[\"How to I blacklist/whitelist IP addresses\"],\"a\":\"go here\",\"alt\":{\"markdown\":\"1. Open up the menu in the top left\\n1. Scroll down and select __Cognito UserPool Console__\\n1. In the left hand menu select __Advanced Security__\\n1. Scroll to the bottom to the section title __Do you want to add exceptions for any IP addresses?__ and add/remove the IP address you want to blacklist/whitelist\\n\"}},{\"qid\":\"how.9\",\"q\":[\"what do i do if a instance failed to create\"],\"a\":\"go here\",\"alt\":{\"markdown\":\"To debug an instance failure go to the [cloudformation console](https://console.aws.amazon.com/cloudformation/home?region=${AWS::Region}#/stacks?filter=deleted). Failed stacks are automatically deleted so find that stack for your instance. You can get the stack name from the instance information in the Admin UI. Under events you can see what resource failed to create. If is was and SSM hook document that caused the failure you will have to go to the [SSM](https://console.aws.amazon.com/systems-manager/home?region=${AWS::Region}#) console to debug your scripts.\"}}]}"
         },
         "QnABotUrl": {
           "Fn::GetAtt": [
@@ -9453,7 +9379,7 @@
         "CSS": {
           "Fn::Sub": "${AssetPrefix}/assets/custom.css"
         },
-        "Date": "2019-01-07T19:59:35.444Z"
+        "Date": "2019-01-08T16:44:39.714Z"
       }
     },
     "DefaultNotebookRole": {
@@ -9576,7 +9502,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2019-01-07T19:59:35.448Z",
+        "BuildDate": "2019-01-08T16:44:39.715Z",
         "Version": "1.0.0"
       }
     },
@@ -9748,7 +9674,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2019-01-07T19:59:35.451Z"
+        "buildDate": "2019-01-08T16:44:39.716Z"
       },
       "DependsOn": "WebsiteClear"
     },

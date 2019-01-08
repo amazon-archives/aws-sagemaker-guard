@@ -12,7 +12,7 @@ exports.handler=function(event,context,callback){
     var api=url.path.split('/')[1]
 
     if(event.RequestType!=="Delete"){
-        var Body=params.content.qna
+        var Body=JSON.parse(params.content).qna
             .map(x=>JSON.stringify(x))
             .join('\n')
         send({

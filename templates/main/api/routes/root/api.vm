@@ -54,7 +54,7 @@
             "render":"domain"
         },
         {   
-            "href":"https://github.com/aws-samples/aws-sagemaker-build/issues",
+            "href":"https://github.com/aws-samples/aws-sagemaker-guard/issues",
             "rel":"external",
             "name":"GitHub Issues",
             "prompt":"Having Trouble? Want new features? submit a ticket in the github repo",

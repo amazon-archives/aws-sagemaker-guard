@@ -1,6 +1,6 @@
-# AWS SageMaker Sign On
+# AWS-SageMaker-Gaurd
 
-> Add user sign on and managment to SageMaker NoteBook Instances 
+> AWS-SageMaker-Guard: Amazon SageMaker notebook instance management at scale using Amazon Cognito, Amazon Cloud Directory, and AWS Systems Manager
 
 ## Overview
 
@@ -13,7 +13,7 @@
 - Configure AWS CLI and local credentials. ([instructions](http://docs.AWS.amazon.com/cli/latest/userguide/cli-chap-welcome.html))  
 
 ## Getting Started
-Fiuit, install all prerequisites:
+First, install all prerequisites:
 ```shell
 npm install 
 ```
@@ -28,79 +28,32 @@ Next, use the following command to launch a CloudFormation template to create th
 npm run stack dev/bootstrap up
 ```
 
-After the template has launched, use the following command to build all assets and upload to the S3 bucket created in the previous step:
+Now edit config.json with you information.
+
+| param | description | 
+|-------|-------------|
+|region | the AWS region to launch stacks in |
+|profile| the AWS credential profile to use |
+|namespace| a logical name space to run your templates in such as dev, test and/or prod |
+|templateBucket | the S3 bucket to upload assets to. Get this value from the output of your bootstrap stack you just created |
+|templatePrefix | the prefix in the templateBucket to upload assets |
+|devEmail | the email to use when creating admin users in automated stack launches |
+|devPhoneNumber | the email to use when creating admin users in automated stack launches |
+
+Next, build all the assets, upload them to the bootstrap bucket, and launch the stack by running the following command:
 ```shell
-npm run upload
+npm run up
 ```
-
-```shell
-npm run stack test/master up
-```
-## Services
-### CloudDirectory 
-Used to store information about users, groups, policies, accounts, and roles along with relationships between each other. Roles are attached to accounts and policies, policies are attached to users and groups giving access to the roles attached to the policy, and users can be attached to groups. To implement this we us node,leafs,indices, and policies. 
-
-### ApiGateway
-creates a REST interface to the ENOVY system
-1) Lambda
-    Apigateway will proxy certain requests to a Lambda function which interacts with CloudDirectory,
-2) S3
-    Apigateway also proxies some requests to an s3 hosted website for the static assets of the UI. So both the REST api and website are hosted under a single domain. This allows the static website to interact with the api. 
-3) IAM
-    sensitive api endpoints are protect by IAM. Request have to be sigv4 signed. 
-
-### Cognito
-manages users.
-1) UserPool
-    where users are store (in addition to being stored in CloudDirectory). Also provides authentication, user passwords are only stored here. 
-2) Id pool
-    Allows users to exchange the jwt token they get from authenticating with Cognito to allow access to api endpoints. 
-3) Hosted Login 
-    provides a page where users are logged in and upon success are redirected to the ENVOY ui with their jwt token. Also provides password change flow. 
 
 ## Components
 ### CloudFormation Templates
+the individual cloud formation templates are the in the /templates directory
 
-### Lambda Functions
-Lambda functions are found in the /lambda directory.
+### Lambda Functions and Layers
+The code for Lambda function zip files and layers are found in the /lambda directory.
 
 ### Web interface
-
-## Running Tests
-The following will launch a CloudFormation template to create AWS resources in your account that are used in the Lambda, CloudFormation, and WebUI tests. 
-```shell
-npm run dev-up
-```
-
-Once the template has completed you can run the tests in the following sections.
-
-### CloudFormation tests
-The CloudFormation test templates are in the templates/test folder. Run a template test with:
-```shell
-npm run stack test/{template-name}
-```
-
-For example, if you want to launch a template with filename "es.json" run the following command:
-```shell
-npm run check test/es
-```
-
-You also can check a template's syntax with:
-```shell
-npm run check {template's directory relative to /templates}/{template-name}
-```
-
-### Running Lambda Function tests
-Each lambda directory has its own tests that can be run by executing the following command in that directory:
-```shell
-npm run test
-```
-
-### Admin UI Compatibility 
-Currently the only browsers supported are:  
-    Chrome  
-    FireFox  
-We are currently working on adding Microsoft Edge support.  
+the code for the Admin UI and User Landing page are in the /website directory
 
 ## Built With
 
