@@ -17,6 +17,9 @@ exports.handler=function(event,context,callback){
         ec2.describeNetworkInterfaces({
             NetworkInterfaceIds:[event.NetworkInterfaceId]
         }).promise()
+        .then(x=>ec2.deleteNetworkInterface({
+            NetworkInterfaceId:event.NetworkInterfaceId
+        }).promise())
         .then(x=>{
             return recurse(event,callback,context)
         })
@@ -87,6 +90,14 @@ exports.handler=function(event,context,callback){
                 rm(x,event,callback,context)
             }else{
                 console.log(x)
+                response.send(event, context, response.FAILED)
+            }
+        })
+        .catch(e=>{
+            console.log(e)
+            if(event.RequestType==="Delete"){
+                rm(x,event,callback,context)
+            }else{
                 response.send(event, context, response.FAILED)
             }
         })

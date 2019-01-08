@@ -107,6 +107,7 @@ function permission(name){
     return _.fromPairs(["CheckIdle"].map(x=>{
         return [`${x}Permission${name}`,{
           "Type": "AWS::Lambda::Permission",
+          "Condition":"YesIdleCheck",
           "Properties": {
             "Action": "lambda:InvokeFunction",
             "FunctionName":{"Fn::GetAtt":[`CloudWatch${name}Lambda`,"Arn"]},

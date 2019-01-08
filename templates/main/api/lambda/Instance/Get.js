@@ -68,7 +68,7 @@ exports.handler=function(event,context,callback){
             var status=stack.Stacks[0].StackStatus
             if(outputs.NoteBookName){
                 var NotebookInstanceName=outputs.NoteBookName
-                result.attributes.status= status.match(/COMPLETE/) ? 
+                result.attributes.status= status.match(/_COMPLETE$/) ? 
                     "ready" : status.match(/UPDATE_/) ? "updating" : "failed"
 
                 return sagemaker.describeNotebookInstance({

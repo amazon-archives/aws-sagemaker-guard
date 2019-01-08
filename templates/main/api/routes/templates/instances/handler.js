@@ -145,6 +145,10 @@ function schema(event,input){
                             "description":"The number of minutes of inactivity before the instance is shutdown to save cost",
                             "type":"string",
                             "enum":[{
+                                "value":"DISABLE",
+                                "text":"disable",
+                                "description":"leave instances running until they are manually show down"
+                            },{
                                 "value":"30",
                                 "text":"30 minutes"
                             },{

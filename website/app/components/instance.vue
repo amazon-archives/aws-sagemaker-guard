@@ -1,17 +1,20 @@
 <template lang='pug'>
   v-card.ma-2
-    v-card-title(primary-title)
-      div
+    v-card-title(v-if="loading")
+      v-progress-linear(indeterminate)
+    v-card-title(primary-title v-if="!loading")
+      div(v-if="data")
         div
-          span.headline {{item.data.ID}}:
-          span {{item.data.NotebookInstanceStatus}}
-        span {{item.data.InstanceType}}
-        span(v-if="item.data.Description") {{item.data.Description}}
-    v-card-text
+          v-icon.pr-3(v-if="data.status==='busy'") hourglass_empty
+          span.headline {{data.ID}}
+          span(v-if="data.status==='ready'") : {{data.state}}
+        span {{data.InstanceType}}
+        span(v-if="data.Description") {{data.Description}}
+    v-card-text(v-if="display")
       v-list(three-line dense)
         v-container.pa-0
           v-layout(row  wrap)
-            v-flex.xs6(v-for="(value,key) in data" :key="JSON.stringify(value)")
+            v-flex.xs6(v-for="(value,key) in display" :key="JSON.stringify(value)")
               v-list-tile
                 v-list-tile-content
                   v-list-tile-title {{key}} 
@@ -23,10 +26,10 @@
                   ) {{v}}
     v-card-actions
       v-btn.primary--text(flat 
-        v-if="instance.template" 
+        v-if="item.template" 
         @click.native="state"
         :loading="updating"
-        ) {{instance.template.data.prompt}}
+        ) {{item.template.data.prompt}}
       v-spacer
       v-btn.primary--text(flat v-if="login" :href="login") login
 </template>
@@ -49,7 +52,9 @@ module.exports={
   props:["instance"],
   data:function(){
     return {
-      updating:false 
+      updating:false,
+      loading:false,
+      item:{}
     }
   },
   components:{
@@ -57,25 +62,53 @@ module.exports={
   computed:{
     login:function(){
       return _.get(
-        _.find(this.item.links,x=>x.rel==="login"),
+        _.find(_.get(this,"item.items[0].links",[]),x=>x.rel==="login"),
         "href")
     },
-    item:function(){
-      return _.get(this,"instance.items[0]",{})
+    display:function(){
+      var out=_.omit(this.data,["ID","InstanceType","NotebookInstanceStatus","state","status"])
+      if(_.keys(out).length){
+        return out
+      }else{
+        return false
+      }
     },
     data:function(){
-      return _.omit(this.item.data,["ID","InstanceType","NotebookInstanceStatus"])
+      return _.get(this,"item.items[0].data",{})
     }
   },
-  created:function(){
+  created:async function(){
+    this.refresh()
   },
   methods:{
+    load:async function(){
+        var data=await this.$store.dispatch('api/get',this.instance)
+        this.$set(this,"item",data)
+        if(this.data.status==="busy"){
+          setTimeout(()=>this.load(),5000)
+        }
+    },
+    refresh:async function(){
+      this.loading=true
+      try{
+        await this.load()
+        this.loading=false
+      }catch(e){
+        this.loading=false
+        throw e
+      }
+    },
     state:function(){
       this.updating=true
-      this.$store.dispatch('api/state',this.instance)
+      this.$store.dispatch('api/state',this.item)
+      .then(()=>{
+        return this.refresh()
+      })
+      .catch(e=>{
+        console.log(e) 
+      })
       .then(()=>{
         this.updating=false
-        setTimeout(()=>this.$emit('refresh'))
       })
     }
   }

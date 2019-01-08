@@ -255,11 +255,6 @@
               "description": "Example",
               "default": "Hello World"
             },
-            "OnStopDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
             "ParentStack": {
               "type": "String",
               "description": "Example",
@@ -488,11 +483,6 @@
               "default": "Hello World"
             },
             "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "OnStopDocument": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"
@@ -743,11 +733,6 @@
               "description": "Example",
               "default": "Hello World"
             },
-            "OnStopDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
             "ParentStack": {
               "type": "String",
               "description": "Example",
@@ -938,11 +923,6 @@
               "description": "Example",
               "default": "Hello World"
             },
-            "OnStopDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
             "ParentStack": {
               "type": "String",
               "description": "Example",
@@ -1111,11 +1091,6 @@
               "default": "Hello World"
             },
             "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "OnStopDocument": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"
@@ -1322,11 +1297,6 @@
               "default": "Hello World"
             },
             "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "OnStopDocument": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"
@@ -1569,11 +1539,6 @@
               "description": "Example",
               "default": "Hello World"
             },
-            "OnStopDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
             "ParentStack": {
               "type": "String",
               "description": "Example",
@@ -1728,11 +1693,6 @@
               "description": "Example",
               "default": "Hello World"
             },
-            "OnStopDocument": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
             "ParentStack": {
               "type": "String",
               "description": "Example",
@@ -1883,11 +1843,6 @@
               "default": "Hello World"
             },
             "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "OnStopDocument": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"

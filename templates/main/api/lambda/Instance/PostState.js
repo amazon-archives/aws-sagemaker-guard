@@ -1,6 +1,7 @@
 var aws=require('aws-sdk')
 aws.config.region=process.env.AWS_REGION
 var sagemaker=new aws.SageMaker()
+var validate=require('lambda').validate
 var lambda=new aws.Lambda()
 var _=require('lodash')
 var cf=new aws.CloudFormation()
@@ -8,6 +9,7 @@ var ssm=new aws.SSM()
 
 exports.handler=function(event,context,callback){
     console.log(JSON.stringify(event,null,2))
+    var body=JSON.parse(event.body)
     lambda.invoke({
         FunctionName:event.stageVariables.APIInstanceGetLambda,
         InvocationType:"RequestResponse",
@@ -17,14 +19,11 @@ exports.handler=function(event,context,callback){
             Type:"instances"
         })
     }).promise()
-    .then(result=>{
-        console.log(JSON.stringify(result,null,2))
-        if(result.FunctionError){
-            throw JSON.parse(JSON.parse(result.Payload).errorMessage)
-        }else{
-            var data=JSON.parse(result.Payload)
-            var stackname=data.attributes.StackName
-        }
+    .then(validate)
+    .then(data=>{
+        console.log(JSON.stringify(data,null,2))
+        var stackname=data.attributes.StackName
+        
         return cf.describeStacks({
             StackName:stackname
         }).promise()
@@ -36,7 +35,7 @@ exports.handler=function(event,context,callback){
                 Parameters.State=body.state.toUpperCase()
                
                 return cf.updateStack({
-                    StackName:result.attributes.StackName,
+                    StackName:data.attributes.StackName,
                     Capabilities:["CAPABILITY_NAMED_IAM"],
                     UsePreviousTemplate:true,
                     Parameters:_.toPairs(Parameters).map(y=>{return{
@@ -54,8 +53,8 @@ exports.handler=function(event,context,callback){
             }
         })
     })
-    .then(body=>{
-        console.log(body)
+    .then(response=>{
+        console.log(response)
         var href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`
         callback(null,{
             statusCode:200,

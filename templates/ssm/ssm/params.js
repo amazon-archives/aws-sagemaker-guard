@@ -1,7 +1,7 @@
 var _=require('lodash')
 
 module.exports= Object.assign(_.fromPairs(_.keys(
-        _.omit(require('../../instance/params'),["OnCreateDocument","OnTerminateDocument",   "OnStartDocument"]) 
+        _.omit(require('../../instance/params'),["OnCreateDocument","OnTerminateDocument",   "OnStartDocument","OnStopDocument"]) 
     )
     .map(x=>[x,{
         "type": "String",

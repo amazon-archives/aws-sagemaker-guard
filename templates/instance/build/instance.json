@@ -224,6 +224,28 @@
         }
       ]
     },
+    "YesIdleCheck": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Condition": "NoIdle"
+            }
+          ]
+        },
+        {
+          "Condition": "TurnOn"
+        }
+      ]
+    },
+    "NoIdle": {
+      "Fn::Equals": [
+        {
+          "Ref": "IdleShutdown"
+        },
+        "DISABLE"
+      ]
+    },
     "IfCreateKey": {
       "Fn::Equals": [
         {
@@ -509,7 +531,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),ec2=new aws.EC2,lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];function rm(info,event,callback,context){return sagemaker.deleteNotebookInstance({NotebookInstanceName:event.ResourceProperties.NotebookInstanceName}).promise().then(x=>(event.NetworkInterfaceId=info.NetworkInterfaceId,recurse(event,callback,context))).catch(error(event))}function recurse(event,callback,context){event.wait=!0,setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function error(event,context){return function(error){console.log(error),response.send(event,context,response.FAILED)}}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB);try{if(event.NetworkInterfaceId)ec2.describeNetworkInterfaces({NetworkInterfaceIds:[event.NetworkInterfaceId]}).promise().then(x=>recurse(event,callback,context)).catch(x=>{console.log(x),response.send(event,context,response.SUCCESS)});else{if(event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn):\"Pending\"===x.NotebookInstanceStatus?recurse(event,callback):\"Stopping\"===x.NotebookInstanceStatus?recurse(event,callback):\"Failed\"===x.NotebookInstanceStatus?\"Delete\"===event.RequestType?rm(x,event,callback,context):response.send(event,context,response.FAILED):\"Stopped\"===x.NotebookInstanceStatus?rm(x,event,callback,context):(console.log(x),response.send(event,context,response.FAILED))});if(\"Create\"===event.RequestType)sagemaker.createNotebookInstance(params).promise().then(()=>recurse(event,callback,context)).catch(error(event,context));else if(\"Update\"===event.RequestType){var old=event.OldResourceProperties;delete old.ServiceToken,_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn)}).catch(error(event,context)):sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>recurse(event,callback,context)).catch(error(event,context))}else sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>sagemaker.stopNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise()).catch(x=>{if(console.log(x),!x.message.match(\"Unable to transition\"))throw x}).then(()=>recurse(event,callback,context)).catch(error(event))}}catch(e){console.log(e),callback(e)}};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),ec2=new aws.EC2,lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];function rm(info,event,callback,context){return sagemaker.deleteNotebookInstance({NotebookInstanceName:event.ResourceProperties.NotebookInstanceName}).promise().then(x=>(event.NetworkInterfaceId=info.NetworkInterfaceId,recurse(event,callback,context))).catch(error(event))}function recurse(event,callback,context){event.wait=!0,setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function error(event,context){return function(error){console.log(error),response.send(event,context,response.FAILED)}}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB);try{if(event.NetworkInterfaceId)ec2.describeNetworkInterfaces({NetworkInterfaceIds:[event.NetworkInterfaceId]}).promise().then(x=>ec2.deleteNetworkInterface({NetworkInterfaceId:event.NetworkInterfaceId}).promise()).then(x=>recurse(event,callback,context)).catch(x=>{console.log(x),response.send(event,context,response.SUCCESS)});else{if(event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn):\"Pending\"===x.NotebookInstanceStatus?recurse(event,callback):\"Stopping\"===x.NotebookInstanceStatus?recurse(event,callback):\"Failed\"===x.NotebookInstanceStatus?\"Delete\"===event.RequestType?rm(x,event,callback,context):response.send(event,context,response.FAILED):\"Stopped\"===x.NotebookInstanceStatus?rm(x,event,callback,context):(console.log(x),response.send(event,context,response.FAILED))}).catch(e=>{console.log(e),\"Delete\"===event.RequestType?rm(x,event,callback,context):response.send(event,context,response.FAILED)});if(\"Create\"===event.RequestType)sagemaker.createNotebookInstance(params).promise().then(()=>recurse(event,callback,context)).catch(error(event,context));else if(\"Update\"===event.RequestType){var old=event.OldResourceProperties;delete old.ServiceToken,_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn)}).catch(error(event,context)):sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>recurse(event,callback,context)).catch(error(event,context))}else sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>sagemaker.stopNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise()).catch(x=>{if(console.log(x),!x.message.match(\"Unable to transition\"))throw x}).then(()=>recurse(event,callback,context)).catch(error(event))}}catch(e){console.log(e),callback(e)}};"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -2026,8 +2048,11 @@
     },
     "CheckIdle": {
       "Type": "AWS::Events::Rule",
+      "Condition": "YesIdleCheck",
       "Properties": {
-        "ScheduleExpression": "rate(1 hour)",
+        "ScheduleExpression": {
+          "Fn::Sub": "rate(${IdleShutdown} minutes)"
+        },
         "Targets": [
           {
             "Arn": {
@@ -2091,6 +2116,7 @@
     },
     "CheckIdlePermissionIdle": {
       "Type": "AWS::Lambda::Permission",
+      "Condition": "YesIdleCheck",
       "Properties": {
         "Action": "lambda:InvokeFunction",
         "FunctionName": {

@@ -277,7 +277,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -301,7 +301,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -325,7 +325,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -337,7 +337,7 @@
           }
         ],
         "ServiceName": {
-          "Fn::Sub": "com.amazonaws.${AWS::Region}.ssmmessages"
+          "Fn::Sub": "com.amazonaws.${AWS::Region}.ec2"
         }
       }
     },
@@ -349,7 +349,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -373,7 +373,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -397,7 +397,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"
@@ -421,7 +421,7 @@
           "Ref": "VPC"
         },
         "VpcEndpointType": "Interface",
-        "PrivateDnsEnabled": false,
+        "PrivateDnsEnabled": true,
         "SubnetIds": [
           {
             "Ref": "subnet1"

@@ -40,15 +40,9 @@ module.exports={
             method:'get'
         },{root:true})
         console.log(data)        
-        await Promise.all(data.collection.links
-            .filter(x=>x.rel==="item")
-            .map(async x=>{
-                result=await context.dispatch('_request_cognito',{
-                    url:x.href,
-                    method:'get'
-                },{root:true})
-                Object.assign(x,result.collection)
-            }))
+        
+        data.collection.links=data.collection.links.filter(x=>x.rel==="item")
+        
         console.log(data)
         context.commit('collection',{type:opts.type,val:data})
     },
@@ -57,7 +51,7 @@ module.exports={
             url:opts.href,
             method:'get'
         },{root:true})
-        return result.collection.items[0]
+        return result.collection
     },
     state:async function(context,opts){
         var result=await context.dispatch('_request_cognito',{

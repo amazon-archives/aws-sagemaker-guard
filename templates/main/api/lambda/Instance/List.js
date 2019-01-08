@@ -1,6 +1,7 @@
 var aws=require('aws-sdk')
 var _=require('lodash')
 aws.config.region=process.env.AWS_REGION
+var validate=require('lambda').validate
 var _=require('lodash')
 var sagemaker=new aws.SageMaker()
 var lambda=new aws.Lambda()
@@ -67,12 +68,14 @@ exports.handler=function(event,context,callback){
         .then(result=>{
             console.log(JSON.stringify(result,null,2))
             var status=result.Stacks[0].StackStatus
-            data.attributes.status=status
+            data.attributes.status=status.match(/.*_COMPLETE$/) ? "ready" : "busy"
             var outputs=_.fromPairs(result.Stacks[0].Outputs
                     .map(y=>[y.OutputKey,y.OutputValue]))
             var state=outputs.State
             data.attributes.state=state 
-            if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(status) && state==="ON"){
+           
+            
+            if(data.attributes.status==="ready" && state==="ON"){
                 return {
                     attributes:data.attributes,
                     url:`https://${event.requestContext.domainPrefix}.execute-api.${event.stageVariables.Region}.amazonaws.com${event.requestContext.path}/login?Auth=${event.headers.Authorization}`
@@ -86,7 +89,7 @@ exports.handler=function(event,context,callback){
     })
     .then(body=>{
         console.log(body)
-        var href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com/${event.requestContext.path}`
+        var href=`https://${event.requestContext.apiId}.execute-api.${event.stageVariables.Region}.amazonaws.com${event.requestContext.path}`
         var out={
             collection:{
                 version:"1.0",
@@ -99,11 +102,11 @@ exports.handler=function(event,context,callback){
                         rel:"login"
                     } : null
                     ].filter(x=>x),
-                    data:_.pick(body.attributes,["ID","InstanceType","Last Logins","NotebookInstanceStatus"])
+                    data:_.pick(body.attributes,["ID","InstanceType","Last Logins","NotebookInstanceStatus","status","state"])
                 }]
             }
         }
-        if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(body.attributes.status) && body.attributes.state==="ON"){
+        if(body.attributes.status==="ready" && body.attributes.state==="ON"){
             out.collection.template={
                 data:{
                     schema:{
@@ -119,7 +122,7 @@ exports.handler=function(event,context,callback){
                     prompt:"Turn Instance Off"
                 }
             }
-        }else if(["CREATE_COMPLETE","ROLLBACK_COMPLETE","UPDATE_COMPLETE","UPDATE_ROLLBACK_COMPLETE"].includes(body.attributes.status) && body.attributes.state==="OFF"){
+        }else if(body.attributes.status==="ready" && body.attributes.state==="OFF"){
             out.collection.template={
                 data:{
                     schema:{
@@ -151,11 +154,4 @@ exports.handler=function(event,context,callback){
         }))
     })
 }
-function validate(result){
-    console.log(JSON.stringify(result,null,2))
-    if(result.FunctionError){
-        throw JSON.parse(JSON.parse(result.Payload).errorMessage)
-    }else{
-        return JSON.parse(result.Payload)
-    }
-}
+

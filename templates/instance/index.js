@@ -14,6 +14,18 @@ module.exports={
                 {"Fn::Not":[{"Fn::Equals":[{"Ref":x},"EMPTY"]}]}
             ]
         ).concat([[
+            "YesIdleCheck",
+            {"Fn::And":[
+                {"Fn::Not":[{"Condition":"NoIdle"}]},
+                {"Condition":"TurnOn"}
+            ]}
+        ],[
+            "NoIdle",
+            {"Fn::Equals":[{"Ref":"IdleShutdown"},"DISABLE"]}
+        ],[
+            "NoIdle",
+            {"Fn::Equals":[{"Ref":"IdleShutdown"},"DISABLE"]}
+        ],[
             "IfCreateKey",
             {"Fn::Equals":[{"Ref":"KmsKeyId"},"CREATE"]}
         ],[

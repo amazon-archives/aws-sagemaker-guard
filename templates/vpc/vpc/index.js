@@ -76,7 +76,7 @@ module.exports=Object.assign({
     },
     "VPCSSMEndpoint":endpoint("ssm"),
     "VPCEC2MessagesEndpoint":endpoint("ec2messages"),
-    "VPCEC2Endpoint":endpoint("ssmmessages"),
+    "VPCEC2Endpoint":endpoint("ec2"),
     "VPCSSMMessagesEndpoint":endpoint("ssmmessages"),
     "VPCSageMakerEndpoint":endpoint("sagemaker.api"),
     "VPCSageMakerRuntimeEndpoint":endpoint("sagemaker.runtime"),
@@ -113,7 +113,7 @@ function endpoint(name){
         "Properties": {
             VpcId:{"Ref":"VPC"},
             VpcEndpointType:"Interface",
-            PrivateDnsEnabled:false,
+            PrivateDnsEnabled:true,
             SubnetIds:[{"Ref":"subnet1"}],
             SecurityGroupIds:[{"Ref":"EndpointSecurityGroup"}],
             ServiceName:{"Fn::Sub":`com.amazonaws.\${AWS::Region}.${name}`},

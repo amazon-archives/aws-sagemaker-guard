@@ -28,7 +28,7 @@ exports.handler=function(event,context,callback){
         .then(x=>{
             if(_.xor(_.keys(event.Attributes),updateable).length){
                 return 
-            }else if(x.Stacks[0].StackStatus.match(/_COMPLETE/)){
+            }else if(x.Stacks[0].StackStatus.match(/_COMPLETE$/)){
                 var Parameters=x.Stacks[0].Parameters.map(y=>{
                     if(result.attributes[y.ParameterKey]){
                         y.ParameterValue=result.attributes[y.ParameterKey]
