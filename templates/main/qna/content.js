@@ -86,4 +86,18 @@ If I cannot answer your question, create an issue in the github repo for the pro
         markdown:"To debug an instance failure go to the [cloudformation console](https://console.aws.amazon.com/cloudformation/home?region=${AWS::Region}#/stacks?filter=deleted). Failed stacks are automatically deleted so find that stack for your instance. You can get the stack name from the instance information in the Admin UI. Under events you can see what resource failed to create. If is was and SSM hook document that caused the failure you will have to go to the [SSM](https://console.aws.amazon.com/systems-manager/home?region=${AWS::Region}#) console to debug your scripts."
     }
 },
+{
+    "qid":"how.10",
+    "q":["how do i promote a user to Admin"],
+    "a":"go here",
+    alt:{
+        markdown:`1. Open up the menu in the top left
+1. Scroll down and select __Cognito UserPool Console__
+1. In the left hand menu select __Users and Groups__
+1. Search for the user and select there name
+1. At the top select __Add to Group__
+1. Select __Admins__
+`
+    }
+}
 ]}
