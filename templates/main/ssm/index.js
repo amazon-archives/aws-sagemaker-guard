@@ -5,6 +5,7 @@ var _=require('lodash')
 module.exports={
     "SSM":{
         "Type" : "AWS::CloudFormation::Stack",
+        "DependsOn":["StepFunctions"],
         "Properties" : {
             "Parameters" : {
                 StackName:{"Ref":"AWS::StackName"},
