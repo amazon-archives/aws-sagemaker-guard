@@ -38,7 +38,7 @@ Now edit config.json with you information.
 |templateBucket | the S3 bucket to upload assets to. Get this value from the output of your bootstrap stack you just created |
 |templatePrefix | the prefix in the templateBucket to upload assets |
 |devEmail | the email to use when creating admin users in automated stack launches |
-|devPhoneNumber | the email to use when creating admin users in automated stack launches |
+|devPhoneNumber | the phone number to use for second factor authentication for the admin |
 
 Next, build all the assets, upload them to the bootstrap bucket, and launch the stack by running the following command:
 ```shell

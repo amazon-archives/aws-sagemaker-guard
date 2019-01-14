@@ -3097,7 +3097,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2019-01-14T00:06:37.491Z"
+        "BuildDate": "2019-01-14T01:00:09.487Z"
       }
     },
     "UtilLambdaLayer": {
@@ -6882,7 +6882,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2019-01-14T00:06:37.493Z",
+        "buildDate": "2019-01-14T01:00:09.489Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -9380,7 +9380,7 @@
         "CSS": {
           "Fn::Sub": "${AssetPrefix}/assets/custom.css"
         },
-        "Date": "2019-01-14T00:06:37.727Z"
+        "Date": "2019-01-14T01:00:09.912Z"
       }
     },
     "DefaultNotebookRole": {
@@ -9506,7 +9506,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2019-01-14T00:06:37.728Z",
+        "BuildDate": "2019-01-14T01:00:09.914Z",
         "Version": "1.0.0"
       }
     },
@@ -9678,7 +9678,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2019-01-14T00:06:37.729Z"
+        "buildDate": "2019-01-14T01:00:09.916Z"
       },
       "DependsOn": "WebsiteClear"
     },
