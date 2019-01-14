@@ -1,10 +1,6 @@
 var fs=require('fs')
 var _=require('lodash')
 var memoize=require('memoizee')
-process.env.AWS_REGION='us-east-1'
-process.env.ASSETBUCKET="jmc-website"
-process.env.ASSETPREFIX="sageguard"
-process.env.REGIONNAME="US East (N. Virginia)"
 
 var fncs=fs.readdirSync(__dirname)
     .filter(x=>x!=='index.js' && !x.match(/test/))

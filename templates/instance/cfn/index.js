@@ -88,9 +88,6 @@ function lambda(name){
         Layers:[{"Ref":"LambdaUtilLayer"}],
         "Environment":{
             "Variables":Object.assign({
-                ONSTART:{"Ref":"OnStartDocument"},
-                ONSTOP:{"Ref":"OnStopDocument"},
-                STACKNAME:{"Ref":"AWS::StackName"},
                 STACKNAME:{"Ref":"AWS::StackName"},
             },name==="Lifecycle.js" ? {
                 NOTEBOOK:{"Fn::GetAtt":["SageMakerNotebookInstance","NotebookInstanceName"]},

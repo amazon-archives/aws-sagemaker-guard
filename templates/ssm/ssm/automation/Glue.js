@@ -1,13 +1,29 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": {"Fn::Sub":"Creates a Glue Development Endpoint and configures the instance to be able to use it. Pair with DeleteGlue to delete on instance shutdown"},
+  "description": {"Fn::Sub":"Creates a Glue Development Endpoint and configures the instance to be able to use it."},
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters": require('../params'),
   "mainSteps": [
     {
+        "name":"choice",
+        "action":"aws:branch",
+        "inputs":{
+            Choices:[{
+                Variable:"{{Event}}",
+                StringEquals:"Create",
+                NextStep:"create"
+            },{
+                Variable:"{{Event}}",
+                StringEquals:"Delete",
+                NextStep:"delete"
+            }]
+        }
+    },
+    {
       "action": "aws:createStack",
-      "name": "start",
+      "name": "create",
+      "nextStep":"install",
       "inputs": {
         StackName:"{{StackName}}-glue-endpoint",
         TemplateURL:{"Fn::Sub":"https://s3.amazonaws.com/${AssetBucket}/${AssetPrefix}/glue_dev_endpoint.json"},
@@ -36,6 +52,7 @@ module.exports={
     {
       "action": "aws:runCommand",
       "name": "install",
+      "isEnd":true,
       "inputs": {
         DocumentName:{"Ref":"GlueCommandDocument"},
         InstanceIds:["{{InstanceId}}"],
@@ -46,12 +63,17 @@ module.exports={
             GlueDevEndpoint:"{{StackName}}-glue-endpoint"
         }
       }
+    },
+    {
+      "action": "aws:deleteStack",
+      "isEnd":true,
+      "name": "delete",
+      "inputs": {
+        StackName:"{{StackName}}-glue-endpoint",
+      }
     }
   ],
   Tags:{
-    "OnCreate":"false",
-    "OnTerminate":"false",
-    "OnStart":"true",
-    "OnStop":"false"
+    "OnStartStop":"true",
   }
 }

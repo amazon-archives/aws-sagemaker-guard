@@ -1,7 +1,7 @@
 var _=require('lodash')
 
 module.exports= Object.assign(_.fromPairs(_.keys(
-        _.omit(require('../../instance/params'),["OnCreateDocument","OnTerminateDocument",   "OnStartDocument","OnStopDocument"]) 
+        _.omit(require('../../instance/params'),["OnCreateDeleteDocument","OnStartStopDocument"]) 
     )
     .map(x=>[x,{
         "type": "String",
@@ -9,6 +9,9 @@ module.exports= Object.assign(_.fromPairs(_.keys(
         "default":x.Default || "Hello World"
     }])),
     {
+        Event:{
+            type:"String"
+        },
         StackName:{
             type:"String"
         },

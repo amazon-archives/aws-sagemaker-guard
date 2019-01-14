@@ -15,9 +15,7 @@ module.exports={
     }
   ],
     Tags:{
-    "OnCreate":"true",
-    "OnTerminate":"true",
-    "OnStart":"true",
-    "OnStop":"true"
+    "OnCreateDelete":"true",
+    "OnStartStop":"true",
   }
 }

@@ -41,6 +41,16 @@ module.exports={
             "TurnOn",
             {"Fn::Equals":[{"Ref":"State"},"ON"]}
         ],[
+            "CreateDocument",{"Fn::And":[
+                {"Condition":"TurnOn"},
+                {"Condition":"IfOnCreateDeleteDocument"}
+            ]}
+        ],[
+            "TurnOnDocument",{"Fn::And":[
+                {"Condition":"TurnOn"},
+                {"Condition":"IfOnStartStopDocument"}
+            ]}
+        ],[
             "IfDisableDirectInternet",
             {"Fn::Not":[{"Fn::Equals":[{"Ref":"DirectInternetAccess"},"Enabled"]}]}
         ]])
@@ -66,8 +76,7 @@ module.exports={
     require('./cfn'),
     require('./SageMakerNotebook'),
     require('./cloudwatch'),
-    require('./var'),
-    require('./api')
+    require('./var')
   ),
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description":"",

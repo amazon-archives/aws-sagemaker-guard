@@ -18,6 +18,6 @@ module.exports={
             "default": "Enabled",
             "displayType": "textarea",
             "description":"The contents of the SSH public key to be installed on the instance"
-        },
+        }
     }
 }

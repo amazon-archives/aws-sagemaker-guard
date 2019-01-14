@@ -19,19 +19,11 @@
     "LambdaUtilLayer": {
       "Type": "String"
     },
-    "OnStopDocument": {
+    "OnStartStopDocument": {
       "Type": "String",
       "Default": "EMPTY"
     },
-    "OnStartDocument": {
-      "Type": "String",
-      "Default": "EMPTY"
-    },
-    "OnCreateDocument": {
-      "Type": "String",
-      "Default": "EMPTY"
-    },
-    "OnTerminateDocument": {
+    "OnCreateDeleteDocument": {
       "Type": "String",
       "Default": "EMPTY"
     },
@@ -128,48 +120,24 @@
         }
       ]
     },
-    "IfOnStopDocument": {
+    "IfOnStartStopDocument": {
       "Fn::Not": [
         {
           "Fn::Equals": [
             {
-              "Ref": "OnStopDocument"
+              "Ref": "OnStartStopDocument"
             },
             "EMPTY"
           ]
         }
       ]
     },
-    "IfOnStartDocument": {
+    "IfOnCreateDeleteDocument": {
       "Fn::Not": [
         {
           "Fn::Equals": [
             {
-              "Ref": "OnStartDocument"
-            },
-            "EMPTY"
-          ]
-        }
-      ]
-    },
-    "IfOnCreateDocument": {
-      "Fn::Not": [
-        {
-          "Fn::Equals": [
-            {
-              "Ref": "OnCreateDocument"
-            },
-            "EMPTY"
-          ]
-        }
-      ]
-    },
-    "IfOnTerminateDocument": {
-      "Fn::Not": [
-        {
-          "Fn::Equals": [
-            {
-              "Ref": "OnTerminateDocument"
+              "Ref": "OnCreateDeleteDocument"
             },
             "EMPTY"
           ]
@@ -290,6 +258,26 @@
         "ON"
       ]
     },
+    "CreateDocument": {
+      "Fn::And": [
+        {
+          "Condition": "TurnOn"
+        },
+        {
+          "Condition": "IfOnCreateDeleteDocument"
+        }
+      ]
+    },
+    "TurnOnDocument": {
+      "Fn::And": [
+        {
+          "Condition": "TurnOn"
+        },
+        {
+          "Condition": "IfOnStartStopDocument"
+        }
+      ]
+    },
     "IfDisableDirectInternet": {
       "Fn::Not": [
         {
@@ -361,24 +349,14 @@
         "Ref": "LambdaUtilLayer"
       }
     },
-    "OnStopDocument": {
+    "OnStartStopDocument": {
       "Value": {
-        "Ref": "OnStopDocument"
+        "Ref": "OnStartStopDocument"
       }
     },
-    "OnStartDocument": {
+    "OnCreateDeleteDocument": {
       "Value": {
-        "Ref": "OnStartDocument"
-      }
-    },
-    "OnCreateDocument": {
-      "Value": {
-        "Ref": "OnCreateDocument"
-      }
-    },
-    "OnTerminateDocument": {
-      "Value": {
-        "Ref": "OnTerminateDocument"
+        "Ref": "OnCreateDeleteDocument"
       }
     },
     "ParentStack": {
@@ -458,62 +436,8 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
-            }
-          }
-        },
-        "Role": {
-          "Fn::GetAtt": [
-            "CFNLambdaRole",
-            "Arn"
-          ]
-        },
-        "Runtime": "nodejs6.10",
-        "Timeout": 60
-      }
-    },
-    "LifecycleLambda": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),ssm=new aws.SSM,util=require(\"ssm\"),lambda=new aws.Lambda,sagemaker=new aws.SageMaker;function recurse(event,callback){setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function commandStatus(event){return\"Command\"===event.DocumentType?ssm.getCommandInvocation({CommandId:event.id,InstanceId:event.ResourceProperties.config.InstanceIds[0]}).promise().then(x=>x.Status):ssm.describeAutomationExecutions({Filters:[{Key:\"ExecutionId\",Values:[event.id]}]}).promise().then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)}function startNotebook(event){return\"ON\"===event.ResourceProperties.state?sagemaker.describeNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise().then(x=>{if(console.log(JSON.stringify(x,null,2)),[\"Stopped\"].includes(x.NotebookInstanceStatus))return sagemaker.startNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise()}):Promise.resolve()}function stopNotebook(event){return\"OFF\"===event.ResourceProperties.state?sagemaker.describeNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise().then(x=>{if(console.log(JSON.stringify(x,null,2)),[\"InService\"].includes(x.NotebookInstanceStatus))return sagemaker.stopNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise()}):Promise.resolve()}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;if(delete params.ServiceToken,event.RequestType===params.event)if(event.id)commandStatus(event).then(status=>{if(\"Success\"===status)return delete event.id,stopNotebook(event).then(()=>recurse(event,callback)).catch(error=>{console.log(error),response.send(event,context,response.FAILED)});[\"Pending\",\"InProgress\",\"Delayed\"].includes(status)?recurse(event,callback):response.send(event,context,response.FAILED)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)});else{if(event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:process.env.NOTEBOOK}).promise().then(x=>{var state=event.ResourceProperties.state;\"OFF\"===state&&\"Stopped\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS):\"ON\"===state&&\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS):[\"Stopping\",\"Pending\"].includes(x.NotebookInstanceStatus)?recurse(event,callback):(x.NotebookInstanceStatus,response.send(event,context,response.FAILED))});startNotebook(event).then(()=>(event.wait=!0,\"EMPTY\"!==event.ResourceProperties.config.DocumentName?util.start(event.ResourceProperties.config).then(x=>Object.assign(event,x)):stopNotebook(event))).then(()=>recurse(event,callback)).catch(error=>{console.log(error),response.send(event,context,response.FAILED)})}else response.send(event,context,response.SUCCESS)};"
-        },
-        "Handler": "index.handler",
-        "MemorySize": "128",
-        "Layers": [
-          {
-            "Ref": "LambdaUtilLayer"
-          }
-        ],
-        "Environment": {
-          "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
-            "STACKNAME": {
-              "Ref": "AWS::StackName"
-            },
-            "NOTEBOOK": {
-              "Fn::GetAtt": [
-                "SageMakerNotebookInstance",
-                "NotebookInstanceName"
-              ]
-            },
-            "INSTANCEID": {
-              "Fn::GetAtt": [
-                "WaitConditionData",
-                "id"
-              ]
             }
           }
         },
@@ -531,7 +455,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),ec2=new aws.EC2,lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];function rm(info,event,callback,context){return sagemaker.deleteNotebookInstance({NotebookInstanceName:event.ResourceProperties.NotebookInstanceName}).promise().then(x=>(event.NetworkInterfaceId=info.NetworkInterfaceId,recurse(event,callback,context))).catch(error(event))}function recurse(event,callback,context){event.wait=!0,setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}function error(event,context){return function(error){console.log(error),response.send(event,context,response.FAILED)}}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB);try{if(event.NetworkInterfaceId)ec2.describeNetworkInterfaces({NetworkInterfaceIds:[event.NetworkInterfaceId]}).promise().then(x=>ec2.deleteNetworkInterface({NetworkInterfaceId:event.NetworkInterfaceId}).promise()).then(x=>recurse(event,callback,context)).catch(x=>{console.log(x),response.send(event,context,response.SUCCESS)});else{if(event.wait)return sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn):\"Pending\"===x.NotebookInstanceStatus?recurse(event,callback):\"Stopping\"===x.NotebookInstanceStatus?recurse(event,callback):\"Failed\"===x.NotebookInstanceStatus?\"Delete\"===event.RequestType?rm(x,event,callback,context):response.send(event,context,response.FAILED):\"Stopped\"===x.NotebookInstanceStatus?rm(x,event,callback,context):(console.log(x),response.send(event,context,response.FAILED))}).catch(e=>{console.log(e),\"Delete\"===event.RequestType?rm(x,event,callback,context):response.send(event,context,response.FAILED)});if(\"Create\"===event.RequestType)sagemaker.createNotebookInstance(params).promise().then(()=>recurse(event,callback,context)).catch(error(event,context));else if(\"Update\"===event.RequestType){var old=event.OldResourceProperties;delete old.ServiceToken,_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>{response.send(event,context,response.SUCCESS,x,x.NotebookInstanceArn)}).catch(error(event,context)):sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>recurse(event,callback,context)).catch(error(event,context))}else sagemaker.describeNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise().then(x=>sagemaker.stopNotebookInstance({NotebookInstanceName:params.NotebookInstanceName}).promise()).catch(x=>{if(console.log(x),!x.message.match(\"Unable to transition\"))throw x}).then(()=>recurse(event,callback,context)).catch(error(event))}}catch(e){console.log(e),callback(e)}};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\"),CfnLambda=require(\"cfn-lambda\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),ec2=new aws.EC2,lambda=new aws.Lambda,sagemaker=new aws.SageMaker,updateable=[\"AcceleratorTypes\",\"InstanceType\",\"RoleArn\",\"VolumeSizeInGB\",\"AdditionalCodeRepositories\",\"DefaultCodeRepository\"];exports.handler=CfnLambda({Create:(params,reply)=>(params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB),sagemaker.createNotebookInstance(params).promise().then(result=>reply(null,params.NotebookInstanceName,params)).catch(reply)),Update:(id,params,old,reply)=>(params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB),old.VolumeSizeInGB=parseInt(old.VolumeSizeInGB),_.isEqual(_.pick(params,updateable),_.pick(old,updateable))?sagemaker.describeNotebookInstance({NotebookInstanceName:id}).promise().then(()=>reply(null,id,params)).catch(reply):sagemaker.updateNotebookInstance(_.pick(params,updateable.concat([\"NotebookInstanceName\"]))).promise().then(()=>reply(null,id,params)).catch(reply)),NoUpdate:(id,params,reply)=>sagemaker.describeNotebookInstance({NotebookInstanceName:id}).promise().then(x=>reply(null,id,x)).catch(reply),Delete:(id,params,reply)=>{sagemaker.describeNotebookInstance({NotebookInstanceName:id}).promise().then(x=>{if(\"InService\"===x.NotebookInstanceStatus)return sagemaker.stopNotebookInstance({NotebookInstanceName:id}).promise().then(x=>reply(null,id,x));[\"Stopped\",\"Stoping\"].includes(x.NotebookInstanceStatus)?reply(null,id,x):reply(x)}).catch(reply)},LongRunning:{PingInSeconds:5,MaxPings:1e5,LambdaApi:lambda,Methods:{Create:(context,params,reply,recurse)=>sagemaker.describeNotebookInstance({NotebookInstanceName:context.PhysicalResourceId}).promise().then(x=>{console.log(x),\"InService\"===x.NotebookInstanceStatus?reply(null,context.PhysicalResourceId,x):\"Pending\"===x.NotebookInstanceStatus?recurse():reply(x)}).catch(reply),Delete:(context,id,params,reply,recurse)=>sagemaker.describeNotebookInstance({NotebookInstanceName:id}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?recurse():\"Stopping\"===x.NotebookInstanceStatus?recurse():[\"Failed\",\"Stopped\"].includes(x.NotebookInstanceStatus)?sagemaker.deleteNotebookInstance({NotebookInstanceName:id}).promise().then(x=>recurse()).catch(reply):reply(x)}).catch(e=>{if(\"RecordNotFound\"===e.message){var eni=context.Data.NetworkInterfaceId;ec2.describeNetworkInterfaces({NetworkInterfaceIds:[eni]}).promise().then(x=>ec2.deleteNetworkInterface({NetworkInterfaceId:eni}).promise()).then(x=>recurse()).catch(x=>{\"InvalidNetworkInterfaceID.NotFound\"===x.code?reply(null,id):reply(x)})}else sagemaker.deleteNotebookInstance({NotebookInstanceName:id}).promise().then(x=>recurse()).catch(reply)})}}});"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -542,12 +466,36 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
+            "STACKNAME": {
+              "Ref": "AWS::StackName"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "CFNLambdaRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs6.10",
+        "Timeout": 60
+      }
+    },
+    "NotebookStateLambda": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\"),CfnLambda=require(\"cfn-lambda\");aws.config.region=process.env.AWS_REGION;var _=require(\"lodash\"),lambda=new aws.Lambda,sagemaker=new aws.SageMaker;function startNotebook(params){return sagemaker.describeNotebookInstance({NotebookInstanceName:params.notebook}).promise().then(x=>{if(console.log(JSON.stringify(x,null,2)),[\"Stopped\"].includes(x.NotebookInstanceStatus))return sagemaker.startNotebookInstance({NotebookInstanceName:params.notebook}).promise()})}function stopNotebook(params){return sagemaker.describeNotebookInstance({NotebookInstanceName:params.notebook}).promise().then(x=>{if(console.log(JSON.stringify(x,null,2)),[\"InService\"].includes(x.NotebookInstanceStatus))return sagemaker.stopNotebookInstance({NotebookInstanceName:params.notebook}).promise()})}exports.handler=CfnLambda({Create:(params,reply)=>{startNotebook(params).then(x=>reply(null,params.notebook,params)).catch(reply)},Update:(id,params,old,reply)=>{reply(null,params.notebook,params)},Delete:(id,params,reply)=>{stopNotebook(params).then(x=>reply(null,params.notebook,params)).catch(reply)},LongRunning:{PingInSeconds:5,MaxPings:1e5,LambdaApi:lambda,Methods:{Create:(context,params,reply,recurse)=>sagemaker.describeNotebookInstance({NotebookInstanceName:context.PhysicalResourceId}).promise().then(x=>{console.log(x),\"InService\"===x.NotebookInstanceStatus?reply(null,context.PhysicalResourceId,x):\"Pending\"===x.NotebookInstanceStatus?recurse():(console.log(x),reply(x))}).catch(reply),Delete:(context,id,params,reply,recurse)=>sagemaker.describeNotebookInstance({NotebookInstanceName:id}).promise().then(x=>{\"InService\"===x.NotebookInstanceStatus?recurse():\"Stopping\"===x.NotebookInstanceStatus?recurse():\"Stopped\"===x.NotebookInstanceStatus?reply(null,id,params):(console.log(x),reply(x))})}}});"
+        },
+        "Handler": "index.handler",
+        "MemorySize": "128",
+        "Layers": [
+          {
+            "Ref": "LambdaUtilLayer"
+          }
+        ],
+        "Environment": {
+          "Variables": {
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -578,12 +526,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -614,12 +556,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -650,12 +586,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -686,12 +616,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -711,7 +635,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM,util=require(\"ssm\"),lambda=new aws.Lambda;function get(event){return\"Command\"===event.DocumentType?ssm.getCommandInvocation({CommandId:event.id,InstanceId:event.ResourceProperties.config.InstanceIds[0]}).promise().then(x=>x.Status):ssm.describeAutomationExecutions({Filters:[{Key:\"ExecutionId\",Values:[event.id]}]}).promise().then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)}exports.handler=function(event,context,callback){console.log(JSON.stringify(event,null,2));var params=event.ResourceProperties;delete params.ServiceToken,event.RequestType===params.event?event.id?get(event).then(status=>{\"Success\"===status?response.send(event,context,response.SUCCESS):[\"Pending\",\"InProgress\",\"Delayed\"].includes(status)?setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3):response.send(event,context,response.FAILED)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):util.start(event.ResourceProperties.config).then(x=>Object.assign(event,x)).then(id=>{setTimeout(()=>lambda.invoke({FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,InvocationType:\"Event\",Payload:JSON.stringify(event)}).promise().catch(error=>{console.log(error),response.send(event,context,response.FAILED)}).then(()=>callback(null)),5e3)}).catch(error=>{console.log(error),response.send(event,context,response.FAILED)}):response.send(event,context,response.SUCCESS)};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),response=require(\"cfn-response\"),CfnLambda=require(\"cfn-lambda\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var ssm=new aws.SSM,util=require(\"ssm\"),lambda=new aws.Lambda;function Run(params,reply,event){return util.start(_.set(params.config,\"Parameters.Event\",[event])).then(x=>reply(null,x.id,x)).catch(err=>reply(err))}function check(context,params,reply,recurse){return get(context.PhysicalResourceId,params,context.Data).then(status=>{\"Success\"===status?reply(null,context.PhysicalResourceId):[\"Pending\",\"InProgress\",\"Delayed\"].includes(status)?recurse():reply(status)}).catch(reply)}function get(id,params,data){return\"Command\"===data.DocumentType?ssm.getCommandInvocation({CommandId:id,InstanceId:params.config.InstanceIds[0]}).promise().then(x=>x.Status):ssm.describeAutomationExecutions({Filters:[{Key:\"ExecutionId\",Values:[id]}]}).promise().then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)}exports.handler=CfnLambda({Create:(params,reply)=>Run(params,reply,\"Create\"),Update:(id,params,old,reply)=>reply(null,id),Delete:(id,params,reply)=>Run(params,reply,\"Delete\"),LongRunning:{PingInSeconds:5,MaxPings:1e5,LambdaApi:lambda,Methods:{Create:(context,params,reply,recurse)=>{check(context,params,reply,recurse)},Delete:(context,id,params,reply,recurse)=>{check(context,params,reply,recurse)}}}});"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -722,12 +646,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -758,12 +676,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -794,12 +706,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -830,12 +736,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -866,12 +766,6 @@
         ],
         "Environment": {
           "Variables": {
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
             "STACKNAME": {
               "Ref": "AWS::StackName"
             }
@@ -958,6 +852,25 @@
                 }
               ]
             }
+          ]
+        }
+      }
+    },
+    "SageMakerNotebookInstanceState": {
+      "Type": "Custom::NotebookInstanceState",
+      "DependsOn": "SageMakerNotebookInstance",
+      "Condition": "TurnOn",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "NotebookStateLambda",
+            "Arn"
+          ]
+        },
+        "notebook": {
+          "Fn::GetAtt": [
+            "SageMakerNotebookInstance",
+            "NotebookInstanceName"
           ]
         }
       }
@@ -1227,12 +1140,9 @@
         }
       }
     },
-    "RunStartDocument": {
+    "RunCreateDeleteDocument": {
       "Type": "Custom::RunDocument",
-      "Condition": "IfOnStartDocument",
-      "DependsOn": [
-        "SageMakerNotebookInstance"
-      ],
+      "Condition": "CreateDocument",
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
@@ -1240,10 +1150,12 @@
             "Arn"
           ]
         },
-        "event": "Create",
+        "State": {
+          "Ref": "SageMakerNotebookInstanceState"
+        },
         "config": {
           "DocumentName": {
-            "Ref": "OnStartDocument"
+            "Ref": "OnCreateDeleteDocument"
           },
           "Parameters": {
             "VolumeSize": [
@@ -1269,11 +1181,6 @@
             "LambdaUtilLayer": [
               {
                 "Ref": "LambdaUtilLayer"
-              }
-            ],
-            "OnStopDocument": [
-              {
-                "Ref": "OnStopDocument"
               }
             ],
             "ParentStack": [
@@ -1386,33 +1293,25 @@
         }
       }
     },
-    "RunLifeCycleDocument": {
+    "RunStartStopDocument": {
       "Type": "Custom::Lifecycle",
+      "Condition": "TurnOnDocument",
       "DependsOn": [
         "SageMakerNotebookInstance"
       ],
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
-            "LifecycleLambda",
+            "SSMRunLambda",
             "Arn"
           ]
         },
-        "event": "Update",
-        "state": {
-          "Ref": "State"
+        "State": {
+          "Ref": "SageMakerNotebookInstanceState"
         },
         "config": {
           "DocumentName": {
-            "Fn::If": [
-              "TurnOn",
-              {
-                "Ref": "OnStartDocument"
-              },
-              {
-                "Ref": "OnStopDocument"
-              }
-            ]
+            "Ref": "OnStartStopDocument"
           },
           "Parameters": {
             "VolumeSize": [
@@ -1438,11 +1337,6 @@
             "LambdaUtilLayer": [
               {
                 "Ref": "LambdaUtilLayer"
-              }
-            ],
-            "OnStopDocument": [
-              {
-                "Ref": "OnStopDocument"
               }
             ],
             "ParentStack": [
@@ -1551,461 +1445,6 @@
           },
           "OutputS3Region": {
             "Ref": "AWS::Region"
-          }
-        }
-      }
-    },
-    "RunLifeCycleDocumentCleanUp": {
-      "Type": "Custom::Lifecycle",
-      "Condition": "IfOnStopDocument",
-      "DependsOn": [
-        "SageMakerNotebookInstance"
-      ],
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "LifecycleLambda",
-            "Arn"
-          ]
-        },
-        "event": "Delete",
-        "state": "OFF",
-        "config": {
-          "DocumentName": {
-            "Ref": "OnStopDocument"
-          },
-          "Parameters": {
-            "VolumeSize": [
-              {
-                "Ref": "VolumeSize"
-              }
-            ],
-            "CodeRepository": [
-              {
-                "Ref": "CodeRepository"
-              }
-            ],
-            "AcceleratorType": [
-              {
-                "Ref": "AcceleratorType"
-              }
-            ],
-            "State": [
-              {
-                "Ref": "State"
-              }
-            ],
-            "LambdaUtilLayer": [
-              {
-                "Ref": "LambdaUtilLayer"
-              }
-            ],
-            "OnStopDocument": [
-              {
-                "Ref": "OnStopDocument"
-              }
-            ],
-            "ParentStack": [
-              {
-                "Ref": "ParentStack"
-              }
-            ],
-            "SSMLogGroup": [
-              {
-                "Ref": "SSMLogGroup"
-              }
-            ],
-            "LogsBucket": [
-              {
-                "Ref": "LogsBucket"
-              }
-            ],
-            "EFS": [
-              {
-                "Ref": "EFS"
-              }
-            ],
-            "InstanceType": [
-              {
-                "Ref": "InstanceType"
-              }
-            ],
-            "RoleArn": [
-              {
-                "Fn::GetAtt": [
-                  "Role",
-                  "Arn"
-                ]
-              }
-            ],
-            "KmsKeyId": [
-              {
-                "Ref": "KmsKeyId"
-              }
-            ],
-            "SecurityGroupId": [
-              {
-                "Ref": "SecurityGroupId"
-              }
-            ],
-            "SubnetId": [
-              {
-                "Ref": "SubnetId"
-              }
-            ],
-            "DirectInternetAccess": [
-              {
-                "Ref": "DirectInternetAccess"
-              }
-            ],
-            "IdleShutdown": [
-              {
-                "Ref": "IdleShutdown"
-              }
-            ],
-            "GlueDevEndpoint": [
-              {
-                "Ref": "GlueDevEndpoint"
-              }
-            ],
-            "VPC": [
-              {
-                "Ref": "VPC"
-              }
-            ],
-            "InstanceId": [
-              {
-                "Fn::GetAtt": [
-                  "WaitConditionData",
-                  "id"
-                ]
-              }
-            ],
-            "StackName": [
-              {
-                "Ref": "AWS::StackName"
-              }
-            ],
-            "SSMRoleArn": [
-              {
-                "Fn::GetAtt": [
-                  "SSMRole",
-                  "Arn"
-                ]
-              }
-            ]
-          },
-          "InstanceIds": [
-            {
-              "Fn::GetAtt": [
-                "WaitConditionData",
-                "id"
-              ]
-            }
-          ],
-          "OutputS3BucketName": {
-            "Ref": "LogsBucket"
-          },
-          "OutputS3KeyPrefix": {
-            "Fn::Sub": "${AWS::StackName}/Start/"
-          },
-          "OutputS3Region": {
-            "Ref": "AWS::Region"
-          }
-        }
-      }
-    },
-    "RunTerminateDocument": {
-      "Type": "Custom::RunDocument",
-      "Condition": "IfOnTerminateDocument",
-      "DependsOn": [
-        "SageMakerNotebookInstance"
-      ],
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "SSMRunLambda",
-            "Arn"
-          ]
-        },
-        "event": "Delete",
-        "config": {
-          "DocumentName": {
-            "Ref": "OnTerminateDocument"
-          },
-          "Mode": "Auto",
-          "Parameters": {
-            "VolumeSize": [
-              {
-                "Ref": "VolumeSize"
-              }
-            ],
-            "CodeRepository": [
-              {
-                "Ref": "CodeRepository"
-              }
-            ],
-            "AcceleratorType": [
-              {
-                "Ref": "AcceleratorType"
-              }
-            ],
-            "State": [
-              {
-                "Ref": "State"
-              }
-            ],
-            "LambdaUtilLayer": [
-              {
-                "Ref": "LambdaUtilLayer"
-              }
-            ],
-            "OnStopDocument": [
-              {
-                "Ref": "OnStopDocument"
-              }
-            ],
-            "ParentStack": [
-              {
-                "Ref": "ParentStack"
-              }
-            ],
-            "SSMLogGroup": [
-              {
-                "Ref": "SSMLogGroup"
-              }
-            ],
-            "LogsBucket": [
-              {
-                "Ref": "LogsBucket"
-              }
-            ],
-            "EFS": [
-              {
-                "Ref": "EFS"
-              }
-            ],
-            "InstanceType": [
-              {
-                "Ref": "InstanceType"
-              }
-            ],
-            "RoleArn": [
-              {
-                "Fn::GetAtt": [
-                  "Role",
-                  "Arn"
-                ]
-              }
-            ],
-            "KmsKeyId": [
-              {
-                "Ref": "KmsKeyId"
-              }
-            ],
-            "SecurityGroupId": [
-              {
-                "Ref": "SecurityGroupId"
-              }
-            ],
-            "SubnetId": [
-              {
-                "Ref": "SubnetId"
-              }
-            ],
-            "DirectInternetAccess": [
-              {
-                "Ref": "DirectInternetAccess"
-              }
-            ],
-            "IdleShutdown": [
-              {
-                "Ref": "IdleShutdown"
-              }
-            ],
-            "GlueDevEndpoint": [
-              {
-                "Ref": "GlueDevEndpoint"
-              }
-            ],
-            "VPC": [
-              {
-                "Ref": "VPC"
-              }
-            ],
-            "InstanceId": [
-              {
-                "Fn::GetAtt": [
-                  "WaitConditionData",
-                  "id"
-                ]
-              }
-            ],
-            "StackName": [
-              {
-                "Ref": "AWS::StackName"
-              }
-            ],
-            "SSMRoleArn": [
-              {
-                "Fn::GetAtt": [
-                  "SSMRole",
-                  "Arn"
-                ]
-              }
-            ]
-          },
-          "OutputS3BucketName": {
-            "Ref": "LogsBucket"
-          },
-          "OutputS3KeyPrefix": {
-            "Fn::Sub": "${AWS::StackName}/Start/"
-          },
-          "OutputS3Region": {
-            "Ref": "AWS::Region"
-          }
-        }
-      }
-    },
-    "RunCreateDocument": {
-      "Type": "Custom::RunDocument",
-      "Condition": "IfOnCreateDocument",
-      "DependsOn": [
-        "SageMakerNotebookInstance"
-      ],
-      "Properties": {
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "SSMRunLambda",
-            "Arn"
-          ]
-        },
-        "event": "Create",
-        "config": {
-          "DocumentName": {
-            "Ref": "OnCreateDocument"
-          },
-          "Mode": "Auto",
-          "Parameters": {
-            "VolumeSize": [
-              {
-                "Ref": "VolumeSize"
-              }
-            ],
-            "CodeRepository": [
-              {
-                "Ref": "CodeRepository"
-              }
-            ],
-            "AcceleratorType": [
-              {
-                "Ref": "AcceleratorType"
-              }
-            ],
-            "State": [
-              {
-                "Ref": "State"
-              }
-            ],
-            "LambdaUtilLayer": [
-              {
-                "Ref": "LambdaUtilLayer"
-              }
-            ],
-            "OnStopDocument": [
-              {
-                "Ref": "OnStopDocument"
-              }
-            ],
-            "ParentStack": [
-              {
-                "Ref": "ParentStack"
-              }
-            ],
-            "SSMLogGroup": [
-              {
-                "Ref": "SSMLogGroup"
-              }
-            ],
-            "LogsBucket": [
-              {
-                "Ref": "LogsBucket"
-              }
-            ],
-            "EFS": [
-              {
-                "Ref": "EFS"
-              }
-            ],
-            "InstanceType": [
-              {
-                "Ref": "InstanceType"
-              }
-            ],
-            "RoleArn": [
-              {
-                "Fn::GetAtt": [
-                  "Role",
-                  "Arn"
-                ]
-              }
-            ],
-            "KmsKeyId": [
-              {
-                "Ref": "KmsKeyId"
-              }
-            ],
-            "SecurityGroupId": [
-              {
-                "Ref": "SecurityGroupId"
-              }
-            ],
-            "SubnetId": [
-              {
-                "Ref": "SubnetId"
-              }
-            ],
-            "DirectInternetAccess": [
-              {
-                "Ref": "DirectInternetAccess"
-              }
-            ],
-            "IdleShutdown": [
-              {
-                "Ref": "IdleShutdown"
-              }
-            ],
-            "GlueDevEndpoint": [
-              {
-                "Ref": "GlueDevEndpoint"
-              }
-            ],
-            "VPC": [
-              {
-                "Ref": "VPC"
-              }
-            ],
-            "InstanceId": [
-              {
-                "Fn::GetAtt": [
-                  "WaitConditionData",
-                  "id"
-                ]
-              }
-            ],
-            "StackName": [
-              {
-                "Ref": "AWS::StackName"
-              }
-            ],
-            "SSMRoleArn": [
-              {
-                "Fn::GetAtt": [
-                  "SSMRole",
-                  "Arn"
-                ]
-              }
-            ]
           }
         }
       }
@@ -2228,140 +1667,6 @@
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
         ]
-      }
-    },
-    "APITurnOffLambda": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION\nvar _=require('lodash')\nvar cf=new aws.CloudFormation()\nvar sagemaker=new aws.SageMaker()\n\nvar doc=process.env.ONSTOP\nvar accessable=\"false\"\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    \n    cf.describeStacks({\n        StackName:process.env.STACKNAME\n    }).promise()\n    .then(result=>{\n        var params=_.fromPairs(result.Stacks[0].Parameters\n            .map(x=>[x.ParameterKey,x.ResolvedValue || x.ParameterValue]))\n        var tags=_.fromPairs(result.Stacks[0].Tags.map(x=>[x.Key,x.Value]))\n\n        tags.Accessable=accessable\n        outputs.StackName=stackname\n        outputs.InstanceId=outputs.InstanceID\n\n        cf.updateStack({\n            StackName:process.env.STACKNAME\n            Tags:_.toPairs(tags).map(x=>{return {\n                Key:x[0],\n                Value:[1]\n            }})\n        }).promise()\n        .then(()=>sagemaker.stopNotebookInstance({\n            NotebookInstanceName:process.env.NOTEBOOK\n        }).promise())\n        .then(x=>{\n            if(doc!==\"EMPTY\"){\n                return ssm.sendCommand({\n                    DocumentName:doc,\n                    InstanceIds:process.env.INSTANCEID,\n                    Parameters:_.mapValues(outputs,x=>[x])\n                }).promise()\n            }\n        })\n    })\n    .then(()=>callback(null))\n    .catch(e=>{\n        console.log(e)\n        callback(e)\n    })\n}\n        \n\n"
-        },
-        "Handler": "index.handler",
-        "MemorySize": "128",
-        "Layers": [
-          {
-            "Ref": "LambdaUtilLayer"
-          }
-        ],
-        "Role": {
-          "Fn::GetAtt": [
-            "APILambdaRole",
-            "Arn"
-          ]
-        },
-        "Environment": {
-          "Variables": {
-            "NOTEBOOK": {
-              "Ref": "SageMakerNotebookInstance"
-            },
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
-            "INSTANCEID": {
-              "Fn::GetAtt": [
-                "WaitConditionData",
-                "id"
-              ]
-            },
-            "STACKNAME": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        },
-        "Runtime": "nodejs6.10",
-        "Timeout": 60
-      }
-    },
-    "APITurnOnLambda": {
-      "Type": "AWS::Lambda::Function",
-      "Properties": {
-        "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\naws.config.region=process.env.AWS_REGION\nvar _=require('lodash')\nvar cf=new aws.CloudFormation()\nvar sagemaker=new aws.SageMaker()\n\nvar doc=process.env.ONSTART\nvar accessable=\"true\"\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    \n    cf.describeStacks({\n        StackName:process.env.STACKNAME\n    }).promise()\n    .then(result=>{\n        var params=_.fromPairs(result.Stacks[0].Parameters\n            .map(x=>[x.ParameterKey,x.ResolvedValue || x.ParameterValue]))\n        var tags=_.fromPairs(result.Stacks[0].Tags.map(x=>[x.Key,x.Value]))\n\n        tags.Accessable=accessable\n        outputs.StackName=stackname\n        outputs.InstanceId=outputs.InstanceID\n\n        cf.updateStack({\n            StackName:process.env.STACKNAME\n            Tags:_.toPairs(tags).map(x=>{return {\n                Key:x[0],\n                Value:[1]\n            }})\n        }).promise()\n        .then(()=>sagemaker.startNotebookInstance({\n            NotebookInstanceName:process.env.NOTEBOOK\n        }).promise())\n        .then(x=>{\n            if(doc!==\"EMPTY\"){\n                return ssm.sendCommand({\n                    DocumentName:doc,\n                    InstanceIds:process.env.INSTANCEID,\n                    Parameters:_.mapValues(outputs,x=>[x])\n                }).promise()\n            }\n        })\n    })\n    .then(()=>callback(null))\n    .catch(e=>{\n        console.log(e)\n        callback(e)\n    })\n}\n        \n\n"
-        },
-        "Handler": "index.handler",
-        "MemorySize": "128",
-        "Layers": [
-          {
-            "Ref": "LambdaUtilLayer"
-          }
-        ],
-        "Role": {
-          "Fn::GetAtt": [
-            "APILambdaRole",
-            "Arn"
-          ]
-        },
-        "Environment": {
-          "Variables": {
-            "NOTEBOOK": {
-              "Ref": "SageMakerNotebookInstance"
-            },
-            "ONSTART": {
-              "Ref": "OnStartDocument"
-            },
-            "ONSTOP": {
-              "Ref": "OnStopDocument"
-            },
-            "INSTANCEID": {
-              "Fn::GetAtt": [
-                "WaitConditionData",
-                "id"
-              ]
-            },
-            "STACKNAME": {
-              "Ref": "AWS::StackName"
-            }
-          }
-        },
-        "Runtime": "nodejs6.10",
-        "Timeout": 60
-      }
-    },
-    "APILambdaRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com"
-              },
-              "Action": "sts:AssumeRole"
-            }
-          ]
-        },
-        "Path": "/",
-        "ManagedPolicyArns": [
-          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-          "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
-          {
-            "Ref": "APIPolicy"
-          }
-        ]
-      }
-    },
-    "APIPolicy": {
-      "Type": "AWS::IAM::ManagedPolicy",
-      "Properties": {
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "lambda:InvokeFunction"
-              ],
-              "Resource": [
-                "*"
-              ]
-            }
-          ]
-        }
       }
     }
   },

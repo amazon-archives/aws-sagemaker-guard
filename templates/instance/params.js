@@ -21,19 +21,11 @@ module.exports={
     LambdaUtilLayer:{
         "Type":"String"
     },
-    OnStopDocument:{
+    OnStartStopDocument:{
         "Type":"String",
         "Default":"EMPTY"
     },
-    OnStartDocument:{
-        "Type":"String",
-        "Default":"EMPTY"
-    },
-    OnCreateDocument:{
-        "Type":"String",
-        "Default":"EMPTY"
-    },
-    OnTerminateDocument:{
+    OnCreateDeleteDocument:{
         "Type":"String",
         "Default":"EMPTY"
     },

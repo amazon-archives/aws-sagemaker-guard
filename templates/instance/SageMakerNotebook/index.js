@@ -8,6 +8,15 @@ params.push("StackName=${AWS::StackName}")
 params=params.join(',')
 
 module.exports=Object.assign({
+    "SageMakerNotebookInstanceState":{
+        "Type": "Custom::NotebookInstanceState",
+        "DependsOn":"SageMakerNotebookInstance",
+        "Condition":"TurnOn",
+        "Properties": {
+            "ServiceToken": { "Fn::GetAtt" : ["NotebookStateLambda", "Arn"] },
+            "notebook":{"Fn::GetAtt":["SageMakerNotebookInstance","NotebookInstanceName"]}
+        }
+    },
     "SageMakerNotebookInstance":{
         "Type": "Custom::NotebookInstance",
         "Properties": {

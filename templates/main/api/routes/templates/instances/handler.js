@@ -112,33 +112,18 @@ function schema(event,input){
                             "default":"5",
                             "enum":input.volume
                         },
-                        "OnCreateDocument":{
-                            "title":"SSM OnCreate Document",
+                        "OnCreateDeleteDocument":{
+                            "title":"SSM OnCreateDelete Document",
                             "immutable":true,
-                            "description":"An SSM document to run on instance creation.",
-                            "ask":"Tell me about the OnCreate Document",
+                            "description":"An SSM document to run on instance creation and termination.",
                             "type":"string",
-                            "enum":list_apis.doc(input,"OnCreate")
+                            "enum":list_apis.doc(input,"OnCreateDelete")
                         },
-                        "OnStartDocument":{
-                            "title":"SSM OnStart Document",
-                            "description":"An SSM document to run on each instance start up.",
+                        "OnStartStopDocument":{
+                            "title":"SSM OnStartStop Document",
+                            "description":"An SSM document to run on each instance start up and stop.",
                             "type":"string",
-                            "enum":list_apis.doc(input,"OnStart")
-                        },
-                        "OnStopDocument":{
-                            "title":"SSM OnStop Document",
-                            "description":"An SSM document to run on each instance shut down.",
-                            "type":"string",
-                            "enum":list_apis.doc(input,"OnStop")
-                        },
-                        "OnTerminateDocument":{
-                            "title":"SSM OnTerminate Document",
-                            "immutable":true,
-                            "description":"An SSM document to run on instance termination.",
-                            "ask":"Tell me about the OnTerminate Document",
-                            "type":"string",
-                            "enum":list_apis.doc(input,"OnTerminate")
+                            "enum":list_apis.doc(input,"OnStartStop")
                         },
                         "IdleShutdown":{
                             "title":"Idle Shutdown Wait Period in minutes",

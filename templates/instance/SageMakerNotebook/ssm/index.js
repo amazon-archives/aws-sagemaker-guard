@@ -1,6 +1,6 @@
 var _=require('lodash')
 
-var params=_.fromPairs(_.keys(_.omit(require('../../../instance/params'),["OnCreateDocument","OnTerminateDocument","OnStartDocument"]))
+var params=_.fromPairs(_.keys(_.omit(require('../../../instance/params'),["OnCreateDeleteDocument","OnStartStopDocument"]))
         .map(x=>[x,[{"Ref":x}]]))
 
 params.InstanceId=[{"Fn::GetAtt":["WaitConditionData","id"]}]
@@ -9,15 +9,14 @@ params.RoleArn=[{"Fn::GetAtt":["Role","Arn"]}]
 params.SSMRoleArn=[{"Fn::GetAtt":["SSMRole","Arn"]}]
 
 module.exports={
-    "RunStartDocument":{
+    "RunCreateDeleteDocument":{
         "Type": "Custom::RunDocument",
-        "Condition":"IfOnStartDocument", 
-        "DependsOn":["SageMakerNotebookInstance"],
+        "Condition":"CreateDocument", 
         "Properties":{
             "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
-            "event":"Create",
+            "State":{"Ref":"SageMakerNotebookInstanceState"},
             "config":{
-                "DocumentName":{"Ref":"OnStartDocument"},
+                "DocumentName":{"Ref":"OnCreateDeleteDocument"},
                 Parameters:params,
                 InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}],
                 OutputS3BucketName:{"Ref":"LogsBucket"},
@@ -26,75 +25,20 @@ module.exports={
             }
         }
     },
-    "RunLifeCycleDocument":{
+    "RunStartStopDocument":{
         "Type": "Custom::Lifecycle",
+        "Condition":"TurnOnDocument", 
         "DependsOn":["SageMakerNotebookInstance"],
         "Properties":{
-            "ServiceToken": { "Fn::GetAtt" : ["LifecycleLambda", "Arn"] },
-            "event":"Update",
-            "state":{"Ref":"State"},
+            "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
+            "State":{"Ref":"SageMakerNotebookInstanceState"},
             "config":{
-                "DocumentName":{"Fn::If":[
-                    "TurnOn",
-                    {"Ref":"OnStartDocument"},
-                    {"Ref":"OnStopDocument"}
-                ]},
+                "DocumentName":{"Ref":"OnStartStopDocument"},
                 Parameters:params,
                 InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}],
                 OutputS3BucketName:{"Ref":"LogsBucket"},
                 OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
                 OutputS3Region:{"Ref":"AWS::Region"}
-
-            }
-        }
-    },
-    "RunLifeCycleDocumentCleanUp":{
-        "Type": "Custom::Lifecycle",
-        "Condition":"IfOnStopDocument",
-        "DependsOn":["SageMakerNotebookInstance"],
-        "Properties":{
-            "ServiceToken": { "Fn::GetAtt" : ["LifecycleLambda", "Arn"] },
-            "event":"Delete",
-            "state":"OFF",
-            "config":{
-                "DocumentName":{"Ref":"OnStopDocument"},
-                Parameters:params,
-                InstanceIds:[{"Fn::GetAtt":["WaitConditionData","id"]}],
-                OutputS3BucketName:{"Ref":"LogsBucket"},
-                OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
-                OutputS3Region:{"Ref":"AWS::Region"}
-
-            }
-        }
-    },
-    "RunTerminateDocument":{
-        "Type": "Custom::RunDocument",
-        "Condition":"IfOnTerminateDocument", 
-        "DependsOn":["SageMakerNotebookInstance"],
-        "Properties":{
-            "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
-            "event":"Delete",
-            "config":{
-                "DocumentName":{"Ref":"OnTerminateDocument"},
-                Mode:"Auto",
-                Parameters:params,
-                OutputS3BucketName:{"Ref":"LogsBucket"},
-                OutputS3KeyPrefix:{"Fn::Sub":"${AWS::StackName}/Start/"},
-                OutputS3Region:{"Ref":"AWS::Region"}
-            }
-        }
-    },
-    "RunCreateDocument":{
-        "Type": "Custom::RunDocument",
-        "Condition":"IfOnCreateDocument", 
-        "DependsOn":["SageMakerNotebookInstance"],
-        "Properties":{
-            "ServiceToken": { "Fn::GetAtt" : ["SSMRunLambda", "Arn"] },
-            "event":"Create",
-            "config":{
-                "DocumentName":{"Ref":"OnCreateDocument"},
-                Mode:"Auto",
-                Parameters:params
             }
         }
     },

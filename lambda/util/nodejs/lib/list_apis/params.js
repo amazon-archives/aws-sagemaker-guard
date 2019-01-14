@@ -12,10 +12,13 @@ module.exports=memoize(function(){
     }).promise()
     .then(result=>{
         var template=JSON.parse(result.Body.toString())
-        var out=_.keys(_.omit(template.Parameters,["OnCreateDocument","OnTerminateDocument","OnStartDocument"]))
+        console.log(template.Parameters)
+        var out=_.keys(_.omit(template.Parameters,["OnCreateDeleteDocument","OnStartStopDocument"]))
         out.push("StackName")
         out.push("InstanceId")
         out.push("SSMRoleArn")
+        out.push("Event")
+        console.log(out)
         return out
     })
 },{

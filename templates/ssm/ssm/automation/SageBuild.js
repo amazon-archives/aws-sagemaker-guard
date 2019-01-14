@@ -1,13 +1,28 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": {"Fn::Sub":"OnCreate Document. Installs and configures the aws-sagemaker-build project on the instance. Set the OnTerminate document to 'DeleteSageBuild' to properly clean up."},
+  "description": {"Fn::Sub":"OnCreate Document. Installs and configures the aws-sagemaker-build project on the instance."},
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters": require('../params'),
   "mainSteps": [
     {
+        "name":"choice",
+        "action":"aws:branch",
+        "inputs":{
+            Choices:[{
+                Variable:"{{Event}}",
+                StringEquals:"Create",
+                NextStep:"create"
+            },{
+                Variable:"{{Event}}",
+                StringEquals:"Delete",
+                NextStep:"delete"
+            }]
+        }
+    },
+    {
       "action": "aws:createStack",
-      "name": "start",
+      "name": "create",
       "nextStep":"describeStack",
       "inputs": {
         StackName:"{{StackName}}-bucket",
@@ -57,6 +72,7 @@ module.exports={
     {
       "action": "aws:createStack",
       "name": "startSageBuild",
+      "isEnd":true,
       "inputs": {
         StackName:"{{StackName}}-SageBuild",
         TemplateURL:"https://s3.amazonaws.com/aws-machine-learning-blog/artifacts/sagebuild/v1/template.json",
@@ -75,12 +91,25 @@ module.exports={
             ParameterKey:"AssetPrefix",
         }]
       }
+    },
+    {
+      "action": "aws:deleteStack",
+      "name": "delete",
+      "nextStep":"deleteSageBuild",
+      "inputs": {
+        StackName:"{{StackName}}-bucket",
+      }
+    },
+    {
+      "action": "aws:deleteStack",
+      "name": "deleteSageBuild",
+      "isEnd":true,
+      "inputs": {
+        StackName:"{{StackName}}-SageBuild",
+      }
     }
   ],
   Tags:{
-    "OnCreate":"true",
-    "OnTerminate":"false",
-    "OnStart":"false",
-    "OnStop":"false"
+    "OnCreateDelete":"true"
   }
 }

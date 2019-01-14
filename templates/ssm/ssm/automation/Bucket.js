@@ -1,7 +1,7 @@
 var _=require('lodash')
 module.exports={
   "schemaVersion": "0.3",
-  "description": {"Fn::Sub":"OnCreate Document. Installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance."},
+  "description": {"Fn::Sub":"Creates an S3 bucket and add permissions fo the notebook to access the document."},
   assumeRole:{"Fn::GetAtt":["SSMAutomationRole","Arn"]},
   "parameters": require('../params'),
   "mainSteps": [
@@ -22,7 +22,6 @@ module.exports={
     },
     {
       "action": "aws:createStack",
-      "nextStep":"install",
       "name": "create",
       "inputs": {
         StackName:"{{StackName}}-bucket",
@@ -35,21 +34,6 @@ module.exports={
             ParameterValue:"{{StackName}}",
             ParameterKey:"NotebookInstance",
         }]
-      }
-    },
-    {
-      "action": "aws:runCommand",
-      "name": "install",
-      isEnd:true,
-      "inputs": {
-        DocumentName:{"Ref":"BYODCommandDocument"},
-        InstanceIds:["{{InstanceId}}"],
-        OutputS3BucketName:"{{LogsBucket}}",
-        OutputS3KeyPrefix:"BYOD",
-        Parameters:{
-            BucketStack:"{{StackName}}-bucket",
-            Region:"{{global:REGION}}"
-        }
       }
     },
     {

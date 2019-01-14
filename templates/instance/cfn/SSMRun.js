@@ -1,80 +1,63 @@
 var aws=require('aws-sdk')
 var response = require('cfn-response')
+var CfnLambda = require('cfn-lambda');
+var _=require('lodash')
 aws.config.region=process.env.AWS_REGION
 var ssm=new aws.SSM()
 var util=require('ssm')
 var lambda=new aws.Lambda()
 
-exports.handler=function(event,context,callback){
-    console.log(JSON.stringify(event,null,2))
-    var params=event.ResourceProperties
-    delete params.ServiceToken
-
-    if(event.RequestType===params.event){
-        if(event.id){
-            get(event)
-            .then(status=>{
-                if(status==="Success"){
-                    response.send(event, context, response.SUCCESS)
-                }else if(["Pending","InProgress","Delayed"].includes(status)){
-                    setTimeout(()=>lambda.invoke({
-                            FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,
-                            InvocationType:"Event",
-                            Payload:JSON.stringify(event)
-                        }).promise()
-                        .catch(error=>{
-                            console.log(error)
-                            response.send(event, context, response.FAILED)
-                        })
-                        .then(()=>callback(null))
-                    ,5000)
-                }else{
-                    response.send(event, context, response.FAILED)
-                }
-            })
-            .catch(error=>{
-                console.log(error)
-                response.send(event, context, response.FAILED)
-            })
-        }else{
-            util.start(event.ResourceProperties.config)
-            .then(x=>Object.assign(event,x))
-            .then(id=>{
-                setTimeout(()=>lambda.invoke({
-                        FunctionName:process.env.AWS_LAMBDA_FUNCTION_NAME,
-                        InvocationType:"Event",
-                        Payload:JSON.stringify(event)
-                    }).promise()
-                    .catch(error=>{
-                        console.log(error)
-                        response.send(event, context, response.FAILED)
-                    })
-                    .then(()=>callback(null))
-                ,5000)
-            })
-            .catch(error=>{
-                console.log(error)
-                response.send(event, context, response.FAILED)
-            })
+exports.handler=CfnLambda({
+    Create:(params,reply)=>Run(params,reply,"Create"),
+    Update:(id,params,old,reply)=>reply(null,id),
+    Delete:(id,params,reply)=>Run(params,reply,"Delete"),
+    LongRunning:{
+        PingInSeconds:5,
+        MaxPings:100000,
+        LambdaApi:lambda,
+        Methods:{
+            Create:(context,params,reply,recurse)=>{
+                check(context,params,reply,recurse)
+            },
+            Delete:(context,id,params,reply,recurse)=>{
+                check(context,params,reply,recurse)
+            }
         }
-    }else{
-        response.send(event, context, response.SUCCESS)
     }
+})
+
+function Run(params,reply,event){
+    return util.start(_.set(params.config,'Parameters.Event',[event]))
+    .then(x=>reply(null,x.id,x))
+    .catch(err=>reply(err))
 }
 
+function check(context,params,reply,recurse){
+    return get(context.PhysicalResourceId,params,context.Data)
+    .then(status=>{
+        if(status==="Success"){
+            reply(null,context.PhysicalResourceId)
+        }else if(["Pending","InProgress","Delayed"].includes(status)){
+            recurse()
+        }else{
+            reply(status)
+        }
+    })
+    .catch(reply)
+}
 
-function get(event){
-    if(event.DocumentType==="Command"){
+function get(id,params,data){
+    if(data.DocumentType==="Command"){
         return ssm.getCommandInvocation({
-            CommandId:event.id,
-            InstanceId:event.ResourceProperties.config.InstanceIds[0]
+            CommandId:id,
+            InstanceId:params.config.InstanceIds[0]
         }).promise()
         .then(x=>x.Status)
     }else{
         return ssm.describeAutomationExecutions({
             Filters:[{
                 Key:"ExecutionId",
-                Values:[event.id]
+                Values:[id]
             }]
         }).promise()
         .then(x=>x.AutomationExecutionMetadataList[0].AutomationExecutionStatus)

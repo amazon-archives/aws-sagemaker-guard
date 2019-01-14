@@ -320,6 +320,9 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "Event": {
+              "type": "String"
+            },
             "StackName": {
               "type": "String"
             },
@@ -344,19 +347,11 @@
         },
         "Tags": [
           {
-            "Key": "OnCreate",
+            "Key": "OnCreateDelete",
             "Value": "true"
           },
           {
-            "Key": "OnTerminate",
-            "Value": "true"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "true"
-          },
-          {
-            "Key": "OnStop",
+            "Key": "OnStartStop",
             "Value": "true"
           },
           {
@@ -552,6 +547,9 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "Event": {
+              "type": "String"
+            },
             "StackName": {
               "type": "String"
             },
@@ -699,7 +697,7 @@
         "Content": {
           "schemaVersion": "0.3",
           "description": {
-            "Fn::Sub": "OnCreate Document. Installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance. Set the OnTerminate document to 'DeleteBucket' to properly clean up."
+            "Fn::Sub": "OnCreate Document. Installs and configures the aws-samples/amazon-sagemaker-BYOD-template project on the instance."
           },
           "assumeRole": {
             "Fn::GetAtt": [
@@ -798,6 +796,9 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "Event": {
+              "type": "String"
+            },
             "StackName": {
               "type": "String"
             },
@@ -810,8 +811,27 @@
           },
           "mainSteps": [
             {
+              "name": "choice",
+              "action": "aws:branch",
+              "inputs": {
+                "Choices": [
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Create",
+                    "NextStep": "create"
+                  },
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Delete",
+                    "NextStep": "delete"
+                  }
+                ]
+              }
+            },
+            {
               "action": "aws:createStack",
-              "name": "start",
+              "nextStep": "install",
+              "name": "create",
               "inputs": {
                 "StackName": "{{StackName}}-bucket",
                 "TemplateURL": {
@@ -835,6 +855,7 @@
             {
               "action": "aws:runCommand",
               "name": "install",
+              "isEnd": true,
               "inputs": {
                 "DocumentName": {
                   "Ref": "BYODCommandDocument"
@@ -849,25 +870,21 @@
                   "Region": "{{global:REGION}}"
                 }
               }
+            },
+            {
+              "action": "aws:deleteStack",
+              "name": "delete",
+              "isEnd": true,
+              "inputs": {
+                "StackName": "{{StackName}}-bucket"
+              }
             }
           ]
         },
         "Tags": [
           {
-            "Key": "OnCreate",
+            "Key": "OnCreateDelete",
             "Value": "true"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
           },
           {
             "Key": "StackName",
@@ -883,13 +900,13 @@
         "DocumentType": "Automation"
       }
     },
-    "CreateBucketAutomationDocument": {
+    "BucketAutomationDocument": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
           "description": {
-            "Fn::Sub": "Creates an S3 bucket and add permissions fo the notebook to access the document. Pair with DeleteBucket to properly clean up bucket when the instance is terminated"
+            "Fn::Sub": "Creates an S3 bucket and add permissions fo the notebook to access the document."
           },
           "assumeRole": {
             "Fn::GetAtt": [
@@ -988,6 +1005,9 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "Event": {
+              "type": "String"
+            },
             "StackName": {
               "type": "String"
             },
@@ -1000,8 +1020,26 @@
           },
           "mainSteps": [
             {
+              "name": "choice",
+              "action": "aws:branch",
+              "inputs": {
+                "Choices": [
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Create",
+                    "NextStep": "create"
+                  },
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Delete",
+                    "NextStep": "delete"
+                  }
+                ]
+              }
+            },
+            {
               "action": "aws:createStack",
-              "name": "start",
+              "name": "create",
               "inputs": {
                 "StackName": "{{StackName}}-bucket",
                 "TemplateURL": {
@@ -1021,25 +1059,21 @@
                   }
                 ]
               }
+            },
+            {
+              "action": "aws:deleteStack",
+              "name": "delete",
+              "isEnd": true,
+              "inputs": {
+                "StackName": "{{StackName}}-bucket"
+              }
             }
           ]
         },
         "Tags": [
           {
-            "Key": "OnCreate",
+            "Key": "OnCreateDelete",
             "Value": "true"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
           },
           {
             "Key": "StackName",
@@ -1049,19 +1083,19 @@
           },
           {
             "Key": "DisplayName",
-            "Value": "CreateBucket"
+            "Value": "Bucket"
           }
         ],
         "DocumentType": "Automation"
       }
     },
-    "CreateGlueAutomationDocument": {
+    "GlueAutomationDocument": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
           "description": {
-            "Fn::Sub": "Creates a Glue Development Endpoint and configures the instance to be able to use it. Pair with DeleteGlue to delete on instance shutdown"
+            "Fn::Sub": "Creates a Glue Development Endpoint and configures the instance to be able to use it."
           },
           "assumeRole": {
             "Fn::GetAtt": [
@@ -1160,6 +1194,9 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "Event": {
+              "type": "String"
+            },
             "StackName": {
               "type": "String"
             },
@@ -1172,8 +1209,27 @@
           },
           "mainSteps": [
             {
+              "name": "choice",
+              "action": "aws:branch",
+              "inputs": {
+                "Choices": [
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Create",
+                    "NextStep": "create"
+                  },
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Delete",
+                    "NextStep": "delete"
+                  }
+                ]
+              }
+            },
+            {
               "action": "aws:createStack",
-              "name": "start",
+              "name": "create",
+              "nextStep": "install",
               "inputs": {
                 "StackName": "{{StackName}}-glue-endpoint",
                 "TemplateURL": {
@@ -1213,6 +1269,7 @@
             {
               "action": "aws:runCommand",
               "name": "install",
+              "isEnd": true,
               "inputs": {
                 "DocumentName": {
                   "Ref": "GlueCommandDocument"
@@ -1227,25 +1284,21 @@
                   "GlueDevEndpoint": "{{StackName}}-glue-endpoint"
                 }
               }
+            },
+            {
+              "action": "aws:deleteStack",
+              "isEnd": true,
+              "name": "delete",
+              "inputs": {
+                "StackName": "{{StackName}}-glue-endpoint"
+              }
             }
           ]
         },
         "Tags": [
           {
-            "Key": "OnCreate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStart",
+            "Key": "OnStartStop",
             "Value": "true"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
           },
           {
             "Key": "StackName",
@@ -1255,19 +1308,19 @@
           },
           {
             "Key": "DisplayName",
-            "Value": "CreateGlue"
+            "Value": "Glue"
           }
         ],
         "DocumentType": "Automation"
       }
     },
-    "CreateSageBuildAutomationDocument": {
+    "SageBuildAutomationDocument": {
       "Type": "AWS::SSM::Document",
       "Properties": {
         "Content": {
           "schemaVersion": "0.3",
           "description": {
-            "Fn::Sub": "OnCreate Document. Installs and configures the aws-sagemaker-build project on the instance. Set the OnTerminate document to 'DeleteSageBuild' to properly clean up."
+            "Fn::Sub": "OnCreate Document. Installs and configures the aws-sagemaker-build project on the instance."
           },
           "assumeRole": {
             "Fn::GetAtt": [
@@ -1366,6 +1419,9 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "Event": {
+              "type": "String"
+            },
             "StackName": {
               "type": "String"
             },
@@ -1378,8 +1434,26 @@
           },
           "mainSteps": [
             {
+              "name": "choice",
+              "action": "aws:branch",
+              "inputs": {
+                "Choices": [
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Create",
+                    "NextStep": "create"
+                  },
+                  {
+                    "Variable": "{{Event}}",
+                    "StringEquals": "Delete",
+                    "NextStep": "delete"
+                  }
+                ]
+              }
+            },
+            {
               "action": "aws:createStack",
-              "name": "start",
+              "name": "create",
               "nextStep": "describeStack",
               "inputs": {
                 "StackName": "{{StackName}}-bucket",
@@ -1442,6 +1516,7 @@
             {
               "action": "aws:createStack",
               "name": "startSageBuild",
+              "isEnd": true,
               "inputs": {
                 "StackName": "{{StackName}}-SageBuild",
                 "TemplateURL": "https://s3.amazonaws.com/aws-machine-learning-blog/artifacts/sagebuild/v1/template.json",
@@ -1467,465 +1542,10 @@
                   }
                 ]
               }
-            }
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "OnCreate",
-            "Value": "true"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
-          },
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "StackName"
-            }
-          },
-          {
-            "Key": "DisplayName",
-            "Value": "CreateSageBuild"
-          }
-        ],
-        "DocumentType": "Automation"
-      }
-    },
-    "DeleteBucketAutomationDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "0.3",
-          "description": "Deletes S3 bucket.",
-          "assumeRole": {
-            "Fn::GetAtt": [
-              "SSMAutomationRole",
-              "Arn"
-            ]
-          },
-          "parameters": {
-            "VolumeSize": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
             },
-            "CodeRepository": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "AcceleratorType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "State": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "ParentStack": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SSMLogGroup": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LogsBucket": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "EFS": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "InstanceType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "RoleArn": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "KmsKeyId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SecurityGroupId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SubnetId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "DirectInternetAccess": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "IdleShutdown": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "GlueDevEndpoint": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "VPC": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "StackName": {
-              "type": "String"
-            },
-            "InstanceId": {
-              "type": "String"
-            },
-            "SSMRoleArn": {
-              "type": "String"
-            }
-          },
-          "mainSteps": [
             {
               "action": "aws:deleteStack",
-              "name": "start",
-              "inputs": {
-                "StackName": "{{StackName}}-bucket"
-              }
-            }
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "OnCreate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "true"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
-          },
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "StackName"
-            }
-          },
-          {
-            "Key": "DisplayName",
-            "Value": "DeleteBucket"
-          }
-        ],
-        "DocumentType": "Automation"
-      }
-    },
-    "DeleteGlueAutomationDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "0.3",
-          "description": "Deletes Glue Development endpoint",
-          "assumeRole": {
-            "Fn::GetAtt": [
-              "SSMAutomationRole",
-              "Arn"
-            ]
-          },
-          "parameters": {
-            "VolumeSize": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "CodeRepository": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "AcceleratorType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "State": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "ParentStack": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SSMLogGroup": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LogsBucket": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "EFS": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "InstanceType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "RoleArn": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "KmsKeyId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SecurityGroupId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SubnetId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "DirectInternetAccess": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "IdleShutdown": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "GlueDevEndpoint": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "VPC": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "StackName": {
-              "type": "String"
-            },
-            "InstanceId": {
-              "type": "String"
-            },
-            "SSMRoleArn": {
-              "type": "String"
-            }
-          },
-          "mainSteps": [
-            {
-              "action": "aws:deleteStack",
-              "name": "start",
-              "inputs": {
-                "StackName": "{{StackName}}-glue-endpoint"
-              }
-            }
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "OnCreate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "true"
-          },
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "StackName"
-            }
-          },
-          {
-            "Key": "DisplayName",
-            "Value": "DeleteGlue"
-          }
-        ],
-        "DocumentType": "Automation"
-      }
-    },
-    "DeleteSageBuildAutomationDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "0.3",
-          "description": "Deletes S3 bucket.",
-          "assumeRole": {
-            "Fn::GetAtt": [
-              "SSMAutomationRole",
-              "Arn"
-            ]
-          },
-          "parameters": {
-            "VolumeSize": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "CodeRepository": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "AcceleratorType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "State": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "ParentStack": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SSMLogGroup": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LogsBucket": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "EFS": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "InstanceType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "RoleArn": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "KmsKeyId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SecurityGroupId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SubnetId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "DirectInternetAccess": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "IdleShutdown": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "GlueDevEndpoint": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "VPC": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "StackName": {
-              "type": "String"
-            },
-            "InstanceId": {
-              "type": "String"
-            },
-            "SSMRoleArn": {
-              "type": "String"
-            }
-          },
-          "mainSteps": [
-            {
-              "action": "aws:deleteStack",
-              "name": "deleteBucket",
+              "name": "delete",
               "nextStep": "deleteSageBuild",
               "inputs": {
                 "StackName": "{{StackName}}-bucket"
@@ -1934,6 +1554,7 @@
             {
               "action": "aws:deleteStack",
               "name": "deleteSageBuild",
+              "isEnd": true,
               "inputs": {
                 "StackName": "{{StackName}}-SageBuild"
               }
@@ -1942,20 +1563,8 @@
         },
         "Tags": [
           {
-            "Key": "OnCreate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnTerminate",
+            "Key": "OnCreateDelete",
             "Value": "true"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
           },
           {
             "Key": "StackName",
@@ -1965,7 +1574,7 @@
           },
           {
             "Key": "DisplayName",
-            "Value": "DeleteSageBuild"
+            "Value": "SageBuild"
           }
         ],
         "DocumentType": "Automation"

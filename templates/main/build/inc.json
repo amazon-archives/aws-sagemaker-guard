@@ -1,7 +1,10 @@
 {
   "default": {
     "dev": {
-      "us-east-1": 25
+      "us-east-1": 26
+    },
+    "v2": {
+      "us-east-1": 1
     }
   }
 }
