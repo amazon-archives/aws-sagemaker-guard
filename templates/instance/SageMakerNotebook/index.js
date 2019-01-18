@@ -51,7 +51,11 @@ module.exports=Object.assign({
                 "IfDisableDirectInternet",
                 {"Ref":"DirectInternetAccess"},
                 {"Ref":"AWS::NoValue"}
-            ]}
+            ]},
+            Tags:[{
+                Key:"Project",
+                Value:"aws-sagemaker-guard"
+            }]
         }
     },
     "SageMakerNotebookLifecycle":{
