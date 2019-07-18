@@ -96,7 +96,7 @@ function lambda(name){
             })
         },
         "Role": {"Fn::GetAtt": ["CFNLambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60
       }
     }

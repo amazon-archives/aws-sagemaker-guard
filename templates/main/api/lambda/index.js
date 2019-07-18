@@ -3,6 +3,7 @@ var UglifyJS = require("uglify-es");
 var chalk=require('chalk')
 var recursive = require('recursive-readdir-synchronous');
 var _=require('lodash')
+
 var len=__dirname.split('/').length
 var lambdas=recursive(__dirname,['index.js'])
     .map(x=>{
@@ -112,7 +113,7 @@ function lambda(name){
         "Handler": "index.handler",
         "MemorySize": "1024",
         "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         Layers:[{"Ref":"UtilLambdaLayer"}],
         "Environment":{
             "Variables":Object.assign({

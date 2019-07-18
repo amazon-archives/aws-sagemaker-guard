@@ -39,7 +39,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60
       }
     },
@@ -57,7 +57,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60
       }
     },
@@ -75,7 +75,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60
       }
     },
@@ -93,7 +93,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60
       }
     },
@@ -320,6 +320,11 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "EnableRoot": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "Event": {
               "type": "String"
             },
@@ -445,159 +450,6 @@
           {
             "Key": "DisplayName",
             "Value": "InstallSSHKey"
-          }
-        ],
-        "DocumentType": "Command"
-      }
-    },
-    "RemoveRootCommandDocument": {
-      "Type": "AWS::SSM::Document",
-      "Properties": {
-        "Content": {
-          "schemaVersion": "2.2",
-          "description": "Removes sudo permissions from ec2-user on SageMaker notebook instances",
-          "parameters": {
-            "VolumeSize": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "CodeRepository": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "AcceleratorType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "State": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LambdaUtilLayer": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "ParentStack": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SSMLogGroup": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "LogsBucket": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "EFS": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "InstanceType": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "RoleArn": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "KmsKeyId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SecurityGroupId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "SubnetId": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "DirectInternetAccess": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "IdleShutdown": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "GlueDevEndpoint": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "VPC": {
-              "type": "String",
-              "description": "Example",
-              "default": "Hello World"
-            },
-            "Event": {
-              "type": "String"
-            },
-            "StackName": {
-              "type": "String"
-            },
-            "InstanceId": {
-              "type": "String"
-            },
-            "SSMRoleArn": {
-              "type": "String"
-            }
-          },
-          "mainSteps": [
-            {
-              "action": "aws:runShellScript",
-              "name": "example",
-              "inputs": {
-                "runCommand": [
-                  "rm /etc/sudoers.d/cloud-init"
-                ]
-              }
-            }
-          ]
-        },
-        "Tags": [
-          {
-            "Key": "OnCreate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnTerminate",
-            "Value": "false"
-          },
-          {
-            "Key": "OnStart",
-            "Value": "true"
-          },
-          {
-            "Key": "OnStop",
-            "Value": "false"
-          },
-          {
-            "Key": "StackName",
-            "Value": {
-              "Ref": "StackName"
-            }
-          },
-          {
-            "Key": "DisplayName",
-            "Value": "RemoveRoot"
           }
         ],
         "DocumentType": "Command"
@@ -792,6 +644,11 @@
               "default": "Hello World"
             },
             "VPC": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EnableRoot": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"
@@ -1005,6 +862,11 @@
               "description": "Example",
               "default": "Hello World"
             },
+            "EnableRoot": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
             "Event": {
               "type": "String"
             },
@@ -1190,6 +1052,11 @@
               "default": "Hello World"
             },
             "VPC": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EnableRoot": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"
@@ -1415,6 +1282,11 @@
               "default": "Hello World"
             },
             "VPC": {
+              "type": "String",
+              "description": "Example",
+              "default": "Hello World"
+            },
+            "EnableRoot": {
               "type": "String",
               "description": "Example",
               "default": "Hello World"

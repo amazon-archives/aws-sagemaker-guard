@@ -6,7 +6,7 @@ var _=require('lodash')
 var lambda=new aws.Lambda()
 var sagemaker=new aws.SageMaker()
 
-exports.handler=CfnLambda({
+var handler=CfnLambda({
     Create:(params,reply)=>{
         startNotebook(params)
         .then(x=>reply(null,params.notebook,params))
@@ -87,5 +87,13 @@ function stopNotebook(params){
                 NotebookInstanceName:params.notebook
             }).promise()
         } 
+    })
+}
+
+exports.handler=async function(event,context,callback){
+    var old=context.done
+    return new Promise((res,rej)=>{ 
+        context.done=res
+        handler(event,context,callback)
     })
 }

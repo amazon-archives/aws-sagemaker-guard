@@ -49,9 +49,11 @@
               )
           v-container.pa-0
             v-layout(column)
-              v-expansion-panel
-                attachment(v-for="attachment in children" :data="attachment" :key="attachment.href")
-                attachment(v-for="attachment in parents" :data="attachment" :key="attachment.href")
+              v-divider
+              attachment(v-for="attachment in children" :data="attachment" :key="attachment.href")
+              v-divider
+              attachment(v-for="attachment in parents" :data="attachment" :key="attachment.href")
+              v-divider
     v-card.ml-4.mr-4(v-if="loading")
       v-progress-linear(indeterminate)
 </template>

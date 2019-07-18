@@ -100,7 +100,7 @@ function lambda(name,handler){
             "instances":"3008"
         },name,"896"),
         "Role": {"Fn::GetAtt": ["APILambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         Layers:[{"Ref":"UtilLambdaLayer"}],
         "Environment":{
             "Variables":{

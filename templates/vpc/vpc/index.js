@@ -94,7 +94,7 @@ module.exports=Object.assign({
           }
         ]}
 	},
-    "FlowLog":{
+    /*"FlowLog":{
         "Type" : "AWS::EC2::FlowLog",
         "Properties" : {
             "LogDestination":{"Fn::Sub":"${LogsBucketArn}/vpc"},
@@ -103,7 +103,7 @@ module.exports=Object.assign({
             "ResourceType" : "VPC",
             "TrafficType" : "ALL"
         }
-    }
+    }*/
 })
 
 function endpoint(name){

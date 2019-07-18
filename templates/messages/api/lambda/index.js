@@ -54,7 +54,7 @@ function lambda(name){
         "Handler": "index.handler",
         "MemorySize": "1024",
         "Role": {"Ref":"APILambdaRoleArn"},
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         Layers:[{"Ref":"UtilLambdaLayer"}],
         "Environment":{
             "Variables":{

@@ -40,7 +40,7 @@ function schema(event,input){
                             "description":"The unique identifier for this instance",
                             "type":"string",
                             "immutable":true,
-                            "default":`${event.requestContext.requestId}`
+                            "default":`${event.requestContext.requestId.slice(0,8)}`
                         },
                         "DisplayName":{
                             "title":"Instance DisplayName",
@@ -144,6 +144,13 @@ function schema(event,input){
                                 "text":"1 hr"
                             }],
                             "default":"30"
+                        },
+                        EnableRoot:{
+                            "title":"Enable Root Access",
+                            "description":"Allow notebook users to run commands as root",
+                            "type":"string",
+                            "enum":["True","False"],
+                            "default":"False"
                         }
                     },
                     "required":["ID","InstanceType","RoleArn"]

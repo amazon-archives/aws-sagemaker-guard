@@ -426,7 +426,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -519,7 +519,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -612,7 +612,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -705,7 +705,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -798,7 +798,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -891,7 +891,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -984,7 +984,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1077,7 +1077,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1170,7 +1170,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1263,7 +1263,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1356,7 +1356,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1449,7 +1449,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1542,7 +1542,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1635,7 +1635,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1728,7 +1728,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1821,7 +1821,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -1914,7 +1914,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2007,7 +2007,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2100,7 +2100,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2193,7 +2193,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2286,7 +2286,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2379,7 +2379,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2472,7 +2472,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2565,7 +2565,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2658,7 +2658,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2751,7 +2751,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2844,7 +2844,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -2937,7 +2937,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -3097,7 +3097,7 @@
         "Key": {
           "Fn::Sub": "${AssetPrefix}/lambda/util.zip"
         },
-        "BuildDate": "2019-01-14T01:00:09.487Z"
+        "BuildDate": "2019-07-18T20:03:58.249Z"
       }
     },
     "UtilLambdaLayer": {
@@ -4464,7 +4464,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -4658,7 +4658,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -4739,7 +4739,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -5034,7 +5034,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -5228,7 +5228,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -5309,7 +5309,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -5577,7 +5577,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var list_apis=require(\"list_apis\");function schema(e,t){return{collection:{version:\"1.0\",href:`${`https://${e.requestContext.apiId}.execute-api.${e.requestContext.Region}.amazonaws.com/${e.requestContext.stage}`}/api/template/instances`,template:{data:{schema:{type:\"object\",properties:{ID:{title:\"Instance ID\",description:\"The unique identifier for this instance\",type:\"string\",immutable:!0,default:`${e.requestContext.requestId}`},DisplayName:{title:\"Instance DisplayName\",description:\"A friendly name for this instance\",type:\"string\"},Description:{title:\"Instance Description\",description:\"A brief description of how this instance will be used\",type:\"string\",maxLength:500},CodeRepository:{description:\"A git repository to associate with the notebook instance as its default code repository. When you open a notebook instance, it opens in the directory that contains this repository.\",href:\"https://docs.aws.amazon.com/sagemaker/latest/dg/nbi-git-repo.html\",type:\"string\",title:\"Git Code Repository\",enum:t.repos},AcceleratorType:{title:\"Elastic Inference Accelerator\",type:\"string\",description:\"An Elastic Inference (EI) instance types to associate with this notebook instance\",href:\"https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html\",enum:t.eia},InstanceType:{title:\"Instance Compute Type\",description:\"The EC2 instance type for this notebook\",type:\"string\",enum:t.instances,default:\"ml.t3.medium\"},RoleArn:{title:\"Instance IAM RoleArn\",description:\"Choose the IAM role that will give users on the notebook instance to call AWS APIs\",type:\"string\",enum:t.roles.concat([{text:\"Create Role\",value:\"CREATE\",description:\"Create a new role for this instance with the default sagemaker policy applied\"}]),default:\"CREATE\"},KmsKeyId:{title:\"KMS key Id\",description:\"A AWS KMS key to use for encrypting the data volumnes of the instance. The Key's policy must enable IAM management. See details for more information\",type:\"string\",href:\"https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam\",immutable:!0,enum:t.keys},DirectInternetAccess:{title:\"Enable/Disable Direct Internet Access\",type:\"string\",immutable:!0,enum:[\"Disabled\",\"Enabled\"],default:\"Enabled\"},GlueDevEndpoint:{title:\"Glue development endpoints\",type:\"string\",enum:t.glue},VolumeSize:{title:\"EBS Volume size\",description:\"The size of the EBS volume attached to your instance\",type:\"string\",default:\"5\",enum:t.volume},OnCreateDeleteDocument:{title:\"SSM OnCreateDelete Document\",immutable:!0,description:\"An SSM document to run on instance creation and termination.\",type:\"string\",enum:list_apis.doc(t,\"OnCreateDelete\")},OnStartStopDocument:{title:\"SSM OnStartStop Document\",description:\"An SSM document to run on each instance start up and stop.\",type:\"string\",enum:list_apis.doc(t,\"OnStartStop\")},IdleShutdown:{title:\"Idle Shutdown Wait Period in minutes\",description:\"The number of minutes of inactivity before the instance is shutdown to save cost\",type:\"string\",enum:[{value:\"DISABLE\",text:\"disable\",description:\"leave instances running until they are manually show down\"},{value:\"30\",text:\"30 minutes\"},{value:\"45\",text:\"45 minutes\"},{value:\"60\",text:\"1 hr\"}],default:\"30\"}},required:[\"ID\",\"InstanceType\",\"RoleArn\"]}}}}}}exports.handler=function(e,t,n){console.log(JSON.stringify(e,null,2)),list_apis.run().then(t=>schema(e,t)).then(e=>{n(null,{statusCode:200,body:JSON.stringify(e)})}).catch(e=>{console.log(e),n(JSON.stringify({type:404===e.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:e.statusCode,message:e.message,data:e}))})};"
+          "ZipFile": "var aws=require(\"aws-sdk\"),_=require(\"lodash\");aws.config.region=process.env.AWS_REGION;var list_apis=require(\"list_apis\");function schema(e,t){return{collection:{version:\"1.0\",href:`${`https://${e.requestContext.apiId}.execute-api.${e.requestContext.Region}.amazonaws.com/${e.requestContext.stage}`}/api/template/instances`,template:{data:{schema:{type:\"object\",properties:{ID:{title:\"Instance ID\",description:\"The unique identifier for this instance\",type:\"string\",immutable:!0,default:`${e.requestContext.requestId.slice(0,8)}`},DisplayName:{title:\"Instance DisplayName\",description:\"A friendly name for this instance\",type:\"string\"},Description:{title:\"Instance Description\",description:\"A brief description of how this instance will be used\",type:\"string\",maxLength:500},CodeRepository:{description:\"A git repository to associate with the notebook instance as its default code repository. When you open a notebook instance, it opens in the directory that contains this repository.\",href:\"https://docs.aws.amazon.com/sagemaker/latest/dg/nbi-git-repo.html\",type:\"string\",title:\"Git Code Repository\",enum:t.repos},AcceleratorType:{title:\"Elastic Inference Accelerator\",type:\"string\",description:\"An Elastic Inference (EI) instance types to associate with this notebook instance\",href:\"https://docs.aws.amazon.com/sagemaker/latest/dg/ei.html\",enum:t.eia},InstanceType:{title:\"Instance Compute Type\",description:\"The EC2 instance type for this notebook\",type:\"string\",enum:t.instances,default:\"ml.t3.medium\"},RoleArn:{title:\"Instance IAM RoleArn\",description:\"Choose the IAM role that will give users on the notebook instance to call AWS APIs\",type:\"string\",enum:t.roles.concat([{text:\"Create Role\",value:\"CREATE\",description:\"Create a new role for this instance with the default sagemaker policy applied\"}]),default:\"CREATE\"},KmsKeyId:{title:\"KMS key Id\",description:\"A AWS KMS key to use for encrypting the data volumnes of the instance. The Key's policy must enable IAM management. See details for more information\",type:\"string\",href:\"https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam\",immutable:!0,enum:t.keys},DirectInternetAccess:{title:\"Enable/Disable Direct Internet Access\",type:\"string\",immutable:!0,enum:[\"Disabled\",\"Enabled\"],default:\"Enabled\"},GlueDevEndpoint:{title:\"Glue development endpoints\",type:\"string\",enum:t.glue},VolumeSize:{title:\"EBS Volume size\",description:\"The size of the EBS volume attached to your instance\",type:\"string\",default:\"5\",enum:t.volume},OnCreateDeleteDocument:{title:\"SSM OnCreateDelete Document\",immutable:!0,description:\"An SSM document to run on instance creation and termination.\",type:\"string\",enum:list_apis.doc(t,\"OnCreateDelete\")},OnStartStopDocument:{title:\"SSM OnStartStop Document\",description:\"An SSM document to run on each instance start up and stop.\",type:\"string\",enum:list_apis.doc(t,\"OnStartStop\")},IdleShutdown:{title:\"Idle Shutdown Wait Period in minutes\",description:\"The number of minutes of inactivity before the instance is shutdown to save cost\",type:\"string\",enum:[{value:\"DISABLE\",text:\"disable\",description:\"leave instances running until they are manually show down\"},{value:\"30\",text:\"30 minutes\"},{value:\"45\",text:\"45 minutes\"},{value:\"60\",text:\"1 hr\"}],default:\"30\"},EnableRoot:{title:\"Enable Root Access\",description:\"Allow notebook users to run commands as root\",type:\"string\",enum:[\"True\",\"False\"],default:\"False\"}},required:[\"ID\",\"InstanceType\",\"RoleArn\"]}}}}}}exports.handler=function(e,t,n){console.log(JSON.stringify(e,null,2)),list_apis.run().then(t=>schema(e,t)).then(e=>{n(null,{statusCode:200,body:JSON.stringify(e)})}).catch(e=>{console.log(e),n(JSON.stringify({type:404===e.statusCode?\"[NotFoud]\":\"[InternalServiceError]\",status:e.statusCode,message:e.message,data:e}))})};"
         },
         "Handler": "index.handler",
         "MemorySize": "3008",
@@ -5587,7 +5587,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -5781,7 +5781,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "UtilLambdaLayer"
@@ -6271,7 +6271,7 @@
             {
               "ResponseTemplates": {
                 "text/html": {
-                  "Fn::Sub": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width,height=device-height, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Nunito:400,600,700,800,900\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/icon?family=Material+Icons\">\n    <link href=\"https://unpkg.com/vuetify/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <link rel=\"API\" href=\"${URLs.API}\">\n    <link rel=\"webAPI\" href=\"${URLs.UserAPI}\">\n    <meta name=\"View\" content=\"$input.params('view')\">\n    <meta name=\"PoolId\" content=\"${IdPool}\">\n    <meta name=\"Endpoint\" content=\"${URLs.CognitoEndpoint}\">\n    <meta name=\"UserPool\" content=\"${QNA.Outputs.UserPool}\">\n    <meta name=\"Region\" content=\"${AWS::Region}\">\n    #if( $input.params('view') == 'admin' )\n        <meta name=\"ClientId\" content=\"${AdminClient}\">\n        <link rel=\"Login\" href=\"${LoginURLS.AdminLogin}\">\n        <link rel=\"Logout\" href=\"${LoginURLS.AdminLogout}\">\n        <title>SageGuard Administration</title>\n    #else\n        <meta name=\"ClientId\" content=\"${UserClient}\">\n        <link rel=\"Login\" href=\"${LoginURLS.UserLogin}\">\n        <link rel=\"Logout\" href=\"${LoginURLS.UserLogout}\">\n        <title>SageGuard User</title>\n    #end\n  </head>\n  <body>\n    <div id=\"App\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue/dist/vue.js\"></script>\n    <script src=\"https://unpkg.com/vuex\"></script>\n    <script src=\"https://unpkg.com/vue-router/dist/vue-router.js\"></script>\n    <script src=\"https://unpkg.com/vuetify/dist/vuetify.js\"></script>\n    <script src=\"https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js\"></script>\n    <script src=\"website/assets/vendor.js\"></script>\n    <script src=\"website/assets/app.js\"></script>\n    #if( $input.params('view') == 'admin' )\n        <script src=\"${LexWebUi.Outputs.LoaderScriptUrl}\"></script>\n        <script>\n          var chatbotUiConfig = {\n            ui: {\n                toolbarTitle: 'SageGuard Helper',\n                showDialogStateIcon: false,\n                AllowSuperDangerousHTMLInMessage: true,\n                toolbarColor: \"grey lighten-4 black--text\"\n            },\n            recorder:{\n                enable:false\n            }\n          };\n          var loaderOpts = {\n            baseUrl:\"${LexWebUi.Outputs.LoaderScriptUrl}\".split('/').slice(0,3).join('/'),\n          };\n          var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);\n          window.lex=loader.load(chatbotUiConfig).then(x=>loader)\n          lex.then(x=>x.api.ping())\n        </script>\n    #end\n  </body>\n</html>\n"
+                  "Fn::Sub": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width,height=device-height, initial-scale=1.0\">\n    <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Nunito:400,600,700,800,900\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/icon?family=Material+Icons\">\n    <link href=\"https://unpkg.com/vuetify@1.5.16/dist/vuetify.min.css\" rel=\"stylesheet\">\n    <link rel=\"API\" href=\"${URLs.API}\">\n    <link rel=\"webAPI\" href=\"${URLs.UserAPI}\">\n    <meta name=\"View\" content=\"$input.params('view')\">\n    <meta name=\"PoolId\" content=\"${IdPool}\">\n    <meta name=\"Endpoint\" content=\"${URLs.CognitoEndpoint}\">\n    <meta name=\"UserPool\" content=\"${QNA.Outputs.UserPool}\">\n    <meta name=\"Region\" content=\"${AWS::Region}\">\n    #if( $input.params('view') == 'admin' )\n        <meta name=\"ClientId\" content=\"${AdminClient}\">\n        <link rel=\"Login\" href=\"${LoginURLS.AdminLogin}\">\n        <link rel=\"Logout\" href=\"${LoginURLS.AdminLogout}\">\n        <title>SageGuard Administration</title>\n    #else\n        <meta name=\"ClientId\" content=\"${UserClient}\">\n        <link rel=\"Login\" href=\"${LoginURLS.UserLogin}\">\n        <link rel=\"Logout\" href=\"${LoginURLS.UserLogout}\">\n        <title>SageGuard User</title>\n    #end\n  </head>\n  <body>\n    <div id=\"App\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue/dist/vue.js\"></script>\n    <script src=\"https://unpkg.com/vuex\"></script>\n    <script src=\"https://unpkg.com/vue-router/dist/vue-router.js\"></script>\n    <script src=\"https://unpkg.com/vuetify@1.5.16/dist/vuetify.js\"></script>\n    <script src=\"https://sdk.amazonaws.com/js/aws-sdk-2.211.0.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/bluebird/latest/bluebird.min.js\"></script>\n    <script src=\"website/assets/vendor.js\"></script>\n    <script src=\"website/assets/app.js\"></script>\n    #if( $input.params('view') == 'admin' )\n        <script src=\"${LexWebUi.Outputs.LoaderScriptUrl}\"></script>\n        <script>\n          var chatbotUiConfig = {\n            ui: {\n                toolbarTitle: 'SageGuard Helper',\n                showDialogStateIcon: false,\n                AllowSuperDangerousHTMLInMessage: true,\n                toolbarColor: \"grey lighten-4 black--text\"\n            },\n            recorder:{\n                enable:false\n            }\n          };\n          var loaderOpts = {\n            baseUrl:\"${LexWebUi.Outputs.LoaderScriptUrl}\".split('/').slice(0,3).join('/'),\n          };\n          var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);\n          window.lex=loader.load(chatbotUiConfig).then(x=>loader)\n          lex.then(x=>x.api.ping())\n        </script>\n    #end\n  </body>\n</html>\n"
                 }
               },
               "ResponseParameters": {
@@ -6882,7 +6882,7 @@
         "restApiId": {
           "Ref": "API"
         },
-        "buildDate": "2019-01-14T01:00:09.489Z",
+        "buildDate": "2019-07-18T20:03:58.251Z",
         "stage": {
           "Fn::GetAtt": [
             "Constants",
@@ -7197,7 +7197,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7226,7 +7226,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7255,7 +7255,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7284,7 +7284,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7313,7 +7313,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7342,7 +7342,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7371,7 +7371,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7400,7 +7400,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7419,7 +7419,7 @@
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
-          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar cognito=new aws.CognitoIdentityServiceProvider()\nvar crypto=require('crypto')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    if(event.RequestType!==\"Delete\"){\n        var url=params.CallbackUrl\n        \n        return cognito.updateUserPoolClient({\n            ClientId:params.ClientId,\n            UserPoolId:params.UserPool,\n            CallbackURLs:params.LoginCallbackUrls,\n            LogoutURLs:[],\n            RefreshTokenValidity:1,\n            SupportedIdentityProviders:['COGNITO'],\n            AllowedOAuthFlows:params.OAuthFlows,\n            AllowedOAuthScopes:['phone', 'email', 'openid', 'profile'],\n            AllowedOAuthFlowsUserPoolClient:true\n        }).promise()\n        .then(()=>response.send(event, context, response.SUCCESS,{url}))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\n\n\n\n"
+          "ZipFile": "var aws=require('aws-sdk')\nvar response = require('cfn-response')\naws.config.region=process.env.AWS_REGION\nvar cognito=new aws.CognitoIdentityServiceProvider()\nvar crypto=require('crypto')\n\nexports.handler=function(event,context,callback){\n    console.log(JSON.stringify(event,null,2))\n    var params=event.ResourceProperties\n    if(event.RequestType!==\"Delete\"){\n        var url=params.CallbackUrl\n        \n        cognito.updateUserPoolClient({\n            ClientId:params.ClientId,\n            UserPoolId:params.UserPool,\n            CallbackURLs:params.LoginCallbackUrls,\n            LogoutURLs:[],\n            RefreshTokenValidity:1,\n            SupportedIdentityProviders:['COGNITO'],\n            AllowedOAuthFlows:params.OAuthFlows,\n            AllowedOAuthScopes:['phone', 'email', 'openid', 'profile'],\n            AllowedOAuthFlowsUserPoolClient:true\n        }).promise()\n        .then(()=>response.send(event, context, response.SUCCESS,{url}))\n        .catch(error=>{\n            console.log(error)\n            response.send(event, context, response.FAILED)\n        })\n    }else{\n        response.send(event, context, response.SUCCESS)\n    }\n}\n\n\n\n\n"
         },
         "Handler": "index.handler",
         "MemorySize": "128",
@@ -7429,7 +7429,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7458,7 +7458,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7487,7 +7487,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7516,7 +7516,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7545,7 +7545,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7574,7 +7574,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7603,7 +7603,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7632,7 +7632,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7661,7 +7661,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7690,7 +7690,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7719,7 +7719,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7743,7 +7743,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -7772,7 +7772,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -8718,7 +8718,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 300,
         "Tags": [
           {
@@ -8809,7 +8809,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 300,
         "Tags": [
           {
@@ -9380,7 +9380,7 @@
         "CSS": {
           "Fn::Sub": "${AssetPrefix}/assets/custom.css"
         },
-        "Date": "2019-01-14T01:00:09.912Z"
+        "Date": "2019-07-18T20:03:58.522Z"
       }
     },
     "DefaultNotebookRole": {
@@ -9506,7 +9506,7 @@
           ]
         },
         "ApiStageName": "v1",
-        "BuildDate": "2019-01-14T01:00:09.914Z",
+        "BuildDate": "2019-07-18T20:03:58.524Z",
         "Version": "1.0.0"
       }
     },
@@ -9678,7 +9678,7 @@
         "DstBucket": {
           "Ref": "WebsiteBucket"
         },
-        "buildDate": "2019-01-14T01:00:09.916Z"
+        "buildDate": "2019-07-18T20:03:58.525Z"
       },
       "DependsOn": "WebsiteClear"
     },

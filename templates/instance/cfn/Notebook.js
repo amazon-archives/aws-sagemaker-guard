@@ -8,7 +8,7 @@ var lambda=new aws.Lambda()
 var sagemaker=new aws.SageMaker()
 var updateable=["AcceleratorTypes","InstanceType","RoleArn","VolumeSizeInGB","AdditionalCodeRepositories","DefaultCodeRepository"]
 
-exports.handler=CfnLambda({
+var handler=CfnLambda({
     Create:(params,reply)=>{
         params.VolumeSizeInGB=parseInt(params.VolumeSizeInGB)
         
@@ -128,3 +128,10 @@ exports.handler=CfnLambda({
         }
     }
 })
+exports.handler=async function(event,context,callback){
+    var old=context.done
+    return new Promise((res,rej)=>{ 
+        context.done=res
+        handler(event,context,callback)
+    })
+}

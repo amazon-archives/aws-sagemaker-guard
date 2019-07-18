@@ -71,6 +71,11 @@ module.exports={
     },
     "VPC":{
         "Type":"String"
+    },
+    "EnableRoot":{
+        "Type":"String",
+        "AllowedValues":["True","False"],
+        "Default":"False"
     }
 }
 

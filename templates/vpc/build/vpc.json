@@ -458,20 +458,6 @@
           }
         ]
       }
-    },
-    "FlowLog": {
-      "Type": "AWS::EC2::FlowLog",
-      "Properties": {
-        "LogDestination": {
-          "Fn::Sub": "${LogsBucketArn}/vpc"
-        },
-        "LogDestinationType": "s3",
-        "ResourceId": {
-          "Ref": "VPC"
-        },
-        "ResourceType": "VPC",
-        "TrafficType": "ALL"
-      }
     }
   }
 }

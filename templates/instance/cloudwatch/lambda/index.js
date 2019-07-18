@@ -81,7 +81,7 @@ function lambda(name){
         "MemorySize": "1024",
         Layers:[{"Ref":"LambdaUtilLayer"}],
         "Role": {"Fn::GetAtt": ["CloudWatchLambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Environment":{
             "Variables":{
                 "INSTANCE":{"Fn::GetAtt":["SageMakerNotebookInstance","NotebookInstanceName"]},

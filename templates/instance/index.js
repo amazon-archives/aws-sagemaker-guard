@@ -53,6 +53,9 @@ module.exports={
         ],[
             "IfDisableDirectInternet",
             {"Fn::Not":[{"Fn::Equals":[{"Ref":"DirectInternetAccess"},"Enabled"]}]}
+        ],[
+            "IfDisableRootAccess",
+            {"Fn::Equals":[{"Ref":"EnableRoot"},"True"]}
         ]])
   ),
   "Outputs":Object.assign({

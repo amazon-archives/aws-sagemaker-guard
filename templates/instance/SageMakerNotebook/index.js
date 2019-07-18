@@ -52,6 +52,11 @@ module.exports=Object.assign({
                 {"Ref":"DirectInternetAccess"},
                 {"Ref":"AWS::NoValue"}
             ]},
+            RootAccess:{"Fn::If":[
+                "IfDisableRootAccess",
+                "Disabled",
+                "Enabled"
+            ]},
             Tags:[{
                 Key:"Project",
                 Value:"aws-sagemaker-guard"

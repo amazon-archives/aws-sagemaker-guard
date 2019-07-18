@@ -1,6 +1,6 @@
 <template lang='pug'>
-  v-expansion-panel-content
-    div(slot="header")
+  div 
+    div 
       h3 {{data.title}}
     div(v-if="loading")
       v-progress-linear(indeterminate)

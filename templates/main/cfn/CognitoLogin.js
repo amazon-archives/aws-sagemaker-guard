@@ -10,7 +10,7 @@ exports.handler=function(event,context,callback){
     if(event.RequestType!=="Delete"){
         var url=params.CallbackUrl
         
-        return cognito.updateUserPoolClient({
+        cognito.updateUserPoolClient({
             ClientId:params.ClientId,
             UserPoolId:params.UserPool,
             CallbackURLs:params.LoginCallbackUrls,

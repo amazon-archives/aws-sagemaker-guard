@@ -77,7 +77,7 @@ function lambda(name,type){
         "Handler": "index.handler",
         "MemorySize": "1024",
         "Role": {"Fn::GetAtt": ["StepLambdaRole","Arn"]},
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         Layers:[{"Ref":"LambdaUtilLayer"}],
         "Environment":{
             "Variables":Object.assign(_.fromPairs(

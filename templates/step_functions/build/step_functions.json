@@ -92,7 +92,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -116,7 +116,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Timeout": 60,
         "Tags": [
           {
@@ -179,7 +179,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -257,7 +257,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -335,7 +335,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -413,7 +413,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -491,7 +491,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -569,7 +569,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -647,7 +647,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -725,7 +725,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -803,7 +803,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -881,7 +881,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -959,7 +959,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -1037,7 +1037,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -1115,7 +1115,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -1193,7 +1193,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
@@ -1271,7 +1271,7 @@
             "Arn"
           ]
         },
-        "Runtime": "nodejs6.10",
+        "Runtime": "nodejs8.10",
         "Layers": [
           {
             "Ref": "LambdaUtilLayer"
