@@ -99,7 +99,7 @@
     "vuex-cognito-sync": "^1.0.4",
     "vuex-router-sync": "^5.0.0",
     "webpack-archive-plugin": "^3.0.0",
-    "webpack-bundle-analyzer": "^2.9.0",
+    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-merge": "^4.1.2",
     "webpack-s3-plugin": "0.9.2"
   },
